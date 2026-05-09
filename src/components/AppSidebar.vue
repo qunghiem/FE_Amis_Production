@@ -6,7 +6,6 @@
         to="/production/dashboard"
         class="sidebar__item"
         active-class="sidebar__item--active"
-        exact
       >
         <span class="sidebar__icon sidebar__icon--overview"></span>
         <span class="sidebar__label">Tổng quan</span>
@@ -502,10 +501,10 @@ const showFlyout = ref(false)
 
 // Highlight "Danh mục khác" khi đang ở trong flyout routes
 const otherRoutes = [
-  '/danh-muc/',
+  '/production/',
   '/production/dictionary/shift',
-  '/danh-muc/ngay-nghi',
-  '/danh-muc/lich-lam-viec',
+  '/production/dayoff',
+  '/production/workday',
 ]
 const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.startsWith(prefix)))
 </script>
