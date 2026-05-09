@@ -2,7 +2,8 @@
   <aside class="sidebar" :class="{ 'sidebar--collapsed': collapsed }">
     <nav class="sidebar__nav">
       <template v-for="(item, index) in MENU_CONFIG" :key="index">
-        <!-- Divider -->
+
+        <!-- thanh ngang -->
         <div v-if="item.type === 'divider'" class="sidebar__divider" />
 
         <!-- Flyout (Danh mục khác) -->
@@ -476,14 +477,13 @@ const showFlyout = ref(false)
 
 .sidebar__flyout {
   position: fixed;
-  left: var(--sidebar-width, 220px);
-  background-color: #1f2937;
+  left: calc(var(--sidebar-width) + 15px);
+  background-color: var(--sidebar-bg);
   border-radius: 6px;
   box-shadow: 4px 4px 24px rgba(0, 0, 0, 0.5);
-  padding: 16px;
+  padding: 20px 30px;
   z-index: 9999;
   min-width: 420px;
-  margin-top: -9px;
 }
 
 .sidebar--collapsed .sidebar__flyout {
@@ -493,12 +493,14 @@ const showFlyout = ref(false)
 .flyout__columns {
   display: flex;
   gap: 24px;
+  background: var(--sidebar-bg);
 }
 
 .flyout__col {
   display: flex;
   flex-direction: column;
   min-width: 130px;
+  gap: 4px;
 }
 
 .flyout__col-title {
@@ -513,10 +515,10 @@ const showFlyout = ref(false)
 .flyout__item {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 8px 16px;
+  gap: 7px;
+  padding: 8px 4px;
   color: var(--sidebar-text);
-  font-size: 13px;
+  font-size: var(--font-size-base);
   font-weight: 400;
   text-decoration: none;
   transition:
@@ -527,6 +529,8 @@ const showFlyout = ref(false)
   text-overflow: ellipsis;
   opacity: 0.85;
   position: relative;
+      margin-left: -19px;
+      border-radius: 4px;
 }
 
 .flyout__item::before {
@@ -550,13 +554,14 @@ const showFlyout = ref(false)
 }
 
 .flyout__item:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #252C3B;
   color: #fff;
   opacity: 1;
 }
 
 .flyout__item--active {
-  background-color: rgba(0, 155, 113, 0.2);
+    background-color: #4B5563;
+
   color: #fff;
   opacity: 1;
 }
