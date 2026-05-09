@@ -5,8 +5,7 @@
       <router-link
         to="/production/dashboard"
         class="sidebar__item"
-        active-class="sidebar__item--active"
-        exact
+        :class="{ 'sidebar__item--active': isExactActive('/production/dashboard') }"
       >
         <span class="sidebar__icon sidebar__icon--overview"></span>
         <span class="sidebar__label">Tổng quan</span>
@@ -16,7 +15,7 @@
       <router-link
         to="/production/sale-order"
         class="sidebar__item"
-        active-class="sidebar__item--active"
+        :class="{ 'sidebar__item--active': isExactActive('/production/sale-order') }"
       >
         <span class="sidebar__icon sidebar__icon--order"></span>
         <span class="sidebar__label">Đơn đặt hàng</span>
@@ -27,10 +26,9 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.plan,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/plan/manufacturing-order',
-            '/production/plan/schedule',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.plan &&
+            isParentActive(['/production/plan/manufacturing-order', '/production/plan/schedule']),
         }"
         @click="toggleMenu('plan')"
       >
@@ -39,7 +37,11 @@
         <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.plan }"></i>
       </div>
       <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.plan }">
-        <router-link to="/production/plan/manufacturing-order" class="sidebar__subitem" active-class="sidebar__subitem--active">
+        <router-link
+          to="/production/plan/manufacturing-order"
+          class="sidebar__subitem"
+          active-class="sidebar__subitem--active"
+        >
           Kế hoạch tổng thể
         </router-link>
         <router-link
@@ -55,10 +57,9 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.dispatch,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/dispatch/work-order',
-            '/production/dispatch/progress',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.dispatch &&
+            isParentActive(['/production/dispatch/work-order', '/production/dispatch/progress']),
         }"
         @click="toggleMenu('dispatch')"
       >
@@ -87,10 +88,9 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.quality,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/quality/inspection',
-            '/production/quality/defect',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.quality &&
+            isParentActive(['/production/quality/inspection', '/production/quality/defect']),
         }"
         @click="toggleMenu('quality')"
       >
@@ -118,11 +118,13 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.warehouse,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/warehouse/receipt',
-            '/production/warehouse/issue',
-            '/production/warehouse/inventory',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.warehouse &&
+            isParentActive([
+              '/production/warehouse/receipt',
+              '/production/warehouse/issue',
+              '/production/warehouse/inventory',
+            ]),
         }"
         @click="toggleMenu('warehouse')"
       >
@@ -156,10 +158,9 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.task,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/task/assign',
-            '/production/task/tracking',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.task &&
+            isParentActive(['/production/task/assign', '/production/task/tracking']),
         }"
         @click="toggleMenu('task')"
       >
@@ -187,10 +188,9 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.cost,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/cost/estimate',
-            '/production/cost/actual',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.cost &&
+            isParentActive(['/production/cost/estimate', '/production/cost/actual']),
         }"
         @click="toggleMenu('cost')"
       >
@@ -218,10 +218,9 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.outsource,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/outsource/contract',
-            '/production/outsource/tracking',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.outsource &&
+            isParentActive(['/production/outsource/contract', '/production/outsource/tracking']),
         }"
         @click="toggleMenu('outsource')"
       >
@@ -248,7 +247,7 @@
       <router-link
         to="/production/trace"
         class="sidebar__item"
-        active-class="sidebar__item--active"
+        :class="{ 'sidebar__item--active': isExactActive('/production/trace') }"
       >
         <span class="sidebar__icon sidebar__icon--trace"></span>
         <span class="sidebar__label">Truy xuất nguồn gốc</span>
@@ -257,10 +256,11 @@
       <div class="sidebar__divider"></div>
 
       <!-- Báo cáo -->
+      <!-- Báo cáo -->
       <router-link
         to="/production/report"
         class="sidebar__item"
-        active-class="sidebar__item--active"
+        :class="{ 'sidebar__item--active': isExactActive('/production/report') }"
       >
         <span class="sidebar__icon sidebar__icon--report"></span>
         <span class="sidebar__label">Báo cáo</span>
@@ -273,11 +273,13 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.product,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/dictionary/product/list',
-            '/production/dictionary/product/material',
-            '/production/dictionary/product/bom',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.product &&
+            isParentActive([
+              '/production/dictionary/product/list',
+              '/production/dictionary/product/material',
+              '/production/dictionary/product/bom',
+            ]),
         }"
         @click="toggleMenu('product')"
       >
@@ -311,10 +313,12 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.process,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/dictionary/process/routing',
-            '/production/dictionary/process/operation',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.process &&
+            isParentActive([
+              '/production/dictionary/process/routing',
+              '/production/dictionary/process/operation',
+            ]),
         }"
         @click="toggleMenu('process')"
       >
@@ -342,10 +346,12 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.capacity,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/dictionary/capacity/machine',
-            '/production/dictionary/capacity/workcenter',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.capacity &&
+            isParentActive([
+              '/production/dictionary/capacity/machine',
+              '/production/dictionary/capacity/workcenter',
+            ]),
         }"
         @click="toggleMenu('capacity')"
       >
@@ -420,7 +426,6 @@
                   class="flyout__item"
                   active-class="flyout__item--active"
                 >
-                  <span class="flyout__sub-icon"></span>
                   Ca làm việc
                 </router-link>
                 <router-link
@@ -481,10 +486,9 @@
         class="sidebar__item sidebar__item--has-sub"
         :class="{
           'sidebar__item--sub-open': openMenus.settings,
-          'sidebar__item--parent-active': isParentActive([
-            '/production/settings/general',
-            '/production/settings/permission',
-          ]),
+          'sidebar__item--parent-active':
+            openMenus.settings &&
+            isParentActive(['/production/settings/general', '/production/settings/permission']),
         }"
         @click="toggleMenu('settings')"
       >
@@ -520,34 +524,21 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue' // thêm watch
 import { useRoute } from 'vue-router'
 
-// ===== PROPS & EMITS =====
-const props = defineProps({
-  collapsed: {
-    type: Boolean,
-    default: false,
-  },
-})
-
+const props = defineProps({ collapsed: { type: Boolean, default: false } })
 const emit = defineEmits(['update:collapsed'])
-
-// ===== ROUTE =====
 const route = useRoute()
 
-// ===== COLLAPSE (localStorage) =====
 const COLLAPSE_KEY = 'sidebar_collapsed'
-
 function toggleCollapse() {
   const next = !props.collapsed
   localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next))
   emit('update:collapsed', next)
 }
 
-// ===== OPEN MENUS (submenu expand/collapse, localStorage) =====
 const OPEN_MENUS_KEY = 'sidebar_open_menus'
-
 function loadOpenMenus() {
   try {
     const saved = localStorage.getItem(OPEN_MENUS_KEY)
@@ -558,23 +549,68 @@ function loadOpenMenus() {
 
 const openMenus = reactive(loadOpenMenus())
 
+// Map từng menu key → các route con tương ứng
+const menuRoutes = {
+  plan: ['/production/plan/manufacturing-order', '/production/plan/schedule'],
+  dispatch: ['/production/dispatch/work-order', '/production/dispatch/progress'],
+  quality: ['/production/quality/inspection', '/production/quality/defect'],
+  warehouse: [
+    '/production/warehouse/receipt',
+    '/production/warehouse/issue',
+    '/production/warehouse/inventory',
+  ],
+  task: ['/production/task/assign', '/production/task/tracking'],
+  cost: ['/production/cost/estimate', '/production/cost/actual'],
+  outsource: ['/production/outsource/contract', '/production/outsource/tracking'],
+  product: [
+    '/production/dictionary/product/list',
+    '/production/dictionary/product/material',
+    '/production/dictionary/product/bom',
+  ],
+  process: ['/production/dictionary/process/routing', '/production/dictionary/process/operation'],
+  capacity: [
+    '/production/dictionary/capacity/machine',
+    '/production/dictionary/capacity/workcenter',
+  ],
+  settings: ['/production/settings/general', '/production/settings/permission'],
+}
+
+// ✅ Khi route thay đổi: tự động sync openMenus theo route hiện tại
+watch(
+  () => route.path,
+  (newPath) => {
+    Object.keys(menuRoutes).forEach((key) => {
+      const belongs = menuRoutes[key].some((p) => newPath === p || newPath.startsWith(p + '/'))
+      openMenus[key] = belongs
+    })
+    localStorage.setItem(OPEN_MENUS_KEY, JSON.stringify({ ...openMenus }))
+  },
+  { immediate: true },
+)
+function isExactActive(path) {
+  if (route.path !== path) return false
+  return !Object.values(openMenus).some(Boolean)
+}
+
 function toggleMenu(key) {
-  openMenus[key] = !openMenus[key]
+  const isOpen = openMenus[key]
+  Object.keys(openMenus).forEach((k) => {
+    openMenus[k] = false
+  })
+  openMenus[key] = !isOpen
   localStorage.setItem(OPEN_MENUS_KEY, JSON.stringify({ ...openMenus }))
 }
 
-// ===== PARENT ACTIVE CHECK =====
-// Trả về true nếu route hiện tại khớp với bất kỳ path con nào
 function isParentActive(childPaths) {
   return childPaths.some((p) => route.path === p || route.path.startsWith(p + '/'))
 }
 
-// ===== FLYOUT =====
 const showFlyout = ref(false)
-
-// Highlight "Danh mục khác" khi đang ở trong flyout routes
 const otherRoutes = ['/category/', '/production/dictionary/shift']
-const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.startsWith(prefix)))
+const isOtherActive = computed(() =>
+  otherRoutes.some((prefix) => route.path.startsWith(prefix)) &&
+  !Object.values(openMenus).some(Boolean)
+)
 </script>
 
 <style scoped>
@@ -614,6 +650,7 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
   display: flex;
   flex-direction: column;
   overflow: visible;
+  gap: 4px;
 }
 
 /* ===== ITEM ===== */
@@ -621,7 +658,7 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 9px 16px;
+  padding: 8px 16px;
   color: var(--sidebar-text);
   cursor: pointer;
   text-decoration: none;
@@ -662,12 +699,18 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
 }
 
 .sidebar__item--sub-open {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--primary) !important;
+  color: #fff !important;
 }
 
 /* Sub-open bị override nếu parent-active */
 .sidebar__item--parent-active.sidebar__item--sub-open {
   background-color: var(--primary) !important;
+}
+
+.sidebar__item--sub-open .sidebar__icon,
+.sidebar__item--sub-open .sidebar__chevron {
+  background-color: #fff !important;
 }
 
 /* ===== LABEL ===== */
@@ -734,12 +777,14 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 9px 16px;          /* giống item cha, bỏ padding-left: 46px */
+  padding: 8px 16px; /* giống item cha, bỏ padding-left: 46px */
   color: var(--sidebar-text);
   font-size: 13px;
   font-weight: 400;
   text-decoration: none;
-  transition: background-color 0.12s, color 0.12s;
+  transition:
+    background-color 0.12s,
+    color 0.12s;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -756,7 +801,7 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
 /* Icon — hiển thị thường xuyên, không chỉ khi hover */
 .sidebar__subitem::before {
   content: '';
-  background-color: var(--sidebar-text);   /* màu mờ khi bình thường */
+  background-color: var(--sidebar-text); /* màu mờ khi bình thường */
   visibility: hidden;
   width: 20px;
   height: 20px;
@@ -856,11 +901,11 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
 }
 .sidebar__icon--outsource {
   mask-position: -214px -146px;
-  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.Sprites-1d4aa31f.svg?v=10.1.2.4);
 }
 .sidebar__icon--trace {
   mask-position: -214px -146px;
-  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.Sprites-1d4aa31f.svg?v=10.1.2.4);
 }
 .sidebar__icon--report {
   mask-position: -214px -7px;
@@ -939,16 +984,51 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
 .flyout__item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  color: #d1d5db;
+  gap: 9px;
+  padding: 8px 16px;
+  color: var(--sidebar-text);
   font-size: 13px;
+  font-weight: 400;
   text-decoration: none;
-  border-radius: 4px;
-  transition:
-    background-color 0.12s,
-    color 0.12s;
+  transition: background-color 0.12s, color 0.12s;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.85;
+  position: relative;
+}
+
+.flyout__item:hover {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: var(--sidebar-text-hover);
+  opacity: 1;
+}
+
+.flyout__item--active {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.08);
+  opacity: 1;
+}
+
+/* Icon ::before giống hệt sidebar__subitem */
+.flyout__item::before {
+  content: '';
+  background-color: var(--sidebar-text);
+  visibility: hidden;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  flex-shrink: 0;
+  -webkit-mask-repeat: no-repeat;
+  mask-position: -58px -67px;
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
+}
+
+.flyout__item:hover::before,
+.flyout__item--active::before {
+  visibility: visible;
+  background-color: #fff;
 }
 
 .flyout__item:hover {
