@@ -1,7 +1,3 @@
-// =============================================
-// SIDEBAR MENU CONFIG
-// =============================================
-
 /**
  * Item đơn (không có con)
  * { label, icon, to }
@@ -147,34 +143,33 @@ export const MENU_CONFIG = [
     type: 'flyout',
     label: 'Danh mục khác',
     icon: 'other',
-    // Các prefix dùng để tính isOtherActive
-    activePrefixes: ['/category/', '/production/dictionary/shift'],
+    activePrefixes: ['/production/dictionary/'],
     columns: [
       {
         title: 'Đối tượng',
         items: [
-          { label: 'Khách hàng', to: '/category/customer' },
-          { label: 'Nhà cung cấp', to: '/category/supplier' },
-          { label: 'Nhân viên', to: '/category/employee' },
-          { label: 'Đối tượng tập hợp chi phí', to: '/category/cost-object' },
+          { label: 'Khách hàng', to: '/production/dictionary/customer' },
+          { label: 'Nhà cung cấp', to: '/production/dictionary/supplier' },
+          { label: 'Nhân viên', to: '/production/dictionary/employee' },
+          { label: 'Đối tượng tập hợp chi phí', to: '/production/dictionary/cost-object' },
         ],
       },
       {
         title: 'Lịch làm việc',
         items: [
           { label: 'Ca làm việc', to: '/production/dictionary/shift' },
-          { label: 'Ngày nghỉ', to: '/category/holiday' },
-          { label: 'Lịch làm việc', to: '/category/work-calendar' },
+          { label: 'Ngày nghỉ', to: '/production/dictionary/holiday' },
+          { label: 'Lịch làm việc', to: '/production/dictionary/work-calendar' },
         ],
       },
       {
         title: 'Khác',
         items: [
-          { label: 'Cơ cấu tổ chức', to: '/category/org-structure' },
-          { label: 'Kho', to: '/category/warehouse' },
-          { label: 'Đơn vị tính', to: '/category/unit-of-measure' },
-          { label: 'Lý do dừng công việc', to: '/category/stop-reason' },
-          { label: 'Loại tiền', to: '/category/currency' },
+          { label: 'Cơ cấu tổ chức', to: '/production/dictionary/org-structure' },
+          { label: 'Kho', to: '/production/dictionary/warehouse' },
+          { label: 'Đơn vị tính', to: '/production/dictionary/unit-of-measure' },
+          { label: 'Lý do dừng công việc', to: '/production/dictionary/stop-reason' },
+          { label: 'Loại tiền', to: '/production/dictionary/currency' },
         ],
       },
     ],
