@@ -112,6 +112,8 @@ function toggleCollapse() {
 // ── Open menus ────────────────────────────────────────────────────────────────
 const OPEN_MENUS_KEY = 'sidebar_open_menus'
 
+
+// lấy các menu đang mở, đang đóng trước đó nếu có
 function loadOpenMenus() {
   try {
     const saved = localStorage.getItem(OPEN_MENUS_KEY)
@@ -120,9 +122,22 @@ function loadOpenMenus() {
   return {}
 }
 
+// ghi nhớ những menu đang mở, đang đóng đc lưu ở localStorage
+// { "products": true, "settings": false }
 const openMenus = reactive(loadOpenMenus())
 
-// Build map: key → [child routes] — tính từ config, không hardcode
+// Build map: key → [child routes]
+// [
+//   [
+//     "products",
+//     ["/products/list", "/products/name"]
+//   ]
+// ]
+// =>
+// {
+//   "products": ["/products/list", "/products/name"]
+// }
+// chỉ lấy những menu cha có children, bỏ loại fly
 const menuRoutes = Object.fromEntries(
   MENU_CONFIG.filter((item) => item.key && item.children).map((item) => [
     item.key,
@@ -130,7 +145,9 @@ const menuRoutes = Object.fromEntries(
   ]),
 )
 
-// Tự động mở menu khi route thay đổi
+
+
+// Tự động mở menu khi route thay đổi, lưu giá trị cho openMenus
 watch(
   () => route.path,
   (newPath) => {
@@ -142,16 +159,21 @@ watch(
   { immediate: true },
 )
 
+// Xử lí đóng mở menu cha
 function toggleMenu(key) {
   const isOpen = openMenus[key]
   Object.keys(openMenus).forEach((k) => {
+    // tắt hết menu khác
     openMenus[k] = false
   })
+  // đảo ngược bật/ tắt menu được click, mở-thu menu chứ k phải active
   openMenus[key] = !isOpen
   localStorage.setItem(OPEN_MENUS_KEY, JSON.stringify({ ...openMenus }))
 }
 
-// ── Active helpers ─────────────────────────────────────────────────────────────
+// Active helpers
+
+// path hiện tại trùng với path click và k có menu nào đang active thì ok
 function isExactActive(path) {
   return route.path === path && !Object.values(openMenus).some(Boolean)
 }
@@ -161,6 +183,7 @@ function isParentActive(childPaths) {
 }
 
 // Flyout active: kiểm tra các prefix từ config
+// url được mở phải có tiền tố giống route hiện tại và tất cả đều đang đóng thì mới trả về true
 function isOtherActive(item) {
   return (
     item.activePrefixes.some((prefix) => route.path.startsWith(prefix)) &&
