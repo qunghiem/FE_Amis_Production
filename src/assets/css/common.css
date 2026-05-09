@@ -1,3 +1,57 @@
 /* Biến CSS (màu, font, spacing...)  */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  /* Colors */
+
+  /* màu chủ đạo cho button  */
+  --primary: #009b71;
+
+  /* Màu chủ đạo Btn khi hover */
+  --primary-hover: #007b5d;
+
+  /* Màu của hàng trong table khi được chọn */
+  --primary-selected-bg: #a4f6d3;
+
+  /* Sidebar & Navigation */
+
+  /* Background cho Sidebar */
+  --sidebar-bg: #111827;
+  /* Màu chữ Sidebar */
+  --sidebar-text: #9ca3af;
+  --sidebar-text-hover: #ffffff;
+  --sidebar-width: 234px;
+
+  /* Text Colors */
+  --text-main: #111827;
+  --text-heading: #262626;
+  --text-white: #ffffff;
 
 
+  /* Font size */
+  --font-family: 'Inter', Helvetica, Arial, sans-serif;
+  --font-size-base: 13px; /* Size mặc định cho body */
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+
+  /* 5. Surface & Border */
+  --bg-page: #fff;
+  --border-color: #e0e0e0;
+}
+
+/* ===== BASE STYLES ===== */
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--text-main);
+  background-color: var(--bg-page);
+  margin: 0;
+}
+
+/* ===== UTILITY CLASSES ===== */
+.display-none {
+  display: none !important;
+}
+.display-flex {
+  display: flex !important;
+}
