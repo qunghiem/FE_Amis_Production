@@ -31,119 +31,127 @@ const routes = [
   {
     path: '/production/plan/manufacturing-order',
     component: PlaceholderPage,
-    meta: { title: 'Lệnh sản xuất' }
+    meta: { title: '' }
   },
   {
     path: '/production/plan/schedule',
     component: PlaceholderPage,
-    meta: { title: 'Lịch sản xuất' }
+    meta: { title: '' }
   },
 
   // Điều phối và thực thi
   {
     path: '/production/dispatch',
     component: PlaceholderPage,
-    meta: { title: 'Điều phối và thực thi' }
+    meta: { title: '' }
   },
   {
     path: '/production/dispatch/work-order',
     component: PlaceholderPage,
-    meta: { title: 'Phiếu công việc' }
+    meta: { title: '' }
   },
   {
     path: '/production/dispatch/progress',
     component: PlaceholderPage,
-    meta: { title: 'Tiến độ sản xuất' }
+    meta: { title: '' }
   },
 
   // Kiểm tra chất lượng
   {
     path: '/production/quality',
     component: PlaceholderPage,
-    meta: { title: 'Kiểm tra chất lượng' }
+    meta: { title: '' }
   },
   {
     path: '/production/quality/inspection',
     component: PlaceholderPage,
-    meta: { title: 'Phiếu kiểm tra' }
+    meta: { title: '' }
   },
   {
     path: '/production/quality/defect',
     component: PlaceholderPage,
-    meta: { title: 'Lỗi sản phẩm' }
+    meta: { title: '' }
   },
 
   // Kho vật tư
   {
     path: '/production/warehouse',
     component: PlaceholderPage,
-    meta: { title: 'Kho vật tư' }
+    meta: { title: '' }
   },
   {
     path: '/production/warehouse/receipt',
     component: PlaceholderPage,
-    meta: { title: 'Phiếu nhập kho' }
+    meta: { title: '' }
   },
   {
     path: '/production/warehouse/issue',
     component: PlaceholderPage,
-    meta: { title: 'Phiếu xuất kho' }
+    meta: { title: '' }
   },
   {
     path: '/production/warehouse/inventory',
     component: PlaceholderPage,
-    meta: { title: 'Tồn kho' }
+    meta: { title: '' }
   },
 
   // Giao việc
   {
     path: '/production/task',
     component: PlaceholderPage,
-    meta: { title: 'Giao việc' }
+    meta: { title: '' }
   },
   {
     path: '/production/task/assign',
     component: PlaceholderPage,
-    meta: { title: 'Phân công công việc' }
+        meta: { title: '' }
+
   },
   {
     path: '/production/task/tracking',
     component: PlaceholderPage,
-    meta: { title: 'Theo dõi công việc' }
+        meta: { title: '' }
+
   },
 
   // Giá thành kế hoạch
   {
     path: '/production/cost',
     component: PlaceholderPage,
-    meta: { title: 'Giá thành kế hoạch' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/cost/estimate',
     component: PlaceholderPage,
-    meta: { title: 'Dự toán giá thành' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/cost/actual',
     component: PlaceholderPage,
-    meta: { title: 'Giá thành thực tế' }
+    meta: { title: '' }
+
   },
 
   // Thuê gia công
   {
     path: '/production/outsource',
     component: PlaceholderPage,
-    meta: { title: 'Thuê gia công' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/outsource/contract',
     component: PlaceholderPage,
-    meta: { title: 'Hợp đồng gia công' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/outsource/tracking',
     component: PlaceholderPage,
-    meta: { title: 'Theo dõi gia công' }
+    meta: { title: '' }
+
   },
 
   // Truy xuất nguồn gốc
@@ -164,139 +172,164 @@ const routes = [
   {
     path: '/production/dictionary/product',
     component: PlaceholderPage,
-    meta: { title: 'Sản phẩm, NVL' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/dictionary/product/list',
     component: PlaceholderPage,
-    meta: { title: 'Danh sách sản phẩm' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/dictionary/product/material',
     component: PlaceholderPage,
-    meta: { title: 'Nguyên vật liệu' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/dictionary/product/bom',
     component: PlaceholderPage,
-    meta: { title: 'Định mức nguyên liệu (BOM)' }
+    meta: { title: '' }
+
   },
 
   // Quy trình sản xuất
   {
     path: '/production/dictionary/process',
     component: PlaceholderPage,
-    meta: { title: 'Quy trình sản xuất' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/dictionary/process/routing',
     component: PlaceholderPage,
-    meta: { title: 'Quy trình (Routing)' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/dictionary/process/operation',
     component: PlaceholderPage,
-    meta: { title: 'Công đoạn sản xuất' }
+    meta: { title: '' }
+
   },
 
   // Năng lực sản xuất
   {
     path: '/production/dictionary/capacity',
     component: PlaceholderPage,
-    meta: { title: 'Năng lực sản xuất' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/dictionary/capacity/machine',
     component: PlaceholderPage,
-    meta: { title: 'Máy móc thiết bị' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/dictionary/capacity/workcenter',
     component: PlaceholderPage,
-    meta: { title: 'Trung tâm làm việc' }
+    meta: { title: '' }
+
   },
 
   // Danh mục khác - Đối tượng
   {
     path: '/category/customer',
     component: PlaceholderPage,
-    meta: { title: 'Khách hàng' }
+    meta: { title: '' }
+
   },
   {
     path: '/category/supplier',
     component: PlaceholderPage,
-    meta: { title: 'Nhà cung cấp' }
+    meta: { title: '' }
+
   },
   {
     path: '/category/employee',
     component: PlaceholderPage,
-    meta: { title: 'Nhân viên' }
+    meta: { title: '' }
+
   },
   {
     path: '/category/cost-object',
     component: PlaceholderPage,
-    meta: { title: 'Đối tượng tập hợp chi phí' }
+    meta: { title: '' }
+
   },
 
   // Danh mục khác - Lịch làm việc
   {
     path: '/production/dictionary/shift',
     component: ShiftPage,
-    meta: { title: 'Ca làm việc' }
+    meta: { title: '' }
+
   },
   {
     path: '/category/holiday',
     component: PlaceholderPage,
-    meta: { title: 'Ngày nghỉ' }
+    meta: { title: '' }
+
   },
   {
     path: '/category/work-calendar',
     component: PlaceholderPage,
-    meta: { title: 'Lịch làm việc' }
+    meta: { title: '' }
+
   },
 
   // Danh mục khác - Khác
   {
     path: '/category/org-structure',
     component: PlaceholderPage,
-    meta: { title: 'Cơ cấu tổ chức' }
+    meta: { title: '' }
+
   },
   {
     path: '/category/warehouse',
     component: PlaceholderPage,
-    meta: { title: 'Kho' }
+    meta: { title: '' }
+
   },
   {
     path: '/category/unit-of-measure',
     component: PlaceholderPage,
-    meta: { title: 'Đơn vị tính' }
+    meta: { title: '' }
+
   },
   {
     path: '/category/stop-reason',
     component: PlaceholderPage,
-    meta: { title: 'Lý do dừng công việc' }
+    meta: { title: '' }
+
   },
   {
     path: '/category/currency',
     component: PlaceholderPage,
-    meta: { title: 'Loại tiền' }
+    meta: { title: '' }
+
   },
 
   // Thiết lập
   {
     path: '/production/settings',
     component: PlaceholderPage,
-    meta: { title: 'Thiết lập' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/settings/general',
     component: PlaceholderPage,
-    meta: { title: 'Cài đặt chung' }
+    meta: { title: '' }
+
   },
   {
     path: '/production/settings/permission',
     component: PlaceholderPage,
-    meta: { title: 'Phân quyền' }
+    meta: { title: '' }
+
   },
 
   // Fallback
