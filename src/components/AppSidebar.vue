@@ -6,6 +6,7 @@
         to="/production/dashboard"
         class="sidebar__item"
         active-class="sidebar__item--active"
+        exact
       >
         <span class="sidebar__icon sidebar__icon--overview"></span>
         <span class="sidebar__label">Tổng quan</span>
@@ -24,7 +25,13 @@
       <!-- Kế hoạch sản xuất -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.plan }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.plan,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/plan/manufacturing-order',
+            '/production/plan/schedule',
+          ]),
+        }"
         @click="toggleMenu('plan')"
       >
         <span class="sidebar__icon sidebar__icon--plan"></span>
@@ -49,7 +56,13 @@
       <!-- Điều phối và thực thi -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.dispatch }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.dispatch,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/dispatch/work-order',
+            '/production/dispatch/progress',
+          ]),
+        }"
         @click="toggleMenu('dispatch')"
       >
         <span class="sidebar__icon sidebar__icon--dispatch"></span>
@@ -57,6 +70,7 @@
         <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.dispatch }"></i>
       </div>
       <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.dispatch }">
+        <div class="icon"></div>
         <router-link
           to="/production/dispatch/work-order"
           class="sidebar__subitem"
@@ -74,7 +88,13 @@
       <!-- Kiểm tra chất lượng -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.quality }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.quality,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/quality/inspection',
+            '/production/quality/defect',
+          ]),
+        }"
         @click="toggleMenu('quality')"
       >
         <span class="sidebar__icon sidebar__icon--quality"></span>
@@ -99,7 +119,14 @@
       <!-- Kho vật tư -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.warehouse }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.warehouse,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/warehouse/receipt',
+            '/production/warehouse/issue',
+            '/production/warehouse/inventory',
+          ]),
+        }"
         @click="toggleMenu('warehouse')"
       >
         <span class="sidebar__icon sidebar__icon--warehouse"></span>
@@ -130,7 +157,13 @@
       <!-- Giao việc -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.task }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.task,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/task/assign',
+            '/production/task/tracking',
+          ]),
+        }"
         @click="toggleMenu('task')"
       >
         <span class="sidebar__icon sidebar__icon--task"></span>
@@ -155,7 +188,13 @@
       <!-- Giá thành kế hoạch -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.cost }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.cost,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/cost/estimate',
+            '/production/cost/actual',
+          ]),
+        }"
         @click="toggleMenu('cost')"
       >
         <span class="sidebar__icon sidebar__icon--price"></span>
@@ -180,7 +219,13 @@
       <!-- Thuê gia công -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.outsource }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.outsource,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/outsource/contract',
+            '/production/outsource/tracking',
+          ]),
+        }"
         @click="toggleMenu('outsource')"
       >
         <span class="sidebar__icon sidebar__icon--outsource"></span>
@@ -229,7 +274,14 @@
       <!-- Sản phẩm, NVL -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.product }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.product,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/dictionary/product/list',
+            '/production/dictionary/product/material',
+            '/production/dictionary/product/bom',
+          ]),
+        }"
         @click="toggleMenu('product')"
       >
         <span class="sidebar__icon sidebar__icon--product"></span>
@@ -260,7 +312,13 @@
       <!-- Quy trình sản xuất -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.process }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.process,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/dictionary/process/routing',
+            '/production/dictionary/process/operation',
+          ]),
+        }"
         @click="toggleMenu('process')"
       >
         <span class="sidebar__icon sidebar__icon--process"></span>
@@ -285,7 +343,13 @@
       <!-- Năng lực sản xuất -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.capacity }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.capacity,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/dictionary/capacity/machine',
+            '/production/dictionary/capacity/workcenter',
+          ]),
+        }"
         @click="toggleMenu('capacity')"
       >
         <span class="sidebar__icon sidebar__icon--capacity"></span>
@@ -326,25 +390,25 @@
               <div class="flyout__col">
                 <div class="flyout__col-title">Đối tượng</div>
                 <router-link
-                  to="/danh-muc/khach-hang"
+                  to="/category/customer"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Khách hàng</router-link
                 >
                 <router-link
-                  to="/danh-muc/nha-cung-cap"
+                  to="/category/supplier"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Nhà cung cấp</router-link
                 >
                 <router-link
-                  to="/danh-muc/nhan-vien"
+                  to="/category/employee"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Nhân viên</router-link
                 >
                 <router-link
-                  to="/danh-muc/doi-tuong-tap-hop"
+                  to="/category/cost-object"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Đối tượng tập hợp chi phí</router-link
@@ -363,13 +427,13 @@
                   Ca làm việc
                 </router-link>
                 <router-link
-                  to="/danh-muc/ngay-nghi"
+                  to="/category/holiday"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Ngày nghỉ</router-link
                 >
                 <router-link
-                  to="/danh-muc/lich-lam-viec"
+                  to="/category/work-calendar"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Lịch làm việc</router-link
@@ -380,31 +444,31 @@
               <div class="flyout__col">
                 <div class="flyout__col-title">Khác</div>
                 <router-link
-                  to="/danh-muc/co-cau-to-chuc"
+                  to="/category/org-structure"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Cơ cấu tổ chức</router-link
                 >
                 <router-link
-                  to="/danh-muc/kho"
+                  to="/category/warehouse"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Kho</router-link
                 >
                 <router-link
-                  to="/danh-muc/don-vi-tinh"
+                  to="/category/unit-of-measure"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Đơn vị tính</router-link
                 >
                 <router-link
-                  to="/danh-muc/ly-do-dung"
+                  to="/category/stop-reason"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Lý do dừng công việc</router-link
                 >
                 <router-link
-                  to="/danh-muc/loai-tien"
+                  to="/category/currency"
                   class="flyout__item"
                   active-class="flyout__item--active"
                   >Loại tiền</router-link
@@ -418,7 +482,13 @@
       <!-- Thiết lập -->
       <div
         class="sidebar__item sidebar__item--has-sub"
-        :class="{ 'sidebar__item--sub-open': openMenus.settings }"
+        :class="{
+          'sidebar__item--sub-open': openMenus.settings,
+          'sidebar__item--parent-active': isParentActive([
+            '/production/settings/general',
+            '/production/settings/permission',
+          ]),
+        }"
         @click="toggleMenu('settings')"
       >
         <span class="sidebar__icon sidebar__icon--settings"></span>
@@ -496,16 +566,17 @@ function toggleMenu(key) {
   localStorage.setItem(OPEN_MENUS_KEY, JSON.stringify({ ...openMenus }))
 }
 
+// ===== PARENT ACTIVE CHECK =====
+// Trả về true nếu route hiện tại khớp với bất kỳ path con nào
+function isParentActive(childPaths) {
+  return childPaths.some((p) => route.path === p || route.path.startsWith(p + '/'))
+}
+
 // ===== FLYOUT =====
 const showFlyout = ref(false)
 
 // Highlight "Danh mục khác" khi đang ở trong flyout routes
-const otherRoutes = [
-  '/production/',
-  '/production/dictionary/shift',
-  '/production/dayoff',
-  '/production/workday',
-]
+const otherRoutes = ['/category/', '/production/dictionary/shift']
 const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.startsWith(prefix)))
 </script>
 
@@ -582,8 +653,24 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
   background-color: #fff !important;
 }
 
+/* Menu cha active khi con được chọn */
+.sidebar__item--parent-active {
+  background-color: var(--primary) !important;
+  color: #fff !important;
+}
+
+.sidebar__item--parent-active .sidebar__icon,
+.sidebar__item--parent-active .sidebar__chevron {
+  background-color: #fff !important;
+}
+
 .sidebar__item--sub-open {
   background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Sub-open bị override nếu parent-active */
+.sidebar__item--parent-active.sidebar__item--sub-open {
+  background-color: var(--primary) !important;
 }
 
 /* ===== LABEL ===== */
@@ -604,12 +691,12 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
 /* ===== CHEVRON ===== */
 .sidebar__chevron {
   height: 20px;
-    width: 20px;
-    min-height: 20px;
-    min-width: 20px;
-    position: relative;
+  width: 20px;
+  min-height: 20px;
+  min-width: 20px;
+  position: relative;
   background-color: var(--sidebar-text);
-      -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.1.2.4);
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.1.2.4);
   mask-position: -200px -16px;
   transition:
     transform 0.2s ease,
@@ -645,11 +732,14 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
   display: none;
 }
 
+/* ===== SUBITEM ===== */
 .sidebar__subitem {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0;
   padding: 7px 16px 7px 46px;
   color: var(--sidebar-text);
-  font-size: 12.5px;
+  font-size: var(--font-size-base);
   text-decoration: none;
   transition:
     background-color 0.12s,
@@ -658,6 +748,7 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
   overflow: hidden;
   text-overflow: ellipsis;
   opacity: 0.85;
+  position: relative;
 }
 
 .sidebar__subitem:hover {
@@ -666,22 +757,25 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
   opacity: 1;
 }
 
+/* Icon mũi tên khi hover subitem */
+.sidebar__subitem:hover::before {
+  content: '';
+  background-color: var(--sidebar-text-hover);
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  -webkit-mask-repeat: no-repeat;
+  background-color: #fff;
+  mask-position: -58px -67px;
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
 .sidebar__subitem--active {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.08);
   opacity: 1;
-}
-
-.sidebar__subitem--active::before {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  background-color: var(--primary);
-  border-radius: 50%;
-  margin-right: 8px;
-  vertical-align: middle;
-  margin-bottom: 1px;
 }
 
 /* ===== DIVIDER ===== */
@@ -731,82 +825,69 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
 
 .sidebar__icon--order {
   mask-position: -344px -86px;
-      -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 
 .sidebar__icon--plan {
-      mask-position: -32px -7px;
-      -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-
+  mask-position: -32px -7px;
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 
-  /* mask-position:
-  -webkit-mask-image: url(); */
 .sidebar__icon--dispatch {
   mask-position: -57px -7px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--quality {
-    mask-position: -110px -6px;
+  mask-position: -110px -6px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--warehouse {
-      mask-position: -84px -6px;
+  mask-position: -84px -6px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--task {
-      mask-position: -318px -6px;
-    -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-
+  mask-position: -318px -6px;
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--price {
   mask-position: -345px -5px;
-  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.Sprites-1d4aa31f.svg?v=10.1.2.4);
 }
 .sidebar__icon--outsource {
-      mask-position: -214px -146px;
-   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
+  mask-position: -214px -146px;
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
-
 .sidebar__icon--trace {
-      mask-position: -214px -146px;
-    -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-
+  mask-position: -214px -146px;
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--report {
-        mask-position: -214px -7px;
-    -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-
+  mask-position: -214px -7px;
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--product {
   mask-position: -136px -6px;
-   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--process {
   mask-position: -162px -6px;
-    -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--capacity {
-      mask-position: -189px -6px;
-   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-
+  mask-position: -189px -6px;
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--other {
   mask-position: -240px -6px;
-   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--settings {
   mask-position: -266px -6px;
-    -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--collapse {
   mask-position: -140px -16px;
-    -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 .sidebar__icon--expand {
   transform: scaleX(-1);

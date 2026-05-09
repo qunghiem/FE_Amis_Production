@@ -218,22 +218,22 @@ const routes = [
 
   // Danh mục khác - Đối tượng
   {
-    path: '/danh-muc/khach-hang',
+    path: '/category/customer',
     component: PlaceholderPage,
     meta: { title: 'Khách hàng' }
   },
   {
-    path: '/danh-muc/nha-cung-cap',
+    path: '/category/supplier',
     component: PlaceholderPage,
     meta: { title: 'Nhà cung cấp' }
   },
   {
-    path: '/danh-muc/nhan-vien',
+    path: '/category/employee',
     component: PlaceholderPage,
     meta: { title: 'Nhân viên' }
   },
   {
-    path: '/danh-muc/doi-tuong-tap-hop',
+    path: '/category/cost-object',
     component: PlaceholderPage,
     meta: { title: 'Đối tượng tập hợp chi phí' }
   },
@@ -245,39 +245,39 @@ const routes = [
     meta: { title: 'Ca làm việc' }
   },
   {
-    path: '/danh-muc/ngay-nghi',
+    path: '/category/holiday',
     component: PlaceholderPage,
     meta: { title: 'Ngày nghỉ' }
   },
   {
-    path: '/danh-muc/lich-lam-viec',
+    path: '/category/work-calendar',
     component: PlaceholderPage,
     meta: { title: 'Lịch làm việc' }
   },
 
   // Danh mục khác - Khác
   {
-    path: '/danh-muc/co-cau-to-chuc',
+    path: '/category/org-structure',
     component: PlaceholderPage,
     meta: { title: 'Cơ cấu tổ chức' }
   },
   {
-    path: '/danh-muc/kho',
+    path: '/category/warehouse',
     component: PlaceholderPage,
     meta: { title: 'Kho' }
   },
   {
-    path: '/danh-muc/don-vi-tinh',
+    path: '/category/unit-of-measure',
     component: PlaceholderPage,
     meta: { title: 'Đơn vị tính' }
   },
   {
-    path: '/danh-muc/ly-do-dung',
+    path: '/category/stop-reason',
     component: PlaceholderPage,
     meta: { title: 'Lý do dừng công việc' }
   },
   {
-    path: '/danh-muc/loai-tien',
+    path: '/category/currency',
     component: PlaceholderPage,
     meta: { title: 'Loại tiền' }
   },
