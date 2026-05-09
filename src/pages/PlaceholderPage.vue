@@ -1,40 +1,61 @@
 <template>
-  <main class="layout__content">
-    <div class="placeholder-page">
+  <div class="placeholder-page">
+    <div class="placeholder-page__content">
       <div class="placeholder-page__icon">
-        <i class="fa-solid fa-hammer"></i>
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="4" width="40" height="40" rx="8" fill="currentColor" fill-opacity="0.08"/>
+          <rect x="12" y="16" width="24" height="3" rx="1.5" fill="currentColor" fill-opacity="0.3"/>
+          <rect x="12" y="22" width="18" height="3" rx="1.5" fill="currentColor" fill-opacity="0.3"/>
+          <rect x="12" y="28" width="21" height="3" rx="1.5" fill="currentColor" fill-opacity="0.3"/>
+        </svg>
       </div>
-      <div class="placeholder-page__title">{{ $route.meta.title || 'Trang' }}</div>
-      <div class="placeholder-page__desc">Tính năng đang trong quá trình phát triển</div>
+      <h2 class="placeholder-page__title">{{ pageTitle }}</h2>
+      <p class="placeholder-page__desc">Tính năng đang được phát triển</p>
     </div>
-  </main>
+  </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const pageTitle = computed(() => route.meta?.title || 'Trang')
+</script>
 
 <style scoped>
-/* Placeholder page */
 .placeholder-page {
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg-white);
-  border-radius: 8px;
+  height: 100%;
+  background-color: var(--main-bg, #f3f4f6);
+}
+
+.placeholder-page__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
-  color: var(--text-heading);
+  color: var(--text-secondary, #6b7280);
 }
+
 .placeholder-page__icon {
-  font-size: 48px;
-  opacity: 0.3;
+  color: var(--text-secondary, #9ca3af);
+  margin-bottom: 4px;
 }
+
 .placeholder-page__title {
-  font-size: var(--font-size-xl);
+  font-size: 20px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-primary, #374151);
+  margin: 0;
 }
+
 .placeholder-page__desc {
-  font-size: var(--font-size-base);
+  font-size: 14px;
+  color: var(--text-secondary, #9ca3af);
+  margin: 0;
 }
 </style>
