@@ -121,57 +121,53 @@ const routes = [
   { path: '/production/report', component: PlaceholderPage, meta: { title: 'Báo cáo' } },
 
   // Sản phẩm, NVL
+  { path: '/production/product', component: PlaceholderPage, meta: { title: 'Sản phẩm, NVL' } },
   {
-    path: '/production/dictionary/product',
-    component: PlaceholderPage,
-    meta: { title: 'Sản phẩm, NVL' },
-  },
-  {
-    path: '/production/dictionary/product/list',
+    path: '/production/product/list',
     component: PlaceholderPage,
     meta: { title: 'Danh sách sản phẩm' },
   },
   {
-    path: '/production/dictionary/product/material',
+    path: '/production/product/material',
     component: PlaceholderPage,
     meta: { title: 'Nguyên vật liệu' },
   },
   {
-    path: '/production/dictionary/product/bom',
+    path: '/production/product/bom',
     component: PlaceholderPage,
     meta: { title: 'Định mức nguyên liệu (BOM)' },
   },
 
   // Quy trình sản xuất
   {
-    path: '/production/dictionary/process',
+    path: '/production/process',
     component: PlaceholderPage,
     meta: { title: 'Quy trình sản xuất' },
   },
   {
-    path: '/production/dictionary/process/routing',
+    path: '/production/process/routing',
     component: PlaceholderPage,
     meta: { title: 'Quy trình (Routing)' },
   },
   {
-    path: '/production/dictionary/process/operation',
+    path: '/production/process/operation',
     component: PlaceholderPage,
     meta: { title: 'Công đoạn sản xuất' },
   },
 
   // Năng lực sản xuất
   {
-    path: '/production/dictionary/capacity',
+    path: '/production/capacity',
     component: PlaceholderPage,
     meta: { title: 'Năng lực sản xuất' },
   },
   {
-    path: '/production/dictionary/capacity/machine',
+    path: '/production/capacity/machine',
     component: PlaceholderPage,
     meta: { title: 'Máy móc thiết bị' },
   },
   {
-    path: '/production/dictionary/capacity/workcenter',
+    path: '/production/capacity/workcenter',
     component: PlaceholderPage,
     meta: { title: 'Trung tâm làm việc' },
   },

@@ -12,6 +12,14 @@
  * { type: 'flyout', label, icon, columns: [{ title, items: [{ label, to }] }] }
  */
 
+// =============================================
+// SIDEBAR MENU CONFIG
+// =============================================
+
+// =============================================
+// SIDEBAR MENU CONFIG
+// =============================================
+
 export const MENU_CONFIG = [
   // ── Đơn lẻ ────────────────────────────────
   {
@@ -114,9 +122,9 @@ export const MENU_CONFIG = [
     label: 'Sản phẩm, NVL',
     icon: 'product',
     children: [
-      { label: 'Danh sách sản phẩm', to: '/production/dictionary/product/list' },
-      { label: 'Nguyên vật liệu', to: '/production/dictionary/product/material' },
-      { label: 'Định mức nguyên liệu (BOM)', to: '/production/dictionary/product/bom' },
+      { label: 'Danh sách sản phẩm', to: '/production/product/list' },
+      { label: 'Nguyên vật liệu', to: '/production/product/material' },
+      { label: 'Định mức nguyên liệu (BOM)', to: '/production/product/bom' },
     ],
   },
   {
@@ -124,8 +132,8 @@ export const MENU_CONFIG = [
     label: 'Quy trình sản xuất',
     icon: 'process',
     children: [
-      { label: 'Quy trình (Routing)', to: '/production/dictionary/process/routing' },
-      { label: 'Công đoạn sản xuất', to: '/production/dictionary/process/operation' },
+      { label: 'Quy trình (Routing)', to: '/production/process/routing' },
+      { label: 'Công đoạn sản xuất', to: '/production/process/operation' },
     ],
   },
   {
@@ -133,8 +141,8 @@ export const MENU_CONFIG = [
     label: 'Năng lực sản xuất',
     icon: 'capacity',
     children: [
-      { label: 'Máy móc thiết bị', to: '/production/dictionary/capacity/machine' },
-      { label: 'Trung tâm làm việc', to: '/production/dictionary/capacity/workcenter' },
+      { label: 'Máy móc thiết bị', to: '/production/capacity/machine' },
+      { label: 'Trung tâm làm việc', to: '/production/capacity/workcenter' },
     ],
   },
 
