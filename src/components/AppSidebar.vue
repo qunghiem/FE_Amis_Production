@@ -39,12 +39,9 @@
         <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.plan }"></i>
       </div>
       <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.plan }">
-        <router-link
-          to="/production/plan/manufacturing-order"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Kế hoạch tổng thể</router-link
-        >
+        <router-link to="/production/plan/manufacturing-order" class="sidebar__subitem" active-class="sidebar__subitem--active">
+          Kế hoạch tổng thể
+        </router-link>
         <router-link
           to="/production/plan/schedule"
           class="sidebar__subitem"
@@ -736,14 +733,13 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
 .sidebar__subitem {
   display: flex;
   align-items: center;
-  gap: 0;
-  padding: 7px 16px 7px 46px;
+  gap: 9px;
+  padding: 9px 16px;          /* giống item cha, bỏ padding-left: 46px */
   color: var(--sidebar-text);
-  font-size: var(--font-size-base);
+  font-size: 13px;
+  font-weight: 400;
   text-decoration: none;
-  transition:
-    background-color 0.12s,
-    color 0.12s;
+  transition: background-color 0.12s, color 0.12s;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -757,32 +753,37 @@ const isOtherActive = computed(() => otherRoutes.some((prefix) => route.path.sta
   opacity: 1;
 }
 
-/* Icon mũi tên khi hover subitem */
-.sidebar__subitem:hover::before {
+/* Icon — hiển thị thường xuyên, không chỉ khi hover */
+.sidebar__subitem::before {
   content: '';
-  background-color: var(--sidebar-text-hover);
-  display: inline-block;
+  background-color: var(--sidebar-text);   /* màu mờ khi bình thường */
+  visibility: hidden;
   width: 20px;
   height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  flex-shrink: 0;
   -webkit-mask-repeat: no-repeat;
-  background-color: #fff;
   mask-position: -58px -67px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-  margin-right: 6px;
-  flex-shrink: 0;
+}
+
+/* Icon sáng lên khi hover */
+.sidebar__subitem:hover::before,
+.sidebar__subitem--active::before {
+  visibility: visible;
+  background-color: #fff;
+}
+
+/* Icon trắng khi active */
+.sidebar__subitem--active::before {
+  background-color: #fff;
 }
 
 .sidebar__subitem--active {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.08);
   opacity: 1;
-}
-
-/* ===== DIVIDER ===== */
-.sidebar__divider {
-  height: 1px;
-  background-color: rgba(255, 255, 255, 0.08);
-  margin: 4px 0;
 }
 
 /* ===== FOOTER ===== */
