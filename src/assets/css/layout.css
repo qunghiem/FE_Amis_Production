@@ -18,7 +18,7 @@
   min-width: 0;
 }
 
-/* TOOLTIP hiện ra khi hover vào item */
+/* TOOLTIP title hiện ra khi hover vào item */
 [data-tooltip] {
   position: relative;
 }
@@ -39,6 +39,7 @@
   border-radius: 4px;
   white-space: nowrap;
   z-index: 9999;
+  /* k cho click, hover, cursor */
   pointer-events: none;
 
   /* Hiệu ứng ẩn hiện */
@@ -73,7 +74,7 @@
   visibility: visible;
 }
 
-/* Css riêng cho Tooltip của Icon Tất cả ứng dụng của Header */
+/* Css riêng cho Tooltip của Icon "Tất cả ứng dụng" của Header */
 [data-tooltip].tooltip-right::after {
   left: -15px;
   transform: translateX(0);
@@ -86,5 +87,7 @@
   transform: translateX(-50%);
   top: calc(100% + 4px);
 }
+
+/* Kết thúc Css riêng cho Tooltip của Icon "Tất cả ứng dụng" của Header */
 
 /* Kết thúc CSS TOOLTIP hiện ra khi hover vào item */

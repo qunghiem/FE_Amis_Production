@@ -2,7 +2,6 @@
   <aside class="sidebar" :class="{ 'sidebar--collapsed': collapsed }">
     <nav class="sidebar__nav">
       <template v-for="(item, index) in MENU_CONFIG" :key="index">
-
         <!-- thanh ngang -->
         <div v-if="item.type === 'divider'" class="sidebar__divider" />
 
@@ -210,7 +209,7 @@ const showFlyout = ref(false)
   flex-direction: column;
   overflow: visible;
   gap: 4px;
-  border-bottom: 1px solid rgba(209, 213, 219, .3);
+  border-bottom: 1px solid rgba(209, 213, 219, 0.3);
 }
 
 /* ===== ITEM ===== */
@@ -529,8 +528,8 @@ const showFlyout = ref(false)
   text-overflow: ellipsis;
   opacity: 0.85;
   position: relative;
-      margin-left: -19px;
-      border-radius: 4px;
+  margin-left: -19px;
+  border-radius: 4px;
 }
 
 .flyout__item::before {
@@ -554,13 +553,13 @@ const showFlyout = ref(false)
 }
 
 .flyout__item:hover {
-  background-color: #252C3B;
+  background-color: #252c3b;
   color: #fff;
   opacity: 1;
 }
 
 .flyout__item--active {
-    background-color: #4B5563;
+  background-color: #4b5563;
 
   color: #fff;
   opacity: 1;
@@ -590,8 +589,6 @@ const showFlyout = ref(false)
   /* padding: 12px 0; */
 }
 
-
-
 .sidebar--collapsed .sidebar__chevron {
   display: none;
 }
@@ -599,7 +596,7 @@ const showFlyout = ref(false)
 /* ===== DIVIDER ===== */
 .sidebar__divider {
   height: 1px;
-  background-color: rgba(209, 213, 219, .3);
+  background-color: rgba(209, 213, 219, 0.3);
   margin: 4px 0;
 }
 </style>
