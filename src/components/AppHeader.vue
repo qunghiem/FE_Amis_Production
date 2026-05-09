@@ -22,8 +22,9 @@
       <div class="header__company" data-tooltip="Công ty cổ phần MISA Test - 345">
         <span class="company-name">Công ty cổ phần MISA Test - 345</span>
         <i class="chevron"></i>
-    </div>
+      </div>
 
+      <!-- Danh sách các icon bên phải header -->
       <div class="header__right-setting">
         <!-- Xuất Excel -->
         <div class="" data-tooltip="Xuất Excel">

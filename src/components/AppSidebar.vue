@@ -1,515 +1,84 @@
 <template>
   <aside class="sidebar" :class="{ 'sidebar--collapsed': collapsed }">
     <nav class="sidebar__nav">
-      <!-- Tổng quan -->
-      <router-link
-        to="/production/dashboard"
-        class="sidebar__item"
-        :class="{ 'sidebar__item--active': isExactActive('/production/dashboard') }"
-      >
-        <span class="sidebar__icon sidebar__icon--overview"></span>
-        <span class="sidebar__label">Tổng quan</span>
-      </router-link>
+      <template v-for="(item, index) in MENU_CONFIG" :key="index">
+        <!-- Divider -->
+        <div v-if="item.type === 'divider'" class="sidebar__divider" />
 
-      <!-- Đơn đặt hàng -->
-      <router-link
-        to="/production/sale-order"
-        class="sidebar__item"
-        :class="{ 'sidebar__item--active': isExactActive('/production/sale-order') }"
-      >
-        <span class="sidebar__icon sidebar__icon--order"></span>
-        <span class="sidebar__label">Đơn đặt hàng</span>
-      </router-link>
+        <!-- Flyout (Danh mục khác) -->
+        <div
+          v-else-if="item.type === 'flyout'"
+          class="sidebar__item sidebar__item--other"
+          :class="{ 'sidebar__item--active': isOtherActive(item) }"
+          @mouseenter="showFlyout = true"
+          @mouseleave="showFlyout = false"
+        >
+          <span class="sidebar__icon" :class="`sidebar__icon--${item.icon}`" />
+          <span class="sidebar__label">{{ item.label }}</span>
+          <i class="sidebar__chevron sidebar__chevron--right" />
 
-      <!-- Kế hoạch sản xuất -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.plan,
-          'sidebar__item--parent-active':
-            openMenus.plan &&
-            isParentActive(['/production/plan/manufacturing-order', '/production/plan/schedule']),
-        }"
-        @click="toggleMenu('plan')"
-      >
-        <span class="sidebar__icon sidebar__icon--plan"></span>
-        <span class="sidebar__label">Kế hoạch sản xuất</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.plan }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.plan }">
-        <router-link
-          to="/production/plan/manufacturing-order"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-        >
-          Kế hoạch tổng thể
-        </router-link>
-        <router-link
-          to="/production/plan/schedule"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Kế hoạch chi tiết</router-link
-        >
-      </div>
-
-      <!-- Điều phối và thực thi -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.dispatch,
-          'sidebar__item--parent-active':
-            openMenus.dispatch &&
-            isParentActive(['/production/dispatch/work-order', '/production/dispatch/progress']),
-        }"
-        @click="toggleMenu('dispatch')"
-      >
-        <span class="sidebar__icon sidebar__icon--dispatch"></span>
-        <span class="sidebar__label">Điều phối và thực thi</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.dispatch }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.dispatch }">
-        <div class="icon"></div>
-        <router-link
-          to="/production/dispatch/work-order"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Phiếu công việc</router-link
-        >
-        <router-link
-          to="/production/dispatch/progress"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Tiến độ sản xuất</router-link
-        >
-      </div>
-
-      <!-- Kiểm tra chất lượng -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.quality,
-          'sidebar__item--parent-active':
-            openMenus.quality &&
-            isParentActive(['/production/quality/inspection', '/production/quality/defect']),
-        }"
-        @click="toggleMenu('quality')"
-      >
-        <span class="sidebar__icon sidebar__icon--quality"></span>
-        <span class="sidebar__label">Kiểm tra chất lượng</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.quality }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.quality }">
-        <router-link
-          to="/production/quality/inspection"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Phiếu kiểm tra</router-link
-        >
-        <router-link
-          to="/production/quality/defect"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Lỗi sản phẩm</router-link
-        >
-      </div>
-
-      <!-- Kho vật tư -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.warehouse,
-          'sidebar__item--parent-active':
-            openMenus.warehouse &&
-            isParentActive([
-              '/production/warehouse/receipt',
-              '/production/warehouse/issue',
-              '/production/warehouse/inventory',
-            ]),
-        }"
-        @click="toggleMenu('warehouse')"
-      >
-        <span class="sidebar__icon sidebar__icon--warehouse"></span>
-        <span class="sidebar__label">Kho vật tư</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.warehouse }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.warehouse }">
-        <router-link
-          to="/production/warehouse/receipt"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Phiếu nhập kho</router-link
-        >
-        <router-link
-          to="/production/warehouse/issue"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Phiếu xuất kho</router-link
-        >
-        <router-link
-          to="/production/warehouse/inventory"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Tồn kho</router-link
-        >
-      </div>
-
-      <!-- Giao việc -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.task,
-          'sidebar__item--parent-active':
-            openMenus.task &&
-            isParentActive(['/production/task/assign', '/production/task/tracking']),
-        }"
-        @click="toggleMenu('task')"
-      >
-        <span class="sidebar__icon sidebar__icon--task"></span>
-        <span class="sidebar__label">Giao việc</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.task }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.task }">
-        <router-link
-          to="/production/task/assign"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Phân công công việc</router-link
-        >
-        <router-link
-          to="/production/task/tracking"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Theo dõi công việc</router-link
-        >
-      </div>
-
-      <!-- Giá thành kế hoạch -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.cost,
-          'sidebar__item--parent-active':
-            openMenus.cost &&
-            isParentActive(['/production/cost/estimate', '/production/cost/actual']),
-        }"
-        @click="toggleMenu('cost')"
-      >
-        <span class="sidebar__icon sidebar__icon--price"></span>
-        <span class="sidebar__label">Giá thành kế hoạch</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.cost }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.cost }">
-        <router-link
-          to="/production/cost/estimate"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Dự toán giá thành</router-link
-        >
-        <router-link
-          to="/production/cost/actual"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Giá thành thực tế</router-link
-        >
-      </div>
-
-      <!-- Thuê gia công -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.outsource,
-          'sidebar__item--parent-active':
-            openMenus.outsource &&
-            isParentActive(['/production/outsource/contract', '/production/outsource/tracking']),
-        }"
-        @click="toggleMenu('outsource')"
-      >
-        <span class="sidebar__icon sidebar__icon--outsource"></span>
-        <span class="sidebar__label">Thuê gia công</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.outsource }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.outsource }">
-        <router-link
-          to="/production/outsource/contract"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Hợp đồng gia công</router-link
-        >
-        <router-link
-          to="/production/outsource/tracking"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Theo dõi gia công</router-link
-        >
-      </div>
-
-      <!-- Truy xuất nguồn gốc -->
-      <router-link
-        to="/production/trace"
-        class="sidebar__item"
-        :class="{ 'sidebar__item--active': isExactActive('/production/trace') }"
-      >
-        <span class="sidebar__icon sidebar__icon--trace"></span>
-        <span class="sidebar__label">Truy xuất nguồn gốc</span>
-      </router-link>
-
-      <div class="sidebar__divider"></div>
-
-      <!-- Báo cáo -->
-      <!-- Báo cáo -->
-      <router-link
-        to="/production/report"
-        class="sidebar__item"
-        :class="{ 'sidebar__item--active': isExactActive('/production/report') }"
-      >
-        <span class="sidebar__icon sidebar__icon--report"></span>
-        <span class="sidebar__label">Báo cáo</span>
-      </router-link>
-
-      <div class="sidebar__divider"></div>
-
-      <!-- Sản phẩm, NVL -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.product,
-          'sidebar__item--parent-active':
-            openMenus.product &&
-            isParentActive([
-              '/production/dictionary/product/list',
-              '/production/dictionary/product/material',
-              '/production/dictionary/product/bom',
-            ]),
-        }"
-        @click="toggleMenu('product')"
-      >
-        <span class="sidebar__icon sidebar__icon--product"></span>
-        <span class="sidebar__label">Sản phẩm, NVL</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.product }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.product }">
-        <router-link
-          to="/production/dictionary/product/list"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Danh sách sản phẩm</router-link
-        >
-        <router-link
-          to="/production/dictionary/product/material"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Nguyên vật liệu</router-link
-        >
-        <router-link
-          to="/production/dictionary/product/bom"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Định mức nguyên liệu (BOM)</router-link
-        >
-      </div>
-
-      <!-- Quy trình sản xuất -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.process,
-          'sidebar__item--parent-active':
-            openMenus.process &&
-            isParentActive([
-              '/production/dictionary/process/routing',
-              '/production/dictionary/process/operation',
-            ]),
-        }"
-        @click="toggleMenu('process')"
-      >
-        <span class="sidebar__icon sidebar__icon--process"></span>
-        <span class="sidebar__label">Quy trình sản xuất</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.process }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.process }">
-        <router-link
-          to="/production/dictionary/process/routing"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Quy trình (Routing)</router-link
-        >
-        <router-link
-          to="/production/dictionary/process/operation"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Công đoạn sản xuất</router-link
-        >
-      </div>
-
-      <!-- Năng lực sản xuất -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.capacity,
-          'sidebar__item--parent-active':
-            openMenus.capacity &&
-            isParentActive([
-              '/production/dictionary/capacity/machine',
-              '/production/dictionary/capacity/workcenter',
-            ]),
-        }"
-        @click="toggleMenu('capacity')"
-      >
-        <span class="sidebar__icon sidebar__icon--capacity"></span>
-        <span class="sidebar__label">Năng lực sản xuất</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.capacity }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.capacity }">
-        <router-link
-          to="/production/dictionary/capacity/machine"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Máy móc thiết bị</router-link
-        >
-        <router-link
-          to="/production/dictionary/capacity/workcenter"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Trung tâm làm việc</router-link
-        >
-      </div>
-
-      <!-- Danh mục khác (flyout) -->
-      <div
-        class="sidebar__item sidebar__item--other"
-        :class="{ 'sidebar__item--active': isOtherActive }"
-        @mouseenter="showFlyout = true"
-        @mouseleave="showFlyout = false"
-      >
-        <span class="sidebar__icon sidebar__icon--other"></span>
-        <span class="sidebar__label">Danh mục khác</span>
-        <i class="sidebar__chevron sidebar__chevron--right"></i>
-
-        <!-- Flyout menu -->
-        <transition name="flyout">
-          <div class="sidebar__flyout" v-show="showFlyout">
-            <div class="flyout__columns">
-              <!-- Đối tượng -->
-              <div class="flyout__col">
-                <div class="flyout__col-title">Đối tượng</div>
-                <router-link
-                  to="/category/customer"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Khách hàng</router-link
-                >
-                <router-link
-                  to="/category/supplier"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Nhà cung cấp</router-link
-                >
-                <router-link
-                  to="/category/employee"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Nhân viên</router-link
-                >
-                <router-link
-                  to="/category/cost-object"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Đối tượng tập hợp chi phí</router-link
-                >
-              </div>
-
-              <!-- Lịch làm việc -->
-              <div class="flyout__col">
-                <div class="flyout__col-title">Lịch làm việc</div>
-                <router-link
-                  to="/production/dictionary/shift"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                >
-                  Ca làm việc
-                </router-link>
-                <router-link
-                  to="/category/holiday"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Ngày nghỉ</router-link
-                >
-                <router-link
-                  to="/category/work-calendar"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Lịch làm việc</router-link
-                >
-              </div>
-
-              <!-- Khác -->
-              <div class="flyout__col">
-                <div class="flyout__col-title">Khác</div>
-                <router-link
-                  to="/category/org-structure"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Cơ cấu tổ chức</router-link
-                >
-                <router-link
-                  to="/category/warehouse"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Kho</router-link
-                >
-                <router-link
-                  to="/category/unit-of-measure"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Đơn vị tính</router-link
-                >
-                <router-link
-                  to="/category/stop-reason"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Lý do dừng công việc</router-link
-                >
-                <router-link
-                  to="/category/currency"
-                  class="flyout__item"
-                  active-class="flyout__item--active"
-                  >Loại tiền</router-link
-                >
+          <transition name="flyout">
+            <div class="sidebar__flyout" v-show="showFlyout">
+              <div class="flyout__columns">
+                <div v-for="col in item.columns" :key="col.title" class="flyout__col">
+                  <div class="flyout__col-title">{{ col.title }}</div>
+                  <router-link
+                    v-for="link in col.items"
+                    :key="link.to"
+                    :to="link.to"
+                    class="flyout__item"
+                    active-class="flyout__item--active"
+                  >
+                    {{ link.label }}
+                  </router-link>
+                </div>
               </div>
             </div>
-          </div>
-        </transition>
-      </div>
+          </transition>
+        </div>
 
-      <!-- Thiết lập -->
-      <div
-        class="sidebar__item sidebar__item--has-sub"
-        :class="{
-          'sidebar__item--sub-open': openMenus.settings,
-          'sidebar__item--parent-active':
-            openMenus.settings &&
-            isParentActive(['/production/settings/general', '/production/settings/permission']),
-        }"
-        @click="toggleMenu('settings')"
-      >
-        <span class="sidebar__icon sidebar__icon--settings"></span>
-        <span class="sidebar__label">Thiết lập</span>
-        <i class="sidebar__chevron" :class="{ 'sidebar__chevron--open': openMenus.settings }"></i>
-      </div>
-      <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus.settings }">
+        <!-- Item có submenu -->
+        <template v-else-if="item.children">
+          <div
+            class="sidebar__item sidebar__item--has-sub"
+            :class="{
+              'sidebar__item--sub-open': openMenus[item.key],
+              'sidebar__item--parent-active':
+                openMenus[item.key] && isParentActive(item.children.map((c) => c.to)),
+            }"
+            @click="toggleMenu(item.key)"
+          >
+            <span class="sidebar__icon" :class="`sidebar__icon--${item.icon}`" />
+            <span class="sidebar__label">{{ item.label }}</span>
+            <i
+              class="sidebar__chevron"
+              :class="{ 'sidebar__chevron--open': openMenus[item.key] }"
+            />
+          </div>
+          <div class="sidebar__submenu" :class="{ 'sidebar__submenu--open': openMenus[item.key] }">
+            <router-link
+              v-for="child in item.children"
+              :key="child.to"
+              :to="child.to"
+              class="sidebar__subitem"
+              active-class="sidebar__subitem--active"
+            >
+              {{ child.label }}
+            </router-link>
+          </div>
+        </template>
+
+        <!-- Item đơn -->
         <router-link
-          to="/production/settings/general"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Cài đặt chung</router-link
+          v-else
+          :to="item.to"
+          class="sidebar__item"
+          :class="{ 'sidebar__item--active': isExactActive(item.to) }"
         >
-        <router-link
-          to="/production/settings/permission"
-          class="sidebar__subitem"
-          active-class="sidebar__subitem--active"
-          >Phân quyền</router-link
-        >
-      </div>
+          <span class="sidebar__icon" :class="`sidebar__icon--${item.icon}`" />
+          <span class="sidebar__label">{{ item.label }}</span>
+        </router-link>
+      </template>
     </nav>
 
     <!-- Thu gọn / Mở rộng -->
@@ -517,20 +86,22 @@
       <span
         class="sidebar__icon sidebar__icon--collapse"
         :class="{ 'sidebar__icon--expand': collapsed }"
-      ></span>
+      />
       <span class="sidebar__label">{{ collapsed ? 'Mở rộng' : 'Thu gọn' }}</span>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue' // thêm watch
+import { ref, reactive, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { MENU_CONFIG } from './sidebar.config'
 
 const props = defineProps({ collapsed: { type: Boolean, default: false } })
 const emit = defineEmits(['update:collapsed'])
 const route = useRoute()
 
+// ── Collapse ──────────────────────────────────────────────────────────────────
 const COLLAPSE_KEY = 'sidebar_collapsed'
 function toggleCollapse() {
   const next = !props.collapsed
@@ -538,7 +109,9 @@ function toggleCollapse() {
   emit('update:collapsed', next)
 }
 
+// ── Open menus ────────────────────────────────────────────────────────────────
 const OPEN_MENUS_KEY = 'sidebar_open_menus'
+
 function loadOpenMenus() {
   try {
     const saved = localStorage.getItem(OPEN_MENUS_KEY)
@@ -549,48 +122,25 @@ function loadOpenMenus() {
 
 const openMenus = reactive(loadOpenMenus())
 
-// Map từng menu key → các route con tương ứng
-const menuRoutes = {
-  plan: ['/production/plan/manufacturing-order', '/production/plan/schedule'],
-  dispatch: ['/production/dispatch/work-order', '/production/dispatch/progress'],
-  quality: ['/production/quality/inspection', '/production/quality/defect'],
-  warehouse: [
-    '/production/warehouse/receipt',
-    '/production/warehouse/issue',
-    '/production/warehouse/inventory',
-  ],
-  task: ['/production/task/assign', '/production/task/tracking'],
-  cost: ['/production/cost/estimate', '/production/cost/actual'],
-  outsource: ['/production/outsource/contract', '/production/outsource/tracking'],
-  product: [
-    '/production/dictionary/product/list',
-    '/production/dictionary/product/material',
-    '/production/dictionary/product/bom',
-  ],
-  process: ['/production/dictionary/process/routing', '/production/dictionary/process/operation'],
-  capacity: [
-    '/production/dictionary/capacity/machine',
-    '/production/dictionary/capacity/workcenter',
-  ],
-  settings: ['/production/settings/general', '/production/settings/permission'],
-}
+// Build map: key → [child routes] — tính từ config, không hardcode
+const menuRoutes = Object.fromEntries(
+  MENU_CONFIG.filter((item) => item.key && item.children).map((item) => [
+    item.key,
+    item.children.map((c) => c.to),
+  ]),
+)
 
-// ✅ Khi route thay đổi: tự động sync openMenus theo route hiện tại
+// Tự động mở menu khi route thay đổi
 watch(
   () => route.path,
   (newPath) => {
     Object.keys(menuRoutes).forEach((key) => {
-      const belongs = menuRoutes[key].some((p) => newPath === p || newPath.startsWith(p + '/'))
-      openMenus[key] = belongs
+      openMenus[key] = menuRoutes[key].some((p) => newPath === p || newPath.startsWith(p + '/'))
     })
     localStorage.setItem(OPEN_MENUS_KEY, JSON.stringify({ ...openMenus }))
   },
   { immediate: true },
 )
-function isExactActive(path) {
-  if (route.path !== path) return false
-  return !Object.values(openMenus).some(Boolean)
-}
 
 function toggleMenu(key) {
   const isOpen = openMenus[key]
@@ -601,16 +151,24 @@ function toggleMenu(key) {
   localStorage.setItem(OPEN_MENUS_KEY, JSON.stringify({ ...openMenus }))
 }
 
+// ── Active helpers ─────────────────────────────────────────────────────────────
+function isExactActive(path) {
+  return route.path === path && !Object.values(openMenus).some(Boolean)
+}
+
 function isParentActive(childPaths) {
   return childPaths.some((p) => route.path === p || route.path.startsWith(p + '/'))
 }
 
+// Flyout active: kiểm tra các prefix từ config
+function isOtherActive(item) {
+  return (
+    item.activePrefixes.some((prefix) => route.path.startsWith(prefix)) &&
+    !Object.values(openMenus).some(Boolean)
+  )
+}
+
 const showFlyout = ref(false)
-const otherRoutes = ['/category/', '/production/dictionary/shift']
-const isOtherActive = computed(() =>
-  otherRoutes.some((prefix) => route.path.startsWith(prefix)) &&
-  !Object.values(openMenus).some(Boolean)
-)
 </script>
 
 <style scoped>
@@ -635,8 +193,8 @@ const isOtherActive = computed(() =>
 }
 
 .sidebar--collapsed {
-  width: 52px;
-  min-width: 52px;
+  width: 60px;
+  min-width: 60px;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -646,11 +204,12 @@ const isOtherActive = computed(() =>
 /* ===== NAV ===== */
 .sidebar__nav {
   flex: 1;
-  padding: 8px 0;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   overflow: visible;
   gap: 4px;
+  border-bottom: 1px solid rgba(209, 213, 219, .3);
 }
 
 /* ===== ITEM ===== */
@@ -670,6 +229,7 @@ const isOtherActive = computed(() =>
     color 0.15s;
   white-space: nowrap;
   overflow: hidden;
+  border-radius: 4px;
 }
 
 .sidebar__item:hover {
@@ -677,37 +237,17 @@ const isOtherActive = computed(() =>
   color: var(--sidebar-text-hover);
 }
 
-.sidebar__item--active {
-  background-color: var(--primary) !important;
-  color: #fff !important;
-}
-
-.sidebar__item--active .sidebar__icon,
-.sidebar__item--active .sidebar__chevron {
-  background-color: #fff !important;
-}
-
-/* Menu cha active khi con được chọn */
-.sidebar__item--parent-active {
-  background-color: var(--primary) !important;
-  color: #fff !important;
-}
-
-.sidebar__item--parent-active .sidebar__icon,
-.sidebar__item--parent-active .sidebar__chevron {
-  background-color: #fff !important;
-}
-
+.sidebar__item--active,
+.sidebar__item--parent-active,
 .sidebar__item--sub-open {
   background-color: var(--primary) !important;
   color: #fff !important;
 }
 
-/* Sub-open bị override nếu parent-active */
-.sidebar__item--parent-active.sidebar__item--sub-open {
-  background-color: var(--primary) !important;
-}
-
+.sidebar__item--active .sidebar__icon,
+.sidebar__item--active .sidebar__chevron,
+.sidebar__item--parent-active .sidebar__icon,
+.sidebar__item--parent-active .sidebar__chevron,
 .sidebar__item--sub-open .sidebar__icon,
 .sidebar__item--sub-open .sidebar__chevron {
   background-color: #fff !important;
@@ -726,6 +266,7 @@ const isOtherActive = computed(() =>
   opacity: 0;
   pointer-events: none;
   width: 0;
+  display: none;
 }
 
 /* ===== CHEVRON ===== */
@@ -734,7 +275,6 @@ const isOtherActive = computed(() =>
   width: 20px;
   min-height: 20px;
   min-width: 20px;
-  position: relative;
   background-color: var(--sidebar-text);
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.1.2.4);
   mask-position: -200px -16px;
@@ -777,7 +317,7 @@ const isOtherActive = computed(() =>
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 8px 16px; /* giống item cha, bỏ padding-left: 46px */
+  padding: 8px 16px;
   color: var(--sidebar-text);
   font-size: 13px;
   font-weight: 400;
@@ -798,10 +338,9 @@ const isOtherActive = computed(() =>
   opacity: 1;
 }
 
-/* Icon — hiển thị thường xuyên, không chỉ khi hover */
 .sidebar__subitem::before {
   content: '';
-  background-color: var(--sidebar-text); /* màu mờ khi bình thường */
+  background-color: var(--sidebar-text);
   visibility: hidden;
   width: 20px;
   height: 20px;
@@ -813,15 +352,9 @@ const isOtherActive = computed(() =>
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
 
-/* Icon sáng lên khi hover */
 .sidebar__subitem:hover::before,
 .sidebar__subitem--active::before {
   visibility: visible;
-  background-color: #fff;
-}
-
-/* Icon trắng khi active */
-.sidebar__subitem--active::before {
   background-color: #fff;
 }
 
@@ -836,14 +369,14 @@ const isOtherActive = computed(() =>
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
+  padding: 18px 16px;
   color: var(--sidebar-text);
   cursor: pointer;
   font-size: 13px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
   transition: color 0.15s;
   white-space: nowrap;
   overflow: hidden;
+  margin: auto auto;
 }
 
 .sidebar__footer:hover {
@@ -868,17 +401,14 @@ const isOtherActive = computed(() =>
   mask-position: -6px -7px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
-
 .sidebar__icon--order {
   mask-position: -344px -86px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
-
 .sidebar__icon--plan {
   mask-position: -32px -7px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
-
 .sidebar__icon--dispatch {
   mask-position: -57px -7px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
@@ -933,13 +463,13 @@ const isOtherActive = computed(() =>
 }
 .sidebar__icon--collapse {
   mask-position: -140px -16px;
-  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
+  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.1.2.4);
 }
 .sidebar__icon--expand {
   transform: scaleX(-1);
 }
 
-/* ===== FLYOUT MENU ===== */
+/* ===== FLYOUT ===== */
 .sidebar__item--other {
   position: relative;
 }
@@ -947,7 +477,6 @@ const isOtherActive = computed(() =>
 .sidebar__flyout {
   position: fixed;
   left: var(--sidebar-width, 220px);
-  top: auto;
   background-color: #1f2937;
   border-radius: 6px;
   box-shadow: 4px 4px 24px rgba(0, 0, 0, 0.5);
@@ -990,7 +519,9 @@ const isOtherActive = computed(() =>
   font-size: 13px;
   font-weight: 400;
   text-decoration: none;
-  transition: background-color 0.12s, color 0.12s;
+  transition:
+    background-color 0.12s,
+    color 0.12s;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -998,19 +529,6 @@ const isOtherActive = computed(() =>
   position: relative;
 }
 
-.flyout__item:hover {
-  background-color: rgba(255, 255, 255, 0.07);
-  color: var(--sidebar-text-hover);
-  opacity: 1;
-}
-
-.flyout__item--active {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.08);
-  opacity: 1;
-}
-
-/* Icon ::before giống hệt sidebar__subitem */
 .flyout__item::before {
   content: '';
   background-color: var(--sidebar-text);
@@ -1034,22 +552,13 @@ const isOtherActive = computed(() =>
 .flyout__item:hover {
   background-color: rgba(255, 255, 255, 0.08);
   color: #fff;
+  opacity: 1;
 }
 
 .flyout__item--active {
   background-color: rgba(0, 155, 113, 0.2);
   color: #fff;
-}
-
-.flyout__sub-icon {
-  width: 14px;
-  height: 14px;
-  min-width: 14px;
-  background-color: var(--primary);
-  -webkit-mask-size: auto;
-  mask-position: -8px -428px;
-  -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
-  -webkit-mask-repeat: no-repeat;
+  opacity: 1;
 }
 
 /* ===== FLYOUT TRANSITION ===== */
@@ -1059,25 +568,33 @@ const isOtherActive = computed(() =>
     opacity 0.15s ease,
     transform 0.15s ease;
 }
-
 .flyout-enter-from,
 .flyout-leave-to {
   opacity: 0;
   transform: translateX(-6px);
 }
 
-/* ===== COLLAPSED TOOLTIP ===== */
+/* ===== COLLAPSED ===== */
 .sidebar--collapsed .sidebar__item {
   justify-content: center;
-  padding: 9px 0;
+  padding: 8px;
 }
 
 .sidebar--collapsed .sidebar__footer {
   justify-content: center;
-  padding: 12px 0;
+  /* padding: 12px 0; */
 }
+
+
 
 .sidebar--collapsed .sidebar__chevron {
   display: none;
+}
+
+/* ===== DIVIDER ===== */
+.sidebar__divider {
+  height: 1px;
+  background-color: rgba(209, 213, 219, .3);
+  margin: 4px 0;
 }
 </style>
