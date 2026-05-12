@@ -95,6 +95,7 @@ export const shiftService = {
     return data
   },
 
+
   async update(shift) {
     const { data } = await api.put(`/Shift/${shift.productionShiftID}`, toBackend(shift))
     return data

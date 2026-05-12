@@ -9,90 +9,120 @@
     @update:modelValue="(v) => !v && $emit('close')"
   >
     <div class="shift-form">
-      <!-- Mã ca + Tên ca -->
-      <div class="shift-form__row">
-        <MsInput
-          ref="codeRef"
-          label="Mã ca"
-          placeholder="Nhập mã ca"
-          v-model="form.productionShiftCode"
-          :required="true"
-          :error="errors.productionShiftCode"
-          maxlength="20"
-          @blur="validateField('productionShiftCode')"
-        />
-        <MsInput
-          ref="nameRef"
-          label="Tên ca"
-          placeholder="Nhập tên ca"
-          v-model="form.productionShiftName"
-          :required="true"
-          :error="errors.productionShiftName"
-          maxlength="50"
-          @blur="validateField('productionShiftName')"
-        />
+      <!-- Mã ca — full width -->
+      <div class="sf-row sf-row--full">
+        <label class="sf-label">
+          Mã ca <span class="sf-required">*</span>
+        </label>
+        <div class="sf-control">
+          <input
+            ref="codeRef"
+            class="sf-input"
+            :class="{ 'sf-input--invalid': errors.productionShiftCode }"
+            v-model="form.productionShiftCode"
+            maxlength="20"
+            @blur="validateField('productionShiftCode')"
+          />
+          <div v-if="errors.productionShiftCode" class="sf-error">
+            {{ errors.productionShiftCode }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tên ca — full width -->
+      <div class="sf-row sf-row--full">
+        <label class="sf-label">
+          Tên ca <span class="sf-required">*</span>
+        </label>
+        <div class="sf-control">
+          <input
+            ref="nameRef"
+            class="sf-input"
+            :class="{ 'sf-input--invalid': errors.productionShiftName }"
+            v-model="form.productionShiftName"
+            maxlength="50"
+            @blur="validateField('productionShiftName')"
+          />
+          <div v-if="errors.productionShiftName" class="sf-error">
+            {{ errors.productionShiftName }}
+          </div>
+        </div>
       </div>
 
       <!-- Giờ vào ca + Giờ hết ca -->
-      <div class="shift-form__row">
-        <MsInput
-          ref="startRef"
-          label="Giờ vào ca"
-          type="time"
-          v-model="form.startTime"
-          :required="true"
-          :error="errors.startTime"
-          @blur="validateField('startTime')"
-        />
-        <MsInput
-          ref="endRef"
-          label="Giờ hết ca"
-          type="time"
-          v-model="form.endTime"
-          :required="true"
-          :error="errors.endTime"
-          @blur="validateField('endTime')"
-        />
-      </div>
-
-      <!-- Bắt đầu nghỉ giữa ca + Kết thúc nghỉ giữa ca -->
-      <div class="shift-form__row">
-        <MsInput
-          label="Bắt đầu nghỉ giữa ca"
-          type="time"
-          v-model="form.breakStartTime"
-        />
-        <MsInput
-          label="Kết thúc nghỉ giữa ca"
-          type="time"
-          v-model="form.breakEndTime"
-        />
-      </div>
-
-      <!-- Thời gian làm việc + Thời gian nghỉ (readonly, tự tính) -->
-      <div class="shift-form__row">
-        <div class="shift-form__computed">
-          <label class="ms-input__label">Thời gian làm việc (giờ)</label>
-          <div class="shift-form__computed-value">{{ computedWorkHour }}</div>
+      <div class="sf-row sf-row--half">
+        <label class="sf-label">
+          Giờ vào ca <span class="sf-required">*</span>
+        </label>
+        <div class="sf-control">
+          <MsTimePicker
+            ref="startRef"
+            v-model="form.startTime"
+            :error="errors.startTime"
+            @blur="validateField('startTime')"
+          />
+          <div v-if="errors.startTime" class="sf-error">{{ errors.startTime }}</div>
         </div>
-        <div class="shift-form__computed">
-          <label class="ms-input__label">Thời gian nghỉ giữa ca (giờ)</label>
-          <div class="shift-form__computed-value">{{ computedBreakHour }}</div>
+
+        <label class="sf-label">
+          Giờ hết ca <span class="sf-required">*</span>
+        </label>
+        <div class="sf-control">
+          <MsTimePicker
+            ref="endRef"
+            v-model="form.endTime"
+            :error="errors.endTime"
+            @blur="validateField('endTime')"
+          />
+          <div v-if="errors.endTime" class="sf-error">{{ errors.endTime }}</div>
         </div>
       </div>
 
-      <!-- Mô tả -->
-      <MsInput
-        label="Mô tả"
-        type="textarea"
-        placeholder="Nhập mô tả"
-        v-model="form.description"
-      />
+      <!-- Bắt đầu nghỉ + Kết thúc nghỉ -->
+      <div class="sf-row sf-row--half">
+        <label class="sf-label">Bắt đầu nghỉ giữa ca</label>
+        <div class="sf-control">
+          <MsTimePicker v-model="form.breakStartTime" />
+        </div>
+
+        <label class="sf-label">Kết thúc nghỉ giữa ca</label>
+        <div class="sf-control">
+          <MsTimePicker v-model="form.breakEndTime" />
+        </div>
+      </div>
+
+      <!-- Thời gian làm việc + Thời gian nghỉ -->
+      <div class="sf-row sf-row--half">
+        <label class="sf-label">Thời gian làm việc (giờ)</label>
+        <div class="sf-control">
+          <div class="sf-readonly">{{ computedWorkHour }}</div>
+        </div>
+
+        <label class="sf-label">Thời gian nghỉ giữa ca (giờ)</label>
+        <div class="sf-control">
+          <div class="sf-readonly">{{ computedBreakHour }}</div>
+        </div>
+      </div>
+
+      <!-- Mô tả — full width -->
+      <div class="sf-row sf-row--full">
+        <label class="sf-label sf-label--top">Mô tả</label>
+        <div class="sf-control">
+          <textarea
+            class="sf-input sf-textarea"
+            v-model="form.description"
+            placeholder="Nhập mô tả"
+          ></textarea>
+        </div>
+      </div>
     </div>
 
     <template #footer>
       <MsButton type="cancel" @click="$emit('close')">Huỷ</MsButton>
-      <MsButton type="save" :loading="saving" @click="handleSave">Cất</MsButton>
+      <MsButton type="save-and-add" :loading="saving" @click="handleSaveAndAdd">
+        Lưu và Thêm
+      </MsButton>
+      <MsButton type="save" :loading="saving" @click="handleSave">Lưu</MsButton>
     </template>
   </MsModal>
 </template>
@@ -101,11 +131,11 @@
 import { ref, watch, computed, nextTick } from 'vue'
 import MsModal from './ms-modal/MsModal.vue'
 import MsButton from './ms-button/MsButton.vue'
-import MsInput from './ms-input/MsInput.vue'
+import MsTimePicker from './ms-time-picker/MsTimePicker.vue'
 
 const props = defineProps({
   visible: Boolean,
-  editingShift: Object, // null = thêm mới, object = sửa/nhân bản
+  editingShift: Object,
 })
 
 const emit = defineEmits(['close', 'saved'])
@@ -114,13 +144,11 @@ const localVisible = computed(() => props.visible)
 const saving = ref(false)
 
 const formTitle = computed(() => {
-  if (!props.editingShift) return 'Thêm ca làm việc'
-  // Nếu editingShift không có ID → nhân bản
-  if (!props.editingShift.productionShiftID) return 'Nhân bản ca làm việc'
-  return 'Sửa ca làm việc'
+  if (!props.editingShift) return 'Thêm Ca làm việc'
+  if (!props.editingShift.productionShiftID) return 'Nhân bản Ca làm việc'
+  return 'Sửa Ca làm việc'
 })
 
-// Form data
 const EMPTY_FORM = () => ({
   productionShiftID: null,
   productionShiftCode: '',
@@ -136,7 +164,6 @@ const EMPTY_FORM = () => ({
 const form = ref(EMPTY_FORM())
 const errors = ref({})
 
-// Refs cho validate focus
 const codeRef = ref(null)
 const nameRef = ref(null)
 const startRef = ref(null)
@@ -149,7 +176,6 @@ const fieldRefMap = {
   endTime: endRef,
 }
 
-// Tự tính thời gian làm việc và thời gian nghỉ
 const computedBreakHour = computed(() => {
   if (!form.value.breakStartTime || !form.value.breakEndTime) return 0
   let diff = timeToMinutes(form.value.breakEndTime) - timeToMinutes(form.value.breakStartTime)
@@ -171,16 +197,12 @@ function timeToMinutes(timeStr) {
   return parseInt(parts[0]) * 60 + parseInt(parts[1])
 }
 
-/**
- * Format "01:00:00" → "01:00" cho input type=time
- */
 function formatTimeForInput(ts) {
   if (!ts) return ''
   const parts = ts.split(':')
   return `${parts[0]}:${parts[1]}`
 }
 
-// Watch visible để reset/fill form
 watch(
   () => props.visible,
   (v) => {
@@ -206,13 +228,11 @@ watch(
   },
 )
 
-// Xóa lỗi khi người dùng sửa
 watch(() => form.value.productionShiftCode, (v) => { if (v?.trim()) errors.value.productionShiftCode = '' })
 watch(() => form.value.productionShiftName, (v) => { if (v?.trim()) errors.value.productionShiftName = '' })
 watch(() => form.value.startTime, (v) => { if (v) errors.value.startTime = '' })
 watch(() => form.value.endTime, (v) => { if (v) errors.value.endTime = '' })
 
-// Validate
 function validateField(field) {
   switch (field) {
     case 'productionShiftCode':
@@ -239,20 +259,38 @@ function validate() {
   return Object.values(errors.value).every((e) => !e)
 }
 
-async function handleSave() {
-  if (!validate()) {
-    const ORDER = ['productionShiftCode', 'productionShiftName', 'startTime', 'endTime']
-    const firstKey = ORDER.find((k) => errors.value[k])
-    if (firstKey) nextTick(() => fieldRefMap[firstKey]?.value?.focus())
-    return
+function focusFirstError() {
+  const ORDER = ['productionShiftCode', 'productionShiftName', 'startTime', 'endTime']
+  const firstKey = ORDER.find((k) => errors.value[k])
+  if (firstKey) {
+    nextTick(() => {
+      const refEl = fieldRefMap[firstKey]?.value
+      if (refEl?.focus) refEl.focus()
+    })
   }
+}
+
+async function handleSave() {
+  if (!validate()) { focusFirstError(); return }
   if (saving.value) return
   saving.value = true
-
   emit('saved', {
     ...form.value,
     workHour: computedWorkHour.value,
     breakHour: computedBreakHour.value,
+    _action: 'save',
+  })
+}
+
+async function handleSaveAndAdd() {
+  if (!validate()) { focusFirstError(); return }
+  if (saving.value) return
+  saving.value = true
+  emit('saved', {
+    ...form.value,
+    workHour: computedWorkHour.value,
+    breakHour: computedBreakHour.value,
+    _action: 'save-and-add',
   })
 }
 </script>
@@ -263,20 +301,92 @@ async function handleSave() {
   flex-direction: column;
   gap: 16px;
 }
-.shift-form__row {
-  display: flex;
-  gap: 16px;
+
+/* ===== ROW — CSS Grid đều 2 bên ===== */
+.sf-row {
+  display: grid;
+  align-items: start;
+  column-gap: 10px;
+  row-gap: 4px;
 }
-.shift-form__row > * {
-  flex: 1;
+
+/* Full-width: label trái + input kéo hết phải */
+.sf-row--full {
+  grid-template-columns: 130px 1fr;
 }
-.shift-form__computed {
+
+/* Chia đôi đều: [label1][input1] [label2][input2]
+   Dùng tỉ lệ cố định để 2 bên hoàn toàn đối xứng */
+.sf-row--half {
+  grid-template-columns: 130px 1fr 130px 1fr;
+}
+
+/* ===== LABEL ===== */
+.sf-label {
+  font-size: 13px;
+  color: #262626;
+  font-weight: 500;
+  line-height: 28px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sf-label--top {
+  line-height: 1.3;
+  padding-top: 8px;
+}
+
+.sf-required {
+  color: #dc2626;
+}
+
+/* ===== CONTROL ===== */
+.sf-control {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.shift-form__computed-value {
-  height: 36px;
+
+/* ===== INPUT ===== */
+.sf-input {
+  width: 100%;
+  height: 28px;
+  border: 1px solid #D1D5DB;
+  border-radius: 4px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #1f2937;
+  background-color: #fff;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sf-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 155, 113, 0.1);
+}
+
+.sf-input::placeholder {
+  color: #9ca3af;
+}
+
+.sf-input--invalid {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15) !important;
+}
+
+.sf-textarea {
+  height: 68px;
+  padding: 8px 10px;
+  resize: vertical;
+      border: 1px solid #d5dfe2;
+}
+
+.sf-readonly {
+  height: 28px;
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -285,5 +395,11 @@ async function handleSave() {
   border-radius: 4px;
   font-size: 13px;
   color: #374151;
+  max-width: 122px;
+}
+
+.sf-error {
+  font-size: 12px;
+  color: #dc2626;
 }
 </style>

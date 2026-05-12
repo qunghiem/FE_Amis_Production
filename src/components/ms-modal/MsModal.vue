@@ -1,6 +1,5 @@
 <!-- modal tái sử dụng -->
 
-
 <template>
   <teleport to="body">
     <div v-if="modelValue" class="ms-modal__overlay" @click.self="onOverlayClick">
@@ -62,25 +61,43 @@ function onOverlayClick() {
   flex-direction: column;
   max-height: 90vh;
   overflow: hidden;
+  width: 680px !important;
 }
 .ms-modal__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px 16px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 20px;
   flex-shrink: 0;
+
 }
-.ms-modal__title { font-size: 18px; font-weight: 600; color: #1f1f1f; }
+.ms-modal__title {
+  font-weight: 700;
+    font-size: 24px;
+  color: #111827;
+}
 .ms-modal__close {
-  background: none; border: none; cursor: pointer;
-  padding: 4px; color: #6b7280; font-size: 18px;
-  display: flex; align-items: center; border-radius: 4px;
-  transition: background 0.15s, color 0.15s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #6b7280;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
-.ms-modal__close:hover { background: #f3f4f6; color: #111; }
+.ms-modal__close:hover {
+  background: #f3f4f6;
+  color: #111;
+}
 .ms-modal__body {
-  flex: 1; overflow-y: auto; padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
 }
 .ms-modal__footer {
   padding: 12px 24px;

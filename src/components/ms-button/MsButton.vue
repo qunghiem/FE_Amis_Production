@@ -46,11 +46,6 @@ const btnClass = computed(() => [
 }
 .ms-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
-/* Sizes */
-/* .ms-btn--small { font-size: 13px; padding: 0 10px; height: 30px; }
-.ms-btn--medium { font-size: 14px; padding: 6px 16px; height: 36px; }
-.ms-btn--large { font-size: 14px; padding: 8px 20px; height: 40px; } */
-
 /* Types */
 .ms-btn--primary {
   background-color: var(--primary);
@@ -82,6 +77,16 @@ const btnClass = computed(() => [
   height: auto;
 }
 .ms-btn--save:hover:not(:disabled) { background-color: var(--primary-hover); }
+
+.ms-btn--save-and-add {
+  background-color: #fff;
+  color: #374151;
+  border: 1px solid var(--border-color);
+  font-size: 14px;
+  padding: 8px 16px;
+  height: auto;
+}
+.ms-btn--save-and-add:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
 
 .ms-btn--cancel {
   background-color: transparent;
