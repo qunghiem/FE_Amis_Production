@@ -18,9 +18,9 @@
               <MsColumnFilter
                 v-if="col.filterable"
                 :label="col.label"
-                :property="col.key"
+                :property="col.filterKey || col.key"
                 :filter-type="col.filterType || 'string'"
-                :current-filter="getFilterForCol(col.key)"
+                :current-filter="getFilterForCol(col.filterKey || col.key)"
                 @apply="(f) => $emit('filter-apply', f)"
                 @clear="(prop) => $emit('filter-clear', prop)"
               />
@@ -38,15 +38,15 @@
         </tr>
 
         <tr
-  v-for="(row, rowIndex) in rows"
-  :key="row[rowKey] ?? rowIndex"
-  class="ms-table__row"
-  :class="{
-    'ms-table__row--selected': isSelected(row[rowKey]),
-    'ms-table__row--active': row[rowKey] === activeRowId && !isSelected(row[rowKey]),
-  }"
-  @click="$emit('row-click', row)"
->
+          v-for="(row, rowIndex) in rows"
+          :key="row[rowKey] ?? rowIndex"
+          class="ms-table__row"
+          :class="{
+            'ms-table__row--selected': isSelected(row[rowKey]),
+            'ms-table__row--active': row[rowKey] === activeRowId && !isSelected(row[rowKey]),
+          }"
+          @click="$emit('row-click', row)"
+        >
           <td v-if="selectable" class="ms-table__td ms-table__checkbox">
             <input
               type="checkbox"
@@ -90,7 +90,7 @@ const props = defineProps({
   selectable: { type: Boolean, default: false },
   allChecked: { type: Boolean, default: false },
   isSelected: { type: Function, default: () => false },
-  activeRowId: { type: [String, Number, null], default: null },  // ← ADD
+  activeRowId: { type: [String, Number, null], default: null },
   emptyText: { type: String, default: 'Không có dữ liệu' },
   activeFilters: { type: Array, default: () => [] },
 })
@@ -112,7 +112,7 @@ function getFilterForCol(key) {
 .ms-table__wrapper {
   flex: 1;
   overflow-x: auto;
-  overflow-y: visible;   /* ← cho phép dropdown tràn ra ngoài */
+  overflow-y: visible;
   position: relative;
 }
 .ms-table {
@@ -149,21 +149,19 @@ function getFilterForCol(key) {
   gap: 6px;
   justify-content: space-between;
   cursor: pointer;
-      border-right: 1px solid #D1D5DB;
-    padding: 0 15px;
+  border-right: 1px solid #D1D5DB;
+  padding: 0 15px;
 }
 
 input[type="checkbox"] {
   width: 16px;
-    height: 16px;
-    background-color: #fff;
-    border: 1.5px solid #D1D5DB;
-
-    border-radius: 2px;
-    appearance: none;
+  height: 16px;
+  background-color: #fff;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 2px;
+  appearance: none;
 }
 
-/* Action header: vừa 2 icon (28px x2 + gap) */
 .ms-table__th--action {
   width: 72px;
   min-width: 72px;
@@ -215,12 +213,10 @@ input[type="checkbox"] {
   background-color: var(--primary-selected-bg, #a4f6d3);
 }
 
-
 .ms-table__row--selected .ms-table__checkbox {
   background-color: var(--primary-selected-bg);
 }
 
-/* Action cell: sticky phải, luôn hiển thị */
 .ms-table__col-action {
   position: sticky;
   right: 0;
@@ -239,8 +235,7 @@ input[type="checkbox"] {
 }
 
 .ms-table__row:hover .ms-table__col-action {
-    background: none;
-
+  background: none;
 }
 
 .ms-table__empty {
@@ -255,39 +250,34 @@ input[type="checkbox"] {
   background-color: var(--primary-selected-bg, #a4f6d3);
 }
 
-/* Row được click (highlight) nhưng chưa tick checkbox */
 .ms-table__row--active {
   background-color: #a4f6d3;
 }
 .ms-table__row--active:hover {
-    background-color: #a4f6d3;
-
+  background-color: #a4f6d3;
 }
 .ms-table__row--active .ms-table__checkbox {
-    background-color: #a4f6d3;
-
+  background-color: #a4f6d3;
 }
 .ms-table__row--active .ms-table__col-action {
-   background-color: #a4f6d3;
-
+  background-color: #a4f6d3;
 }
 
-/* Checkbox khi được checked hiển thị icon tick */
 input[type="checkbox"]:checked {
   background-color: var(--primary, #009b71);
   border-color: var(--primary, #009b71);
   position: relative;
 }
 input[type="checkbox"]:checked::after {
-    content: '';
-    position: absolute;
-    width: 9px;
-    height: 5.33px;
-    top: -1.5px;
-    left: -1px;
-    border-width: 0 0 1.5px 1.5px;
-    border-style: solid;
-    border-color: #fff;
-    transform: rotate(-45deg) translateY(5px);
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 5.33px;
+  top: -1.5px;
+  left: -1px;
+  border-width: 0 0 1.5px 1.5px;
+  border-style: solid;
+  border-color: #fff;
+  transform: rotate(-45deg) translateY(5px);
 }
 </style>

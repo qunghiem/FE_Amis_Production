@@ -49,23 +49,42 @@
         </button>
       </div>
 
+      <!-- ===== FILTER BAR: hiển thị các bộ lọc đang áp dụng ===== -->
+      <div v-if="store.filters.length > 0" class="shift-page__filter-bar">
+        <span class="filter-bar__label">Đã lọc {{ store.filters.length }}</span>
+        <MsButton type="text" @click="clearAllFilters">Bỏ chọn</MsButton>
+        <div class="filter-bar__separator"></div>
+        <div
+          v-for="(filter, idx) in store.filters"
+          :key="idx"
+          class="filter-bar__tag"
+        >
+          <span class="filter-bar__tag-text">
+            {{ getFilterLabel(filter) }}
+          </span>
+          <button class="filter-bar__tag-remove" @click="removeFilter(filter.Property)">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
       <!-- Table -->
       <MsTable
-  :columns="COLUMNS"
-  :rows="store.pageData"
-  row-key="productionShiftID"
-  :selectable="true"
-  :all-checked="allPageChecked"
-  :is-selected="store.isSelected"
-  :active-row-id="activeRowId"
-  :active-filters="store.filters"
-  empty-text="Chưa có ca làm việc nào"
-  @toggle-all="toggleAll"
-  @toggle-row="(id) => store.toggleSelect(id)"
-  @row-click="(row) => activeRowId = activeRowId === row.productionShiftID ? null : row.productionShiftID"
-  @filter-apply="handleFilterApply"
-  @filter-clear="handleFilterClear"
->
+        :columns="COLUMNS"
+        :rows="store.pageData"
+        row-key="productionShiftID"
+        :selectable="true"
+        :all-checked="allPageChecked"
+        :is-selected="store.isSelected"
+        :active-row-id="activeRowId"
+        :active-filters="store.filters"
+        empty-text="Chưa có ca làm việc nào"
+        @toggle-all="toggleAll"
+        @toggle-row="(id) => store.toggleSelect(id)"
+        @row-click="(row) => activeRowId = activeRowId === row.productionShiftID ? null : row.productionShiftID"
+        @filter-apply="handleFilterApply"
+        @filter-clear="handleFilterClear"
+      >
         <!-- Thời gian làm việc -->
         <template #cell-workHour="{ row }">
           <span :class="{ 'text-orange': row.workHour < 0 }">
@@ -92,7 +111,7 @@
             <span class="action-icon action-icon--edit"></span>
           </button>
 
-          <!-- Nút More — chỉ toggle, dropdown được teleport ra body -->
+          <!-- Nút More -->
           <button
             class="action-btn"
             title="Thêm tùy chọn"
@@ -141,7 +160,7 @@
     </div>
   </main>
 
-  <!-- ===== TELEPORT: More dropdown ra body để không bị overflow clip ===== -->
+  <!-- ===== TELEPORT: More dropdown ra body ===== -->
   <teleport to="body">
     <div
       v-if="moreMenuId !== null"
@@ -154,7 +173,6 @@
       }"
       @click.stop
     >
-      <!-- Lấy row từ store để hiển thị đúng trạng thái -->
       <template v-if="moreMenuRow">
         <div class="action-more__item" @click="handleDuplicate(moreMenuId)">
           <span class="dropdown-icon dropdown-icon--clone"></span>
@@ -177,12 +195,12 @@
 
   <!-- Form thêm/sửa/nhân bản -->
   <ShiftForm
-  ref="shiftFormRef"
-  :visible="formVisible"
-  :editingShift="editingShift"
-  @close="closeModal"
-  @saved="handleSaved"
-/>
+    ref="shiftFormRef"
+    :visible="formVisible"
+    :editingShift="editingShift"
+    @close="closeModal"
+    @saved="handleSaved"
+  />
 
   <!-- Confirm xóa -->
   <ConfirmModal
@@ -195,7 +213,7 @@
     @cancel="closeConfirm"
   />
 
-  <!-- ===== WARNING POPUP: Cảnh báo trùng mã ===== -->
+  <!-- ===== WARNING POPUP ===== -->
   <teleport to="body">
     <div v-if="warningState.visible" class="warning-overlay" @click.self="closeWarning">
       <div class="warning-dialog">
@@ -295,8 +313,8 @@ import { ApiError } from '@/services/api'
 const shiftFormRef = ref(null)
 const store = useShiftStore()
 const toast = useToast()
-// Row được click highlight xanh — khác với checkbox selected
 const activeRowId = ref(null)
+
 // ===== Columns config =====
 const COLUMNS = [
   {
@@ -338,27 +356,85 @@ const COLUMNS = [
     label: 'Trạng thái',
     width: '140px',
     filterable: true,
-    filterType: 'number',
+    filterType: 'status',
   },
-  { key: 'createdBy', label: 'Người tạo', width: '150px', filterable: true, filterType: 'string' },
-  { key: 'createdDateDisplay', label: 'Ngày tạo', width: '150px' },
-  { key: 'modifiedBy', label: 'Người sửa', width: '150px', filterable: true, filterType: 'string' },
+  {
+    key: 'createdBy',
+    label: 'Người tạo',
+    width: '150px',
+    filterable: true,
+    filterType: 'string',
+  },
+  {
+    key: 'createdDateDisplay',
+    label: 'Ngày tạo',
+    width: '150px',
+    filterable: true,
+    filterType: 'date',
+    filterKey: 'CreatedDate',
+  },
+  {
+    key: 'modifiedBy',
+    label: 'Người sửa',
+    width: '150px',
+    filterable: true,
+    filterType: 'string',
+  },
   {
     key: 'modifiedDateDisplay',
     label: 'Ngày sửa',
     width: '150px',
     filterable: true,
     filterType: 'date',
+    filterKey: 'ModifiedDate',
   },
 ]
+
+// ===== Map tên operator → label tiếng Việt =====
+const OPERATOR_LABELS = {
+  contains: 'Chứa',
+  not_contains: 'Không chứa',
+  not_equals: 'Khác',
+  equals: 'Bằng',
+  starts_with: 'Bắt đầu với',
+  ends_with: 'Kết thúc với',
+  less_than: 'Nhỏ hơn',
+  less_than_or_equal: 'Nhỏ hơn hoặc bằng',
+  greater_than: 'Lớn hơn',
+}
+
+// ===== Map property → tên cột hiển thị =====
+function getColumnLabel(property) {
+  const col = COLUMNS.find(
+    (c) => c.key === property || c.filterKey === property
+  )
+  return col?.label || property
+}
+
+// ===== Lấy label hiển thị cho 1 filter tag =====
+function getFilterLabel(filter) {
+  const colLabel = getColumnLabel(filter.Property)
+
+  // Status: hiển thị giá trị thay vì operator
+  const col = COLUMNS.find(
+    (c) => c.key === filter.Property || c.filterKey === filter.Property
+  )
+  if (col?.filterType === 'status') {
+    const statusLabel = filter.Value === '1' || filter.Value === 1
+      ? 'Đang sử dụng'
+      : 'Ngừng sử dụng'
+    return `${colLabel}: ${statusLabel}`
+  }
+
+  const opLabel = OPERATOR_LABELS[filter.Operator] || filter.Operator
+  return `${colLabel}: ${opLabel} "${filter.Value}"`
+}
 
 // ===== State =====
 const formVisible = ref(false)
 const editingShift = ref(null)
-// More menu — dùng teleport nên cần lưu vị trí
 const moreMenuId = ref(null)
 const moreMenuPos = reactive({ top: 0, left: 0 })
-// Row tương ứng với menu đang mở (để hiển thị label trạng thái đúng)
 const moreMenuRow = computed(() =>
   moreMenuId.value !== null ? store.getById(moreMenuId.value) : null,
 )
@@ -370,7 +446,6 @@ const confirmState = reactive({
   onConfirm: null,
 })
 
-// ===== WARNING STATE: popup cảnh báo trùng mã =====
 const warningState = reactive({
   visible: false,
   message: '',
@@ -388,7 +463,6 @@ function closeWarning() {
 
 const detailVisible = ref(false)
 const detailShift = ref(null)
-
 
 // ===== Init =====
 onMounted(() => {
@@ -425,6 +499,16 @@ function handleFilterApply(filter) {
 function handleFilterClear(property) {
   const idx = store.filters.findIndex((f) => f.Property === property)
   if (idx >= 0) store.filters.splice(idx, 1)
+  store.resetPage()
+  store.fetchPage()
+}
+
+function removeFilter(property) {
+  handleFilterClear(property)
+}
+
+function clearAllFilters() {
+  store.filters.splice(0, store.filters.length)
   store.resetPage()
   store.fetchPage()
 }
@@ -477,11 +561,9 @@ async function handleSaved(data) {
       closeModal()
     }
   } catch (err) {
-    // Nếu là lỗi validate từ backend (400) → xử lý hiển thị
     if (err instanceof ApiError && err.errors?.length > 0) {
-      toast.remove(tid) // Xoá toast loading
+      toast.remove(tid)
 
-      // Kiểm tra có lỗi trùng mã không (chứa "trùng" hoặc "tồn tại")
       const duplicateErrors = err.errors.filter(
         (msg) => msg.includes('trùng') || msg.includes('tồn tại')
       )
@@ -489,17 +571,14 @@ async function handleSaved(data) {
         (msg) => !msg.includes('trùng') && !msg.includes('tồn tại')
       )
 
-      // Nếu có lỗi trùng mã → hiện popup cảnh báo như design
       if (duplicateErrors.length > 0) {
         const code = data.productionShiftCode || ''
         showWarning(
           `Ca làm việc &lt;<b>${code}</b>&gt; đã tồn tại. Vui lòng kiểm tra lại.`
         )
-        // Đồng thời đánh dấu lỗi trên field form
         shiftFormRef.value?.setServerErrors(duplicateErrors)
       }
 
-      // Các lỗi khác (không phải trùng) → hiện trên form như bình thường
       if (otherErrors.length > 0) {
         const unmapped = shiftFormRef.value?.setServerErrors(otherErrors) ?? []
         if (unmapped.length > 0) {
@@ -509,14 +588,11 @@ async function handleSaved(data) {
 
       shiftFormRef.value?.resetSaving()
     } else {
-      // Lỗi server (500) hoặc lỗi mạng → toast chung
       toast.update(tid, err.message, 'error')
       shiftFormRef.value?.resetSaving()
     }
   }
 }
-
-// ===== Detail =====
 
 // ===== Duplicate =====
 async function handleDuplicate(id) {
@@ -557,7 +633,6 @@ async function handleBatchToggle(status) {
     toast.update(tid, err.message, 'error')
   }
 }
-
 
 function editFromDetail() {
   detailVisible.value = false
@@ -747,25 +822,24 @@ async function handleDelete(ids) {
 }
 
 .shift-page__reload {
-      padding: 6px 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid #D1D5DB;
-    color: #111827;
-    background-color: #fff;
-        transition: all .2s ease;
-    cursor: pointer;
-    display: flex;
-    outline: none;
-    border-radius: 4px;
-    position: relative;
-    font-size: 13px;
-    height: 28px;
-    font-weight: 500;
+  padding: 6px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #D1D5DB;
+  color: #111827;
+  background-color: #fff;
+  transition: all .2s ease;
+  cursor: pointer;
+  outline: none;
+  border-radius: 4px;
+  position: relative;
+  font-size: 13px;
+  height: 28px;
+  font-weight: 500;
 }
 .shift-page__reload:hover {
-      border: 1px solid #D1D5DB;
+  border: 1px solid #D1D5DB;
   color: var(--primary);
   background-color: #f3f4f6;
 }
@@ -786,6 +860,71 @@ async function handleDelete(ids) {
   width: 1px;
   height: 20px;
   background: #d1d5db;
+}
+
+/* ===== FILTER BAR ===== */
+.shift-page__filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background-color: #f0fdf4;
+  border-bottom: 1px solid #bbf7d0;
+  flex-wrap: wrap;
+}
+
+.filter-bar__label {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-bar__separator {
+  width: 1px;
+  height: 20px;
+  background: #d1d5db;
+  flex-shrink: 0;
+}
+
+.filter-bar__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 10px;
+  background-color: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.filter-bar__tag-text {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-bar__tag-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 10px;
+  border-radius: 50%;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.filter-bar__tag-remove:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
 }
 
 .shift-page__footer {
@@ -913,7 +1052,6 @@ async function handleDelete(ids) {
   background-color: var(--primary);
 }
 
-/* ===== Action icon (mask-based) ===== */
 .action-icon {
   -webkit-mask-repeat: no-repeat;
   background-color: #4b5563;
@@ -931,7 +1069,7 @@ async function handleDelete(ids) {
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .action-icon--more {
-      mask-position: -288px 0px;
+  mask-position: -288px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 
@@ -957,7 +1095,7 @@ async function handleDelete(ids) {
   flex-shrink: 0;
 }
 
-/* ===== WARNING DIALOG — Popup cảnh báo trùng mã ===== */
+/* ===== WARNING DIALOG ===== */
 .warning-overlay {
   position: fixed;
   inset: 0;
@@ -1058,7 +1196,7 @@ async function handleDelete(ids) {
 }
 </style>
 
-<!-- Global styles cho teleported dropdown (không scoped) -->
+<!-- Global styles cho teleported dropdown -->
 <style>
 .action-more__dropdown {
   background: #fff;
@@ -1080,7 +1218,7 @@ async function handleDelete(ids) {
   white-space: nowrap;
 }
 .action-more__item:hover {
-      background: #f3f4f6;
+  background: #f3f4f6;
 }
 
 .action-more__item--danger {
@@ -1106,7 +1244,7 @@ async function handleDelete(ids) {
   flex-shrink: 0;
 }
 .dropdown-icon--clone {
-      mask-position: -224px 0px;
+  mask-position: -224px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .dropdown-icon--toggle {
@@ -1114,8 +1252,8 @@ async function handleDelete(ids) {
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .dropdown-icon--delete {
-      mask-position: -208px 0px;
-      background-color: #dc2626 !important;
+  mask-position: -208px 0px;
+  background-color: #dc2626 !important;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 </style>

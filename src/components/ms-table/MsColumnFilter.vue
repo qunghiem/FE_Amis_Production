@@ -2,22 +2,17 @@
   <div class="col-filter" ref="filterRef">
     <!-- Trigger icon -->
     <button
-  class="col-filter__trigger"
-  :class="{ 'col-filter__trigger--active': hasFilter }"
-  @click.stop="toggle"
-  :title="'Lọc ' + label"
->
-  <i></i>
-</button>
+      class="col-filter__trigger"
+      :class="{ 'col-filter__trigger--active': hasFilter }"
+      @click.stop="toggle"
+      :title="'Lọc ' + label"
+    >
+      <i></i>
+    </button>
 
     <!-- Popover -->
     <teleport to="body">
-      <div
-        v-if="open"
-        class="col-filter__popover"
-        :style="popoverStyle"
-        @click.stop
-      >
+      <div v-if="open" class="col-filter__popover" :style="popoverStyle" @click.stop>
         <div class="col-filter__header">
           <span class="col-filter__title">Lọc {{ label }}</span>
           <button class="col-filter__close" @click="close">
@@ -26,25 +21,47 @@
         </div>
 
         <div class="col-filter__body">
-          <!-- Operator -->
-          <select v-model="localOperator" class="col-filter__select">
+          <!-- Operator (ẩn khi là status) -->
+          <select v-if="filterType !== 'status'" v-model="localOperator" class="col-filter__select">
             <option v-for="op in operatorOptions" :key="op.value" :value="op.value">
               {{ op.label }}
             </option>
           </select>
 
-          <!-- Value -->
+          <!-- Status: chọn trạng thái -->
+          <select v-if="filterType === 'status'" v-model="localValue" class="col-filter__select">
+            <option value="">-- Chọn trạng thái --</option>
+            <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+
+          <!-- Date: input type date -->
           <input
+            v-else-if="filterType === 'date'"
+            ref="valueInput"
+            v-model="localValue"
+            class="col-filter__input"
+            type="date"
+            @keyup.enter="apply"
+          />
+
+          <!-- Default: text input -->
+          <input
+            v-else-if="filterType !== 'status'"
             ref="valueInput"
             v-model="localValue"
             class="col-filter__input"
             :placeholder="'Nhập giá trị lọc'"
             @keyup.enter="apply"
+            :type="filterType === 'number' ? 'number' : 'text'"
           />
         </div>
 
         <div class="col-filter__footer">
-          <button class="col-filter__btn col-filter__btn--clear" @click="clearFilter">Bỏ lọc</button>
+          <button class="col-filter__btn col-filter__btn--clear" @click="clearFilter">
+            Bỏ lọc
+          </button>
           <button class="col-filter__btn col-filter__btn--cancel" @click="close">Huỷ</button>
           <button class="col-filter__btn col-filter__btn--apply" @click="apply">Áp dụng</button>
         </div>
@@ -61,7 +78,7 @@ const props = defineProps({
   label: { type: String, required: true },
   /** Tên property gửi về backend */
   property: { type: String, required: true },
-  /** Loại filter: 'string' | 'number' | 'date' */
+  /** Loại filter: 'string' | 'number' | 'date' | 'status' */
   filterType: { type: String, default: 'string' },
   /** Filter hiện tại (nếu có) */
   currentFilter: { type: Object, default: null },
@@ -76,34 +93,42 @@ const localOperator = ref('contains')
 const localValue = ref('')
 const popoverStyle = ref({})
 
-// Operators dựa trên loại dữ liệu
+// ===== Operator lists theo yêu cầu =====
+
 const STRING_OPS = [
   { value: 'contains', label: 'Chứa' },
+  { value: 'not_equals', label: 'Khác' },
   { value: 'not_contains', label: 'Không chứa' },
-  { value: 'equals', label: 'Bằng' },
-  { value: 'not_equals', label: 'Không bằng' },
   { value: 'starts_with', label: 'Bắt đầu với' },
   { value: 'ends_with', label: 'Kết thúc với' },
 ]
 
 const NUMBER_OPS = [
   { value: 'equals', label: 'Bằng' },
-  { value: 'not_equals', label: 'Không bằng' },
-  { value: 'greater_than', label: 'Lớn hơn' },
-  { value: 'greater_than_or_equal', label: 'Lớn hơn hoặc bằng' },
+  { value: 'not_equals', label: 'Khác' },
   { value: 'less_than', label: 'Nhỏ hơn' },
   { value: 'less_than_or_equal', label: 'Nhỏ hơn hoặc bằng' },
+  { value: 'greater_than', label: 'Lớn hơn' },
 ]
 
 const DATE_OPS = [
   { value: 'equals', label: 'Bằng' },
-  { value: 'greater_than_or_equal', label: 'Từ ngày' },
-  { value: 'less_than_or_equal', label: 'Đến ngày' },
+  { value: 'not_equals', label: 'Khác' },
+  { value: 'less_than', label: 'Nhỏ hơn' },
+  { value: 'less_than_or_equal', label: 'Nhỏ hơn hoặc bằng' },
+  { value: 'greater_than', label: 'Lớn hơn' },
+]
+
+// Status không cần operator, chỉ chọn giá trị
+const statusOptions = [
+  { value: '1', label: 'Đang sử dụng' },
+  { value: '0', label: 'Ngừng sử dụng' },
 ]
 
 const operatorOptions = computed(() => {
   if (props.filterType === 'number') return NUMBER_OPS
   if (props.filterType === 'date') return DATE_OPS
+  if (props.filterType === 'status') return [] // không dùng
   return STRING_OPS
 })
 
@@ -112,20 +137,31 @@ const hasFilter = computed(() => !!props.currentFilter)
 // Khi mở, sync với filter hiện tại
 watch(open, (v) => {
   if (v && props.currentFilter) {
-    localOperator.value = props.currentFilter.Operator || 'contains'
+    localOperator.value = props.currentFilter.Operator || getDefaultOperator()
     localValue.value = props.currentFilter.Value || ''
   } else if (v) {
-    localOperator.value = props.filterType === 'string' ? 'contains' : 'equals'
+    localOperator.value = getDefaultOperator()
     localValue.value = ''
   }
 })
 
+function getDefaultOperator() {
+  if (props.filterType === 'string') return 'contains'
+  if (props.filterType === 'status') return 'equals'
+  return 'equals'
+}
+
 function toggle() {
-  if (open.value) { close(); return }
+  if (open.value) {
+    close()
+    return
+  }
   open.value = true
   nextTick(() => {
     positionPopover()
-    valueInput.value?.focus()
+    if (props.filterType !== 'status') {
+      valueInput.value?.focus()
+    }
   })
 }
 
@@ -134,18 +170,22 @@ function close() {
 }
 
 function apply() {
-  if (!localValue.value.trim()) return
+  // Status luôn dùng operator 'equals'
+  const operator = props.filterType === 'status' ? 'equals' : localOperator.value
+
+  if (!localValue.value && localValue.value !== '0' && localValue.value !== 0) return
+
   emit('apply', {
     Property: props.property,
-    Operator: localOperator.value,
-    Value: localValue.value.trim(),
+    Operator: operator,
+    Value: String(localValue.value).trim(),
   })
   close()
 }
 
 function clearFilter() {
   localValue.value = ''
-  localOperator.value = props.filterType === 'string' ? 'contains' : 'equals'
+  localOperator.value = getDefaultOperator()
   emit('clear', props.property)
   close()
 }
@@ -163,7 +203,6 @@ function positionPopover() {
 
 function onClickOutside(e) {
   if (open.value && filterRef.value && !filterRef.value.contains(e.target)) {
-    // Kiểm tra click trong popover (teleported)
     const popover = document.querySelector('.col-filter__popover')
     if (popover && popover.contains(e.target)) return
     close()
@@ -210,8 +249,12 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   transition: background-color 0.15s;
 }
 
-.col-filter__trigger:hover { color: var(--primary); }
-.col-filter__trigger--active { color: var(--primary); }
+.col-filter__trigger:hover {
+  color: var(--primary);
+}
+.col-filter__trigger--active i {
+      mask-position: -720px 0px;
+}
 </style>
 
 <style>
@@ -246,7 +289,10 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   padding: 2px;
   border-radius: 4px;
 }
-.col-filter__close:hover { color: #374151; background: #f3f4f6; }
+.col-filter__close:hover {
+  color: #374151;
+  background: #f3f4f6;
+}
 
 .col-filter__body {
   padding: 0 16px;
@@ -295,19 +341,25 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   color: #374151;
   margin-right: auto;
 }
-.col-filter__btn--clear:hover { background: #f3f4f6; }
+.col-filter__btn--clear:hover {
+  background: #f3f4f6;
+}
 
 .col-filter__btn--cancel {
   background: none;
   border: 1px solid #d1d5db;
   color: #374151;
 }
-.col-filter__btn--cancel:hover { background: #f3f4f6; }
+.col-filter__btn--cancel:hover {
+  background: #f3f4f6;
+}
 
 .col-filter__btn--apply {
   background: var(--primary);
   border: none;
   color: #fff;
 }
-.col-filter__btn--apply:hover { background: var(--primary-hover); }
+.col-filter__btn--apply:hover {
+  background: var(--primary-hover);
+}
 </style>
