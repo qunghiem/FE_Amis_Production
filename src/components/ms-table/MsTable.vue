@@ -143,12 +143,13 @@ function getFilterForCol(key) {
   cursor: pointer;
 }
 
+/* Action header: vừa 2 icon (28px x2 + gap) */
 .ms-table__th--action {
-  width: 130px;
-  min-width: 130px;
+  width: 72px;
+  min-width: 72px;
   position: sticky;
   right: 0;
-  background-color: #114c87;
+  background-color: #f9fafb;
   border-left: 1px solid #e5e7eb;
   z-index: 11;
 }
@@ -179,27 +180,25 @@ function getFilterForCol(key) {
 .ms-table__row:hover .ms-table__checkbox { background: #f0fdf4; }
 .ms-table__row--selected .ms-table__checkbox { background-color: var(--primary-selected-bg); }
 
-/* Action column: sticky bên phải */
+/* Action cell: sticky phải, luôn hiển thị */
 .ms-table__col-action {
   position: sticky;
   right: 0;
   z-index: 9;
   background: #fff;
   border-left: 1px solid #f0f0f0;
-  padding: 4px 8px;
-  width: 130px;
-  min-width: 130px;
+  padding: 4px 6px;
+  width: 72px;
+  min-width: 72px;
 }
 
 .ms-table__action-inner {
   display: flex;
   align-items: center;
   gap: 2px;
-  visibility: hidden;
 }
 
 .ms-table__row:hover .ms-table__col-action { background: #f0fdf4; }
-.ms-table__row:hover .ms-table__action-inner { visibility: visible; }
 
 .ms-table__empty {
   text-align: center;

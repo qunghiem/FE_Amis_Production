@@ -15,7 +15,6 @@ import { computed } from 'vue'
 
 const props = defineProps({
   type: { type: String, default: 'primary' },
-  size: { type: String, default: 'medium' },
   icon: { type: String, default: null },
   positionIcon: { type: String, default: 'left' },
   loading: { type: Boolean, default: false },
@@ -48,9 +47,9 @@ const btnClass = computed(() => [
 .ms-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
 /* Sizes */
-.ms-btn--small { font-size: 13px; padding: 0 10px; height: 30px; }
+/* .ms-btn--small { font-size: 13px; padding: 0 10px; height: 30px; }
 .ms-btn--medium { font-size: 14px; padding: 6px 16px; height: 36px; }
-.ms-btn--large { font-size: 14px; padding: 8px 20px; height: 40px; }
+.ms-btn--large { font-size: 14px; padding: 8px 20px; height: 40px; } */
 
 /* Types */
 .ms-btn--primary {
@@ -111,16 +110,25 @@ const btnClass = computed(() => [
 .ms-btn--text:hover:not(:disabled) { text-decoration: underline; }
 
 .ms-btn--icon-only {
-  background: none;
-  border: none;
-  color: #6b7280;
-  padding: 4px;
-  height: auto;
-  width: 28px;
-  min-width: 28px;
+  -webkit-mask-repeat: no-repeat;
+  background-color: #4b5563;
+  height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  position: relative;
 }
 .ms-btn--icon-only:hover:not(:disabled) { color: var(--primary); background-color: #f3f4f6; border-radius: 4px; }
 
+.btn-icon-edit {
+  mask-position: -271px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+
+.btn-icon-more {
+      mask-position: -288px 0px;
+  -webkit-mask-image: url(hhttps://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
 .ms-btn--icon-danger {
   background: none;
   border: none;

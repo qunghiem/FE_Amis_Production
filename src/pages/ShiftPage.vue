@@ -5,7 +5,7 @@
       <h1 class="shift-page__title">Ca làm việc</h1>
       <div class="shift-page__actions">
         <button class="btn btn--primary" @click="openAddModal">
-          <i class="fa-solid fa-plus"></i>
+          <span class="btn-icon btn-icon--plus"></span>
           Thêm
         </button>
       </div>
@@ -18,15 +18,15 @@
         <span class="selected-bar__count">Đã chọn: <b>{{ store.selectedCount }}</b></span>
         <MsButton type="text" @click="store.unselectAll()">Bỏ chọn</MsButton>
         <div class="selected-bar__separator"></div>
-        <MsButton v-if="store.hasInactiveInSelected" type="outline" size="small" @click="handleBatchToggle(1)">Sử dụng</MsButton>
-        <MsButton v-if="store.hasActiveInSelected" type="outline" size="small" @click="handleBatchToggle(0)">Ngừng sử dụng</MsButton>
-        <MsButton type="danger-outline" size="small" @click="openBatchDeleteConfirm">Xóa</MsButton>
+        <MsButton v-if="store.hasInactiveInSelected" type="outline" @click="handleBatchToggle(1)">Sử dụng</MsButton>
+        <MsButton v-if="store.hasActiveInSelected" type="outline" @click="handleBatchToggle(0)">Ngừng sử dụng</MsButton>
+        <MsButton type="danger-outline" @click="openBatchDeleteConfirm">Xóa</MsButton>
       </div>
 
       <!-- Search bar -->
       <div v-else class="shift-page__toolbar">
         <div class="shift-page__search">
-          <i class="fa-solid fa-magnifying-glass shift-page__search-icon"></i>
+          <span class="shift-page__search-icon"></span>
           <input
             type="text"
             class="shift-page__search-input"
@@ -35,7 +35,7 @@
           />
         </div>
         <button class="shift-page__reload" @click="store.fetchPage()" data-tooltip="Làm mới">
-          <i class="fa-solid fa-rotate-right"></i>
+          <span class="btn-icon btn-icon--reload"></span>
         </button>
       </div>
 
@@ -74,20 +74,30 @@
           </span>
         </template>
 
-        <!-- Action buttons -->
+        <!-- Action: chỉ Sửa + More -->
         <template #actions="{ row }">
-          <MsButton type="icon-only" icon="fa-solid fa-circle-info" title="Chi tiết" @click.stop="openDetail(row)" />
-          <MsButton type="icon-only" icon="fa-solid fa-pen" title="Sửa" @click.stop="openEditModal(row.productionShiftID)" />
-          <MsButton type="icon-danger" icon="fa-solid fa-trash" title="Xóa" @click.stop="openDeleteConfirm(row.productionShiftID)" />
+          <!-- Nút Sửa -->
+          <button class="action-btn" title="Sửa" @click.stop="openEditModal(row.productionShiftID)">
+            <span class="action-icon action-icon--edit"></span>
+          </button>
+
+          <!-- Nút More + dropdown -->
           <div class="action-more" @click.stop>
-            <MsButton type="icon-only" icon="fa-solid fa-ellipsis" title="Thêm" @click.stop="toggleMoreMenu(row.productionShiftID)" />
+            <button class="action-btn" title="Thêm tùy chọn" @click.stop="toggleMoreMenu(row.productionShiftID)">
+              <span class="action-icon action-icon--more"></span>
+            </button>
             <div v-if="moreMenuId === row.productionShiftID" class="action-more__dropdown">
               <div class="action-more__item" @click="handleDuplicate(row.productionShiftID)">
-                <i class="fa-regular fa-clone"></i> Nhân bản
+                <span class="dropdown-icon dropdown-icon--clone"></span>
+                Nhân bản
               </div>
               <div class="action-more__item" @click="handleToggleSingle(row)">
-                <i class="fa-solid fa-toggle-on"></i>
+                <span class="dropdown-icon dropdown-icon--toggle"></span>
                 {{ row.shiftStatus === 1 ? 'Ngừng sử dụng' : 'Sử dụng' }}
+              </div>
+              <div class="action-more__item action-more__item--danger" @click="openDeleteConfirm(row.productionShiftID)">
+                <span class="dropdown-icon dropdown-icon--delete"></span>
+                Xóa
               </div>
             </div>
           </div>
@@ -109,10 +119,10 @@
           </select>
           <span class="pagination__range">{{ store.pageInfo.start }} - {{ store.pageInfo.end }}</span>
           <button class="pagination__btn" :disabled="store.isFirstPage" @click="store.prevPage()">
-            <i class="fa-solid fa-chevron-left"></i>
+            <span class="btn-icon btn-icon--chevron-left"></span>
           </button>
           <button class="pagination__btn" :disabled="store.isLastPage" @click="store.nextPage()">
-            <i class="fa-solid fa-chevron-right"></i>
+            <span class="btn-icon btn-icon--chevron-right"></span>
           </button>
         </div>
       </div>
@@ -174,9 +184,9 @@
     </div>
 
     <template #footer>
-      <MsButton type="outline" icon="fa-regular fa-clone" @click="handleDuplicateFromDetail">Nhân bản</MsButton>
-      <MsButton type="outline" icon="fa-solid fa-pen" @click="editFromDetail">Sửa</MsButton>
-      <MsButton type="danger-outline" icon="fa-solid fa-trash" @click="deleteFromDetail">Xóa</MsButton>
+      <MsButton type="outline" @click="handleDuplicateFromDetail">Nhân bản</MsButton>
+      <MsButton type="outline" @click="editFromDetail">Sửa</MsButton>
+      <MsButton type="danger-outline" @click="deleteFromDetail">Xóa</MsButton>
     </template>
   </MsModal>
 </template>
@@ -208,7 +218,7 @@ const COLUMNS = [
   { key: 'createdBy', label: 'Người tạo', width: '150px', filterable: true, filterType: 'string' },
   { key: 'createdDateDisplay', label: 'Ngày tạo', width: '150px' },
   { key: 'modifiedBy', label: 'Người sửa', width: '150px', filterable: true, filterType: 'string' },
-  { key: 'modifiedDateDisplay', label: 'Ngày sửa', width: '150px' },
+  { key: 'modifiedDateDisplay', label: 'Ngày sửa', width: '150px', filterable: true, filterType: 'date' },
 ]
 
 // ===== State =====
@@ -246,10 +256,9 @@ function toggleAll(e) {
 
 // ===== Filter =====
 function handleFilterApply(filter) {
-  // Thay thế filter cũ nếu cùng Property, hoặc thêm mới
   const idx = store.filters.findIndex((f) => f.Property === filter.Property)
   if (idx >= 0) {
-    store.filters[idx] = filter
+    store.filters.splice(idx, 1, filter)
   } else {
     store.filters.push(filter)
   }
@@ -258,7 +267,8 @@ function handleFilterApply(filter) {
 }
 
 function handleFilterClear(property) {
-  store.filters = store.filters.filter((f) => f.Property !== property)
+  const idx = store.filters.findIndex((f) => f.Property === property)
+  if (idx >= 0) store.filters.splice(idx, 1)
   store.resetPage()
   store.fetchPage()
 }
@@ -360,6 +370,7 @@ async function handleBatchToggle(status) {
 
 // ===== Delete =====
 function openDeleteConfirm(id) {
+  moreMenuId.value = null
   const shift = store.getById(id)
   confirmState.title = 'Xóa ca làm việc'
   confirmState.message = `Bạn có chắc muốn xóa ca "${shift?.productionShiftCode || ''}"? Thao tác này không thể hoàn tác.`
@@ -408,6 +419,36 @@ async function handleDelete(ids) {
   color: var(--text-heading);
 }
 
+/* ===== Base mask icon ===== */
+.btn-icon {
+  -webkit-mask-repeat: no-repeat;
+  background-color: currentColor;
+  height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.btn-icon--plus {
+  mask-position: -271px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+.btn-icon--reload {
+  mask-position: -271px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+.btn-icon--chevron-left {
+  mask-position: -200px -16px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+.btn-icon--chevron-right {
+  mask-position: -200px -16px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+  transform: scaleX(-1);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -442,8 +483,18 @@ async function handleDelete(ids) {
 }
 .shift-page__search { position: relative; width: 250px; }
 .shift-page__search-icon {
-  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-  color: #9ca3af; font-size: 13px;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  -webkit-mask-repeat: no-repeat;
+  background-color: #9ca3af;
+  height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  mask-position: -271px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .shift-page__search-input {
   width: 100%; padding: 7px 10px 7px 32px;
@@ -457,7 +508,7 @@ async function handleDelete(ids) {
   border: 1px solid var(--border-color); border-radius: 4px;
   background: #fff; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  color: #6b7280; font-size: 13px;
+  color: #6b7280;
 }
 .shift-page__reload:hover { border-color: var(--primary); color: var(--primary); }
 
@@ -484,7 +535,7 @@ async function handleDelete(ids) {
   width: 28px; height: 28px; border: 1px solid var(--border-color);
   background: #fff; border-radius: 4px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; color: #6b7280;
+  color: #6b7280;
 }
 .pagination__btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
 .pagination__btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -513,19 +564,107 @@ async function handleDelete(ids) {
   color: #dc2626; padding: 2px 10px; border-radius: 4px; cursor: pointer; font-family: inherit;
 }
 
-.action-more { position: relative; }
-.action-more__dropdown {
-  position: absolute; top: 100%; right: 0;
-  background: #fff; border: 1px solid #e5e7eb; border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); z-index: 999;
-  min-width: 170px; padding: 4px 0;
+/* ===== Action buttons ===== */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s;
 }
+.action-btn:hover { background-color: #f3f4f6; }
+.action-btn:hover .action-icon { background-color: var(--primary); }
+
+/* ===== Action icon (mask-based) ===== */
+.action-icon {
+  -webkit-mask-repeat: no-repeat;
+  background-color: #4b5563;
+  height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Sửa — bạn tự chỉnh mask-position */
+.action-icon--edit {
+  mask-position: -271px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+/* More (ellipsis) — bạn tự chỉnh mask-position */
+.action-icon--more {
+  mask-position: -271px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+
+/* ===== More dropdown ===== */
+.action-more { position: relative; }
+
+.action-more__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 999;
+  min-width: 170px;
+  padding: 4px 0;
+}
+
 .action-more__item {
-  padding: 8px 16px; font-size: 13px; color: #374151; cursor: pointer;
-  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 .action-more__item:hover { background: #f0fdf4; color: var(--primary); }
+.action-more__item:hover .dropdown-icon { background-color: var(--primary); }
 
+.action-more__item--danger { color: #dc2626; }
+.action-more__item--danger:hover { background: #fef2f2; color: #dc2626; }
+.action-more__item--danger:hover .dropdown-icon { background-color: #dc2626; }
+
+/* ===== Dropdown icon (mask-based) — bạn tự chỉnh mask-position cho từng loại ===== */
+.dropdown-icon {
+  -webkit-mask-repeat: no-repeat;
+  background-color: #4b5563;
+  height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.dropdown-icon--clone {
+  mask-position: -271px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+.dropdown-icon--toggle {
+  mask-position: -271px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+.dropdown-icon--delete {
+  mask-position: -271px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+
+/* ===== Detail modal ===== */
 .shift-detail { display: flex; flex-direction: column; gap: 12px; }
 .detail-row {
   display: flex; align-items: center; gap: 8px; font-size: 14px;
