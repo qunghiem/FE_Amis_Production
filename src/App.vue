@@ -1,7 +1,7 @@
 <!-- App.vue — ví dụ tích hợp sidebar với localStorage -->
 <template>
   <div class="app">
-    <!-- Header (giữ nguyên của bạn) -->
+    <!-- Header  -->
     <AppHeader />
 
     <div class="app__body">
@@ -13,6 +13,8 @@
         <router-view />
       </main>
     </div>
+     <!-- Toast notifications -->
+    <AppToast />
   </div>
 </template>
 
@@ -20,6 +22,7 @@
 import { ref } from 'vue'
 import AppHeader from '@/components/AppHeader.vue'
 import Sidebar from '@/components/AppSidebar.vue'
+import AppToast from '@/components/AppToast.vue'
 
 // Đọc trạng thái collapse từ localStorage khi app khởi động
 const COLLAPSE_KEY = 'sidebar_collapsed'

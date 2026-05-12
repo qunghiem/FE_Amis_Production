@@ -145,8 +145,6 @@ const menuRoutes = Object.fromEntries(
   ]),
 )
 
-
-
 // Tự động mở menu khi route thay đổi, lưu giá trị cho openMenus
 watch(
   () => route.path,
