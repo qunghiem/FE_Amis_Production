@@ -115,6 +115,23 @@
           ></textarea>
         </div>
       </div>
+
+      <!-- Trạng thái — chỉ hiển thị khi Sửa -->
+      <div v-if="isEditing" class="sf-row sf-row--full">
+        <label class="sf-label">Trạng thái</label>
+        <div class="sf-control sf-radio-group">
+          <label class="sf-radio">
+            <input type="radio" v-model="form.shiftStatus" :value="1" />
+            <span class="sf-radio__dot"></span>
+            Đang sử dụng
+          </label>
+          <label class="sf-radio">
+            <input type="radio" v-model="form.shiftStatus" :value="0" />
+            <span class="sf-radio__dot"></span>
+            Ngừng sử dụng
+          </label>
+        </div>
+      </div>
     </div>
 
     <template #footer>
@@ -142,6 +159,11 @@ const emit = defineEmits(['close', 'saved'])
 
 const localVisible = computed(() => props.visible)
 const saving = ref(false)
+
+/** true khi đang sửa bản ghi đã tồn tại (có productionShiftID) */
+const isEditing = computed(
+  () => !!props.editingShift?.productionShiftID,
+)
 
 const formTitle = computed(() => {
   if (!props.editingShift) return 'Thêm Ca làm việc'
@@ -403,5 +425,60 @@ async function handleSaveAndAdd() {
 .sf-error {
   font-size: 12px;
   color: #dc2626;
+}
+
+/* ===== RADIO GROUP — Trạng thái ===== */
+.sf-radio-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+  height: 28px;
+}
+
+.sf-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #262626;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.sf-radio input[type='radio'] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.sf-radio__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+}
+
+.sf-radio__dot::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.sf-radio input[type='radio']:checked + .sf-radio__dot {
+  border-color: #009b71;
+}
+
+.sf-radio input[type='radio']:checked + .sf-radio__dot::after {
+  background: #009b71;
 }
 </style>
