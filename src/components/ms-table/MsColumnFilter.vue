@@ -2,13 +2,13 @@
   <div class="col-filter" ref="filterRef">
     <!-- Trigger icon -->
     <button
-      class="col-filter__trigger"
-      :class="{ 'col-filter__trigger--active': hasFilter }"
-      @click.stop="toggle"
-      :title="'Lọc ' + label"
-    >
-      <i class="fa-solid fa-filter"></i>
-    </button>
+  class="col-filter__trigger"
+  :class="{ 'col-filter__trigger--active': hasFilter }"
+  @click.stop="toggle"
+  :title="'Lọc ' + label"
+>
+  <i></i>
+</button>
 
     <!-- Popover -->
     <teleport to="body">
@@ -179,29 +179,37 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  height: 16px;
-    width: 16px;
-    min-height: 16px;
-    min-width: 16px;
-    position: relative;
-    -webkit-mask-repeat: no-repeat;
-    background-color: #4b5563;
-        mask-position: -544px 0px;
-        -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+  position: relative;
 }
 
 .col-filter__trigger {
   background: none;
   border: none;
   cursor: pointer;
-  color: #d1d5db;
-  font-size: 11px;
-  padding: 2px 4px;
+  padding: 2px;
   border-radius: 3px;
-  transition: color 0.15s;
+  transition: background-color 0.15s;
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
 }
+.col-filter__trigger i {
+  display: block;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  -webkit-mask-repeat: no-repeat;
+  mask-position: -544px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+  background-color: #4b5563;
+  transition: background-color 0.15s;
+}
+
 .col-filter__trigger:hover { color: var(--primary); }
 .col-filter__trigger--active { color: var(--primary); }
 </style>

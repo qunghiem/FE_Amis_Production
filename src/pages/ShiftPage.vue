@@ -61,7 +61,7 @@
         empty-text="Chưa có ca làm việc nào"
         @toggle-all="toggleAll"
         @toggle-row="(id) => store.toggleSelect(id)"
-        @row-click="(row) => openDetail(row)"
+        @row-click="(row) => store.toggleSelect(row.productionShiftID)"
         @filter-apply="handleFilterApply"
         @filter-clear="handleFilterClear"
       >
@@ -327,8 +327,6 @@ const COLUMNS = [
 // ===== State =====
 const formVisible = ref(false)
 const editingShift = ref(null)
-const detailVisible = ref(false)
-const detailShift = ref(null)
 
 // More menu — dùng teleport nên cần lưu vị trí
 const moreMenuId = ref(null)
@@ -344,6 +342,8 @@ const confirmState = reactive({
   message: '',
   onConfirm: null,
 })
+
+
 
 // ===== Init =====
 onMounted(() => {
@@ -439,25 +439,7 @@ async function handleSaved(data) {
  * FIX: Dùng spread để đảm bảo detailShift là plain object reactive,
  * không phải proxy reference có thể bị mất sau khi store refetch.
  */
-function openDetail(row) {
-  detailShift.value = { ...row }
-  detailVisible.value = true
-}
 
-function editFromDetail() {
-  detailVisible.value = false
-  if (detailShift.value) openEditModal(detailShift.value.productionShiftID)
-}
-
-function deleteFromDetail() {
-  detailVisible.value = false
-  if (detailShift.value) openDeleteConfirm(detailShift.value.productionShiftID)
-}
-
-async function handleDuplicateFromDetail() {
-  detailVisible.value = false
-  if (detailShift.value) await handleDuplicate(detailShift.value.productionShiftID)
-}
 
 // ===== Duplicate =====
 async function handleDuplicate(id) {
@@ -815,14 +797,15 @@ async function handleDelete(ids) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border: none;
   background: none;
   border-radius: 4px;
   cursor: pointer;
   flex-shrink: 0;
   transition: background-color 0.15s;
+  border-radius: 50%;
 }
 .action-btn:hover {
   background-color: #f3f4f6;
@@ -849,7 +832,7 @@ async function handleDelete(ids) {
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .action-icon--more {
-  mask-position: -271px 0px;
+      mask-position: -288px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 
@@ -901,11 +884,7 @@ async function handleDelete(ids) {
   white-space: nowrap;
 }
 .action-more__item:hover {
-  background: #f0fdf4;
-  color: var(--primary);
-}
-.action-more__item:hover .dropdown-icon {
-  background-color: var(--primary);
+      background: #f3f4f6;
 }
 
 .action-more__item--danger {
@@ -931,15 +910,16 @@ async function handleDelete(ids) {
   flex-shrink: 0;
 }
 .dropdown-icon--clone {
-  mask-position: -271px 0px;
+      mask-position: -224px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .dropdown-icon--toggle {
-  mask-position: -271px 0px;
+  mask-position: -192px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .dropdown-icon--delete {
-  mask-position: -271px 0px;
+      mask-position: -208px 0px;
+      background-color: #dc2626 !important;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 </style>

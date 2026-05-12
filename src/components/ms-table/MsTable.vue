@@ -202,9 +202,16 @@ input[type="checkbox"] {
   width: 40px;
   min-width: 40px;
 }
+
 .ms-table__row:hover .ms-table__checkbox {
-  background: #f0fdf4;
+  background: #e5e7eb;
 }
+.ms-table__row--selected:hover .ms-table__checkbox,
+.ms-table__row--selected:hover .ms-table__col-action {
+  background-color: var(--primary-selected-bg, #a4f6d3);
+}
+
+
 .ms-table__row--selected .ms-table__checkbox {
   background-color: var(--primary-selected-bg);
 }
@@ -228,7 +235,8 @@ input[type="checkbox"] {
 }
 
 .ms-table__row:hover .ms-table__col-action {
-  background: #f0fdf4;
+    background: none;
+
 }
 
 .ms-table__empty {
@@ -237,4 +245,10 @@ input[type="checkbox"] {
   color: #9ca3af;
   font-size: 14px;
 }
+
+.ms-table__row--selected .ms-table__checkbox,
+.ms-table__row--selected .ms-table__col-action {
+  background-color: var(--primary-selected-bg, #a4f6d3);
+}
+
 </style>
