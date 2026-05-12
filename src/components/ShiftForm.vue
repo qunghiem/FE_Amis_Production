@@ -396,6 +396,7 @@ async function handleSaveAndAdd() {
   font-size: 13px;
   color: #374151;
   max-width: 122px;
+  justify-content: end;
 }
 
 .sf-error {
