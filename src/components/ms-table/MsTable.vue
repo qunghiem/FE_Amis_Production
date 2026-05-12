@@ -38,12 +38,15 @@
         </tr>
 
         <tr
-          v-for="(row, rowIndex) in rows"
-          :key="row[rowKey] ?? rowIndex"
-          class="ms-table__row"
-          :class="{ 'ms-table__row--selected': isSelected(row[rowKey]) }"
-          @click="$emit('row-click', row)"
-        >
+  v-for="(row, rowIndex) in rows"
+  :key="row[rowKey] ?? rowIndex"
+  class="ms-table__row"
+  :class="{
+    'ms-table__row--selected': isSelected(row[rowKey]),
+    'ms-table__row--active': row[rowKey] === activeRowId && !isSelected(row[rowKey]),
+  }"
+  @click="$emit('row-click', row)"
+>
           <td v-if="selectable" class="ms-table__td ms-table__checkbox">
             <input
               type="checkbox"
@@ -87,6 +90,7 @@ const props = defineProps({
   selectable: { type: Boolean, default: false },
   allChecked: { type: Boolean, default: false },
   isSelected: { type: Function, default: () => false },
+  activeRowId: { type: [String, Number, null], default: null },  // ← ADD
   emptyText: { type: String, default: 'Không có dữ liệu' },
   activeFilters: { type: Array, default: () => [] },
 })
@@ -251,4 +255,39 @@ input[type="checkbox"] {
   background-color: var(--primary-selected-bg, #a4f6d3);
 }
 
+/* Row được click (highlight) nhưng chưa tick checkbox */
+.ms-table__row--active {
+  background-color: #a4f6d3;
+}
+.ms-table__row--active:hover {
+    background-color: #a4f6d3;
+
+}
+.ms-table__row--active .ms-table__checkbox {
+    background-color: #a4f6d3;
+
+}
+.ms-table__row--active .ms-table__col-action {
+   background-color: #a4f6d3;
+
+}
+
+/* Checkbox khi được checked hiển thị icon tick */
+input[type="checkbox"]:checked {
+  background-color: var(--primary, #009b71);
+  border-color: var(--primary, #009b71);
+  position: relative;
+}
+input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    width: 9px;
+    height: 5.33px;
+    top: -1.5px;
+    left: -1px;
+    border-width: 0 0 1.5px 1.5px;
+    border-style: solid;
+    border-color: #fff;
+    transform: rotate(-45deg) translateY(5px);
+}
 </style>

@@ -65,6 +65,7 @@ const btnClass = computed(() => [
   background-color: #fff;
   color: var(--text-main);
   border: 1px solid var(--border-color);
+  padding: 6px 12px;;
 }
 .ms-btn--outline:hover:not(:disabled) {
   border-color: var(--primary);
@@ -75,6 +76,7 @@ const btnClass = computed(() => [
   background-color: #fff;
   color: #dc2626;
   border: 1px solid #dc2626;
+  padding: 6px 12px;
 }
 .ms-btn--danger-outline:hover:not(:disabled) {
   background-color: #dc2626;

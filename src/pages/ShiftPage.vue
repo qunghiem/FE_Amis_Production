@@ -20,10 +20,10 @@
         >
         <MsButton type="text" @click="store.unselectAll()">Bỏ chọn</MsButton>
         <div class="selected-bar__separator"></div>
-        <MsButton v-if="store.hasInactiveInSelected" type="outline" @click="handleBatchToggle(1)"
+        <MsButton v-if="store.hasInactiveInSelected" type="danger-outline" @click="handleBatchToggle(1)"
           >Sử dụng</MsButton
         >
-        <MsButton v-if="store.hasActiveInSelected" type="outline" @click="handleBatchToggle(0)"
+        <MsButton v-if="store.hasActiveInSelected" type="danger-outline" @click="handleBatchToggle(0)"
           >Ngừng sử dụng</MsButton
         >
         <MsButton type="danger-outline" @click="openBatchDeleteConfirm">Xóa</MsButton>
@@ -51,20 +51,21 @@
 
       <!-- Table -->
       <MsTable
-        :columns="COLUMNS"
-        :rows="store.pageData"
-        row-key="productionShiftID"
-        :selectable="true"
-        :all-checked="allPageChecked"
-        :is-selected="store.isSelected"
-        :active-filters="store.filters"
-        empty-text="Chưa có ca làm việc nào"
-        @toggle-all="toggleAll"
-        @toggle-row="(id) => store.toggleSelect(id)"
-        @row-click="(row) => store.toggleSelect(row.productionShiftID)"
-        @filter-apply="handleFilterApply"
-        @filter-clear="handleFilterClear"
-      >
+  :columns="COLUMNS"
+  :rows="store.pageData"
+  row-key="productionShiftID"
+  :selectable="true"
+  :all-checked="allPageChecked"
+  :is-selected="store.isSelected"
+  :active-row-id="activeRowId"
+  :active-filters="store.filters"
+  empty-text="Chưa có ca làm việc nào"
+  @toggle-all="toggleAll"
+  @toggle-row="(id) => store.toggleSelect(id)"
+  @row-click="(row) => activeRowId = activeRowId === row.productionShiftID ? null : row.productionShiftID"
+  @filter-apply="handleFilterApply"
+  @filter-clear="handleFilterClear"
+>
         <!-- Thời gian làm việc -->
         <template #cell-workHour="{ row }">
           <span :class="{ 'text-orange': row.workHour < 0 }">
@@ -268,7 +269,8 @@ import ConfirmModal from '@/components/ConfirmModal.vue'
 
 const store = useShiftStore()
 const toast = useToast()
-
+// Row được click highlight xanh — khác với checkbox selected
+const activeRowId = ref(null)
 // ===== Columns config =====
 const COLUMNS = [
   {
