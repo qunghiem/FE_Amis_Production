@@ -306,30 +306,31 @@ async function handleSaveAndAdd() {
 .sf-row {
   display: grid;
   align-items: start;
-  column-gap: 10px;
+  column-gap: 23px;
   row-gap: 4px;
+    white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Full-width: label trái + input kéo hết phải */
 .sf-row--full {
-  grid-template-columns: 130px 1fr;
+  grid-template-columns: 150px 1fr;
 }
 
 /* Chia đôi đều: [label1][input1] [label2][input2]
    Dùng tỉ lệ cố định để 2 bên hoàn toàn đối xứng */
 .sf-row--half {
-  grid-template-columns: 130px 1fr 130px 1fr;
+  grid-template-columns: 150px 1fr 175px 1fr;
 }
 
 /* ===== LABEL ===== */
 .sf-label {
   font-size: 13px;
   color: #262626;
-  font-weight: 500;
+  font-weight: 510;
   line-height: 28px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
 }
 
 .sf-label--top {

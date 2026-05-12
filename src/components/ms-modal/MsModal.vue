@@ -104,8 +104,9 @@ function onOverlayClick() {
   border-top: 1px solid #e5e7eb;
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
   background: #f9fafb;
   flex-shrink: 0;
+  align-items: center;
 }
 </style>
