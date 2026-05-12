@@ -195,6 +195,29 @@
     @cancel="closeConfirm"
   />
 
+  <!-- ===== WARNING POPUP: Cảnh báo trùng mã ===== -->
+  <teleport to="body">
+    <div v-if="warningState.visible" class="warning-overlay" @click.self="closeWarning">
+      <div class="warning-dialog">
+        <div class="warning-dialog__header">
+          <div class="warning-dialog__title-row">
+            <span class="warning-dialog__icon">⚠</span>
+            <span class="warning-dialog__title">Cảnh báo!</span>
+          </div>
+          <button class="warning-dialog__close" @click="closeWarning">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="warning-dialog__body">
+          <p v-html="warningState.message"></p>
+        </div>
+        <div class="warning-dialog__footer">
+          <button class="warning-dialog__btn" @click="closeWarning">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </teleport>
+
   <!-- Detail modal -->
   <MsModal
     v-model="detailVisible"
@@ -346,6 +369,23 @@ const confirmState = reactive({
   message: '',
   onConfirm: null,
 })
+
+// ===== WARNING STATE: popup cảnh báo trùng mã =====
+const warningState = reactive({
+  visible: false,
+  message: '',
+})
+
+function showWarning(message) {
+  warningState.message = message
+  warningState.visible = true
+}
+
+function closeWarning() {
+  warningState.visible = false
+  warningState.message = ''
+}
+
 const detailVisible = ref(false)
 const detailShift = ref(null)
 
@@ -390,10 +430,6 @@ function handleFilterClear(property) {
 }
 
 // ===== More menu =====
-/**
- * Toggle dropdown và tính toán vị trí fixed dựa trên nút bấm.
- * Dùng getBoundingClientRect() để vị trí không phụ thuộc vào overflow của bảng.
- */
 function toggleMoreMenu(id, event) {
   if (moreMenuId.value === id) {
     moreMenuId.value = null
@@ -401,7 +437,6 @@ function toggleMoreMenu(id, event) {
   }
   const btn = event.currentTarget
   const rect = btn.getBoundingClientRect()
-  // Dropdown rộng ~170px, căn phải theo nút
   moreMenuPos.top = rect.bottom + 4
   moreMenuPos.left = rect.right - 170
   moreMenuId.value = id
@@ -442,16 +477,37 @@ async function handleSaved(data) {
       closeModal()
     }
   } catch (err) {
-    // Nếu là lỗi validate từ backend (400) → hiển thị lên form
+    // Nếu là lỗi validate từ backend (400) → xử lý hiển thị
     if (err instanceof ApiError && err.errors?.length > 0) {
-      toast.remove(tid) // Xoá toast loading, lỗi sẽ hiện trên form
+      toast.remove(tid) // Xoá toast loading
 
-      const unmapped = shiftFormRef.value?.setServerErrors(err.errors) ?? []
+      // Kiểm tra có lỗi trùng mã không (chứa "trùng" hoặc "tồn tại")
+      const duplicateErrors = err.errors.filter(
+        (msg) => msg.includes('trùng') || msg.includes('tồn tại')
+      )
+      const otherErrors = err.errors.filter(
+        (msg) => !msg.includes('trùng') && !msg.includes('tồn tại')
+      )
 
-      // Lỗi nào không map được field → hiện toast
-      if (unmapped.length > 0) {
-        toast.error(unmapped.join('; '))
+      // Nếu có lỗi trùng mã → hiện popup cảnh báo như design
+      if (duplicateErrors.length > 0) {
+        const code = data.productionShiftCode || ''
+        showWarning(
+          `Ca làm việc &lt;<b>${code}</b>&gt; đã tồn tại. Vui lòng kiểm tra lại.`
+        )
+        // Đồng thời đánh dấu lỗi trên field form
+        shiftFormRef.value?.setServerErrors(duplicateErrors)
       }
+
+      // Các lỗi khác (không phải trùng) → hiện trên form như bình thường
+      if (otherErrors.length > 0) {
+        const unmapped = shiftFormRef.value?.setServerErrors(otherErrors) ?? []
+        if (unmapped.length > 0) {
+          toast.error(unmapped.join('; '))
+        }
+      }
+
+      shiftFormRef.value?.resetSaving()
     } else {
       // Lỗi server (500) hoặc lỗi mạng → toast chung
       toast.update(tid, err.message, 'error')
@@ -461,11 +517,6 @@ async function handleSaved(data) {
 }
 
 // ===== Detail =====
-/**
- * FIX: Dùng spread để đảm bảo detailShift là plain object reactive,
- * không phải proxy reference có thể bị mất sau khi store refetch.
- */
-
 
 // ===== Duplicate =====
 async function handleDuplicate(id) {
@@ -884,9 +935,6 @@ async function handleDelete(ids) {
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 
-/* ===== More dropdown (teleported ra body, dùng global style) ===== */
-/* KHÔNG dùng scoped vì element được render ngoài component DOM */
-
 /* ===== Detail modal ===== */
 .shift-detail {
   display: flex;
@@ -907,6 +955,106 @@ async function handleDelete(ids) {
   min-width: 180px;
   color: #6b7280;
   flex-shrink: 0;
+}
+
+/* ===== WARNING DIALOG — Popup cảnh báo trùng mã ===== */
+.warning-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background-color: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.warning-dialog {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+  width: 420px;
+  max-width: 90vw;
+  overflow: hidden;
+}
+
+.warning-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px 12px;
+}
+
+.warning-dialog__title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.warning-dialog__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #fef3c7;
+  color: #d97706;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.warning-dialog__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.warning-dialog__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+.warning-dialog__close:hover {
+  background: #f3f4f6;
+  color: #111;
+}
+
+.warning-dialog__body {
+  padding: 0 20px 16px;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.warning-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.warning-dialog__btn {
+  background-color: var(--primary, #009b71);
+  color: #fff;
+  border: none;
+  padding: 7px 24px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.15s;
+}
+.warning-dialog__btn:hover {
+  background-color: var(--primary-hover, #007b5d);
 }
 </style>
 
