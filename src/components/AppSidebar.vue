@@ -112,7 +112,6 @@ function toggleCollapse() {
 // ── Open menus ────────────────────────────────────────────────────────────────
 const OPEN_MENUS_KEY = 'sidebar_open_menus'
 
-
 // lấy các menu đang mở, đang đóng trước đó nếu có
 function loadOpenMenus() {
   try {
@@ -229,7 +228,7 @@ const showFlyout = ref(false)
   display: flex;
   flex-direction: column;
   overflow: visible;
-  gap: 4px;
+  gap: 2.5px;
   border-bottom: 1px solid rgba(209, 213, 219, 0.3);
 }
 
@@ -313,8 +312,13 @@ const showFlyout = ref(false)
 }
 
 .sidebar__chevron--right {
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 4l4 4-4 4' stroke='currentColor' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  transform: none !important;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+  height: 20px;
+  width: 20px;
+  min-height: 20px;
+  min-width: 20px;
+  position: relative;
+  mask-position: -220px -16px;
 }
 
 /* ===== SUBMENU ===== */

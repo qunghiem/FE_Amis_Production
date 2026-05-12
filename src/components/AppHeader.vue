@@ -185,7 +185,7 @@
 .header__right-setting {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11.5px;
 }
 
 .header__icon-btn {

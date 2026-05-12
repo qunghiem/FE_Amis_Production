@@ -107,10 +107,10 @@ function getFilterForCol(key) {
 <style scoped>
 .ms-table__wrapper {
   flex: 1;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: visible;   /* ← cho phép dropdown tràn ra ngoài */
   position: relative;
 }
-
 .ms-table {
   border-collapse: collapse;
   font-size: 13px;
@@ -132,8 +132,12 @@ function getFilterForCol(key) {
   background-color: #f9fafb;
   white-space: nowrap;
 }
-.ms-table__th:last-child { border-right: 0; }
-.ms-table__th--right { text-align: right; }
+.ms-table__th:last-child {
+  border-right: 0;
+}
+.ms-table__th--right {
+  text-align: right;
+}
 
 .ms-table__th-content {
   display: flex;
@@ -162,11 +166,20 @@ function getFilterForCol(key) {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.ms-table__td--right { text-align: right; }
+.ms-table__td--right {
+  text-align: right;
+}
 
-.ms-table__row:hover { background: #f0fdf4; cursor: pointer; }
-.ms-table__row--selected { background-color: var(--primary-selected-bg, #a4f6d3); }
-.ms-table__row--selected:hover { background-color: var(--primary-selected-bg, #a4f6d3); }
+.ms-table__row:hover {
+  background: #e5e7eb;
+  cursor: pointer;
+}
+.ms-table__row--selected {
+  background-color: var(--primary-selected-bg, #a4f6d3);
+}
+.ms-table__row--selected:hover {
+  background-color: var(--primary-selected-bg, #a4f6d3);
+}
 
 .ms-table__checkbox {
   position: sticky;
@@ -177,8 +190,12 @@ function getFilterForCol(key) {
   width: 40px;
   min-width: 40px;
 }
-.ms-table__row:hover .ms-table__checkbox { background: #f0fdf4; }
-.ms-table__row--selected .ms-table__checkbox { background-color: var(--primary-selected-bg); }
+.ms-table__row:hover .ms-table__checkbox {
+  background: #f0fdf4;
+}
+.ms-table__row--selected .ms-table__checkbox {
+  background-color: var(--primary-selected-bg);
+}
 
 /* Action cell: sticky phải, luôn hiển thị */
 .ms-table__col-action {
@@ -198,7 +215,9 @@ function getFilterForCol(key) {
   gap: 2px;
 }
 
-.ms-table__row:hover .ms-table__col-action { background: #f0fdf4; }
+.ms-table__row:hover .ms-table__col-action {
+  background: #f0fdf4;
+}
 
 .ms-table__empty {
   text-align: center;
