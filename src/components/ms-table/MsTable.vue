@@ -121,7 +121,7 @@ function getFilterForCol(key) {
 .ms-table__th {
   font-size: 13px;
   font-weight: 600;
-  color: #020305;
+  color: #262626;
   border-bottom: 1px solid #e5e7eb;
   border-right: 1px solid #f0f0f0;
   text-align: left;
@@ -129,7 +129,7 @@ function getFilterForCol(key) {
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: #f9fafb;
+  background-color: #f3f4f6 !important;
   white-space: nowrap;
 }
 .ms-table__th:last-child {
@@ -145,6 +145,18 @@ function getFilterForCol(key) {
   gap: 6px;
   justify-content: space-between;
   cursor: pointer;
+      border-right: 1px solid #D1D5DB;
+    padding: 0 15px;
+}
+
+input[type="checkbox"] {
+  width: 16px;
+    height: 16px;
+    background-color: #fff;
+    border: 1.5px solid #D1D5DB;
+
+    border-radius: 2px;
+    appearance: none;
 }
 
 /* Action header: vừa 2 icon (28px x2 + gap) */
