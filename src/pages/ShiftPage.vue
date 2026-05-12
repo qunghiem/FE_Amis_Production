@@ -177,11 +177,12 @@
 
   <!-- Form thêm/sửa/nhân bản -->
   <ShiftForm
-    :visible="formVisible"
-    :editingShift="editingShift"
-    @close="closeModal"
-    @saved="handleSaved"
-  />
+  ref="shiftFormRef"
+  :visible="formVisible"
+  :editingShift="editingShift"
+  @close="closeModal"
+  @saved="handleSaved"
+/>
 
   <!-- Confirm xóa -->
   <ConfirmModal
@@ -266,7 +267,9 @@ import MsButton from '@/components/ms-button/MsButton.vue'
 import MsModal from '@/components/ms-modal/MsModal.vue'
 import ShiftForm from '@/components/ShiftForm.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
+import { ApiError } from '@/services/api'
 
+const shiftFormRef = ref(null)
 const store = useShiftStore()
 const toast = useToast()
 // Row được click highlight xanh — khác với checkbox selected
@@ -329,7 +332,6 @@ const COLUMNS = [
 // ===== State =====
 const formVisible = ref(false)
 const editingShift = ref(null)
-
 // More menu — dùng teleport nên cần lưu vị trí
 const moreMenuId = ref(null)
 const moreMenuPos = reactive({ top: 0, left: 0 })
@@ -344,7 +346,8 @@ const confirmState = reactive({
   message: '',
   onConfirm: null,
 })
-
+const detailVisible = ref(false)
+const detailShift = ref(null)
 
 
 // ===== Init =====
@@ -426,13 +429,34 @@ function closeModal() {
 
 async function handleSaved(data) {
   const isEdit = !!data.productionShiftID
+  const isSaveAndAdd = data._action === 'save-and-add'
   const tid = toast.loading(isEdit ? 'Đang cập nhật...' : 'Đang thêm mới...')
+
   try {
     isEdit ? await store.updateShift(data) : await store.addShift(data)
     toast.update(tid, isEdit ? 'Cập nhật thành công!' : 'Thêm mới thành công!', 'success')
-    closeModal()
+
+    if (isSaveAndAdd) {
+      shiftFormRef.value?.resetForm()
+    } else {
+      closeModal()
+    }
   } catch (err) {
-    toast.update(tid, err.message, 'error')
+    // Nếu là lỗi validate từ backend (400) → hiển thị lên form
+    if (err instanceof ApiError && err.errors?.length > 0) {
+      toast.remove(tid) // Xoá toast loading, lỗi sẽ hiện trên form
+
+      const unmapped = shiftFormRef.value?.setServerErrors(err.errors) ?? []
+
+      // Lỗi nào không map được field → hiện toast
+      if (unmapped.length > 0) {
+        toast.error(unmapped.join('; '))
+      }
+    } else {
+      // Lỗi server (500) hoặc lỗi mạng → toast chung
+      toast.update(tid, err.message, 'error')
+      shiftFormRef.value?.resetSaving()
+    }
   }
 }
 
@@ -449,7 +473,7 @@ async function handleDuplicate(id) {
   const tid = toast.loading('Đang nhân bản...')
   try {
     const duplicated = await store.duplicateShift(id)
-    toast.remove(tid)
+    toast.update(tid, 'Nhân bản thành công!', 'success')
     editingShift.value = { ...duplicated, productionShiftID: null }
     formVisible.value = true
   } catch (err) {
@@ -480,6 +504,28 @@ async function handleBatchToggle(status) {
     toast.update(tid, `Đã chuyển ${ids.length} ca sang "${label}"`, 'success')
   } catch (err) {
     toast.update(tid, err.message, 'error')
+  }
+}
+
+
+function editFromDetail() {
+  detailVisible.value = false
+  if (detailShift.value) {
+    openEditModal(detailShift.value.productionShiftID)
+  }
+}
+
+function deleteFromDetail() {
+  detailVisible.value = false
+  if (detailShift.value) {
+    openDeleteConfirm(detailShift.value.productionShiftID)
+  }
+}
+
+async function handleDuplicateFromDetail() {
+  detailVisible.value = false
+  if (detailShift.value) {
+    await handleDuplicate(detailShift.value.productionShiftID)
   }
 }
 

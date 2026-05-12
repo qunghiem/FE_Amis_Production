@@ -79,17 +79,19 @@
       </div>
 
       <!-- Bắt đầu nghỉ + Kết thúc nghỉ -->
-      <div class="sf-row sf-row--half">
-        <label class="sf-label">Bắt đầu nghỉ giữa ca</label>
-        <div class="sf-control">
-          <MsTimePicker v-model="form.breakStartTime" />
-        </div>
+<div class="sf-row sf-row--half">
+  <label class="sf-label">Bắt đầu nghỉ giữa ca</label>
+  <div class="sf-control">
+    <MsTimePicker v-model="form.breakStartTime" :error="errors.breakStartTime" />
+    <div v-if="errors.breakStartTime" class="sf-error">{{ errors.breakStartTime }}</div>
+  </div>
 
-        <label class="sf-label">Kết thúc nghỉ giữa ca</label>
-        <div class="sf-control">
-          <MsTimePicker v-model="form.breakEndTime" />
-        </div>
-      </div>
+  <label class="sf-label">Kết thúc nghỉ giữa ca</label>
+  <div class="sf-control">
+    <MsTimePicker v-model="form.breakEndTime" :error="errors.breakEndTime" />
+    <div v-if="errors.breakEndTime" class="sf-error">{{ errors.breakEndTime }}</div>
+  </div>
+</div>
 
       <!-- Thời gian làm việc + Thời gian nghỉ -->
       <div class="sf-row sf-row--half">
@@ -182,6 +184,15 @@ const EMPTY_FORM = () => ({
   description: '',
   shiftStatus: 1,
 })
+
+const ERROR_FIELD_MAP = [
+  { keywords: ['Mã ca'],           field: 'productionShiftCode' },
+  { keywords: ['Tên ca'],          field: 'productionShiftName' },
+  { keywords: ['Giờ vào ca'],      field: 'startTime' },
+  { keywords: ['Giờ hết ca'],      field: 'endTime' },
+  { keywords: ['Giờ bắt đầu nghỉ', 'Bắt đầu nghỉ'], field: 'breakStartTime' },
+  { keywords: ['Giờ kết thúc nghỉ', 'Kết thúc nghỉ'], field: 'breakEndTime' },
+]
 
 const form = ref(EMPTY_FORM())
 const errors = ref({})
@@ -315,6 +326,45 @@ async function handleSaveAndAdd() {
     _action: 'save-and-add',
   })
 }
+
+/**
+ * Nhận list lỗi từ backend, map vào errors reactive để hiển thị trên form
+ * Lỗi nào không map được field → trả về để parent hiện toast
+ */
+function setServerErrors(serverErrors) {
+  saving.value = false
+  const unmapped = []
+
+  for (const msg of serverErrors) {
+    let matched = false
+    for (const rule of ERROR_FIELD_MAP) {
+      if (rule.keywords.some((kw) => msg.includes(kw))) {
+        errors.value[rule.field] = msg
+        matched = true
+        break
+      }
+    }
+    if (!matched) unmapped.push(msg)
+  }
+
+  // Focus vào field lỗi đầu tiên
+  focusFirstError()
+
+  return unmapped // trả về lỗi không map được để parent show toast
+}
+
+/** Reset form về trạng thái trống (dùng cho Lưu và Thêm) */
+function resetSaving() {
+  saving.value = false
+}
+
+function resetForm() {
+  form.value = EMPTY_FORM()
+  errors.value = {}
+  saving.value = false
+}
+
+defineExpose({ setServerErrors, resetSaving, resetForm })
 </script>
 
 <style scoped>
