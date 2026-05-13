@@ -138,10 +138,9 @@ const btnClass = computed(() => [
 
 .ms-btn--text {
   background: none;
-  color: var(--primary);
   border: none;
   padding: 0;
-  font-weight: 400;
+      color: #f06666;
 }
 .ms-btn--text:hover:not(:disabled) {
   text-decoration: underline;
@@ -220,6 +219,7 @@ const btnClass = computed(() => [
 .ms-btn__content {
   display: inline-flex;
   align-items: center;
-  font-weight: 510;
+      color: #f06666;
+      cursor: pointer;
 }
 </style>

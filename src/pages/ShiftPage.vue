@@ -20,16 +20,22 @@
         >
         <MsButton type="text" @click="store.unselectAll()">Bỏ chọn</MsButton>
         <div class="selected-bar__separator"></div>
-        <MsButton v-if="store.hasInactiveInSelected" type="danger-outline" @click="handleBatchToggle(1)"
+        <MsButton
+          v-if="store.hasInactiveInSelected"
+          type="danger-outline"
+          @click="handleBatchToggle(1)"
           >Sử dụng</MsButton
         >
-        <MsButton v-if="store.hasActiveInSelected" type="danger-outline" @click="handleBatchToggle(0)"
+        <MsButton
+          v-if="store.hasActiveInSelected"
+          type="danger-outline"
+          @click="handleBatchToggle(0)"
           >Ngừng sử dụng</MsButton
         >
         <MsButton type="danger-outline" @click="openBatchDeleteConfirm">Xóa</MsButton>
       </div>
 
-      <!-- Search bar -->
+      <!-- Toolbar: Search + Filter tags cùng 1 hàng -->
       <div v-else class="shift-page__toolbar">
         <div class="shift-page__search">
           <span class="shift-page__search-icon"></span>
@@ -40,6 +46,22 @@
             v-model="store.searchKeyword"
           />
         </div>
+
+        <!-- Filter tags hiển thị cùng hàng với search -->
+        <template v-if="store.filters.length > 0">
+          <div v-for="(filter, idx) in store.filters" :key="idx" class="filter-bar__tag">
+            <span class="filter-bar__tag-col">{{ getColumnLabel(filter.Property) }}</span>
+            <span class="filter-bar__tag-op">{{ getOperatorLabel(filter) }}</span>
+            <span class="filter-bar__tag-val">{{ getValueLabel(filter) }}</span>
+            <button class="filter-bar__tag-remove" @click="removeFilter(filter.Property)">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <MsButton type="text" @click="clearAllFilters">Bỏ lọc</MsButton>
+        </template>
+
+        <div class="shift-page__toolbar-spacer"></div>
+
         <button
           class="shift-page__reload"
           @click="store.fetchPage()"
@@ -47,25 +69,6 @@
         >
           <span class="btn-icon btn-icon--reload"></span>
         </button>
-      </div>
-
-      <!-- ===== FILTER BAR: hiển thị các bộ lọc đang áp dụng ===== -->
-      <div v-if="store.filters.length > 0" class="shift-page__filter-bar">
-        <span class="filter-bar__label">Đã lọc {{ store.filters.length }}</span>
-        <MsButton type="text" @click="clearAllFilters">Bỏ chọn</MsButton>
-        <div class="filter-bar__separator"></div>
-        <div
-          v-for="(filter, idx) in store.filters"
-          :key="idx"
-          class="filter-bar__tag"
-        >
-          <span class="filter-bar__tag-text">
-            {{ getFilterLabel(filter) }}
-          </span>
-          <button class="filter-bar__tag-remove" @click="removeFilter(filter.Property)">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
       </div>
 
       <!-- Table -->
@@ -81,7 +84,10 @@
         empty-text="Chưa có ca làm việc nào"
         @toggle-all="toggleAll"
         @toggle-row="(id) => store.toggleSelect(id)"
-        @row-click="(row) => activeRowId = activeRowId === row.productionShiftID ? null : row.productionShiftID"
+        @row-click="
+          (row) =>
+            (activeRowId = activeRowId === row.productionShiftID ? null : row.productionShiftID)
+        "
         @filter-apply="handleFilterApply"
         @filter-clear="handleFilterClear"
       >
@@ -405,29 +411,25 @@ const OPERATOR_LABELS = {
 
 // ===== Map property → tên cột hiển thị =====
 function getColumnLabel(property) {
-  const col = COLUMNS.find(
-    (c) => c.key === property || c.filterKey === property
-  )
+  const col = COLUMNS.find((c) => c.key === property || c.filterKey === property)
   return col?.label || property
 }
 
-// ===== Lấy label hiển thị cho 1 filter tag =====
-function getFilterLabel(filter) {
-  const colLabel = getColumnLabel(filter.Property)
+// ===== Lấy label operator cho filter tag =====
+function getOperatorLabel(filter) {
+  const col = COLUMNS.find((c) => c.key === filter.Property || c.filterKey === filter.Property)
+  // Status không hiển thị operator
+  if (col?.filterType === 'status') return ''
+  return OPERATOR_LABELS[filter.Operator] || filter.Operator
+}
 
-  // Status: hiển thị giá trị thay vì operator
-  const col = COLUMNS.find(
-    (c) => c.key === filter.Property || c.filterKey === filter.Property
-  )
+// ===== Lấy label giá trị cho filter tag =====
+function getValueLabel(filter) {
+  const col = COLUMNS.find((c) => c.key === filter.Property || c.filterKey === filter.Property)
   if (col?.filterType === 'status') {
-    const statusLabel = filter.Value === '1' || filter.Value === 1
-      ? 'Đang sử dụng'
-      : 'Ngừng sử dụng'
-    return `${colLabel}: ${statusLabel}`
+    return filter.Value === '1' || filter.Value === 1 ? 'Đang sử dụng' : 'Ngừng sử dụng'
   }
-
-  const opLabel = OPERATOR_LABELS[filter.Operator] || filter.Operator
-  return `${colLabel}: ${opLabel} "${filter.Value}"`
+  return filter.Value
 }
 
 // ===== State =====
@@ -565,17 +567,15 @@ async function handleSaved(data) {
       toast.remove(tid)
 
       const duplicateErrors = err.errors.filter(
-        (msg) => msg.includes('trùng') || msg.includes('tồn tại')
+        (msg) => msg.includes('trùng') || msg.includes('tồn tại'),
       )
       const otherErrors = err.errors.filter(
-        (msg) => !msg.includes('trùng') && !msg.includes('tồn tại')
+        (msg) => !msg.includes('trùng') && !msg.includes('tồn tại'),
       )
 
       if (duplicateErrors.length > 0) {
         const code = data.productionShiftCode || ''
-        showWarning(
-          `Ca làm việc &lt;<b>${code}</b>&gt; đã tồn tại. Vui lòng kiểm tra lại.`
-        )
+        showWarning(`Ca làm việc &lt;<b>${code}</b>&gt; đã tồn tại. Vui lòng kiểm tra lại.`)
         shiftFormRef.value?.setServerErrors(duplicateErrors)
       }
 
@@ -743,13 +743,12 @@ async function handleDelete(ids) {
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .btn-icon--chevron-left {
-  mask-position: -200px -16px;
+  mask-position: -48px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .btn-icon--chevron-right {
-  mask-position: -200px -16px;
+  mask-position: -64px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
-  transform: scaleX(-1);
 }
 
 .btn {
@@ -787,11 +786,16 @@ async function handleDelete(ids) {
   padding: 8px 16px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.shift-page__toolbar-spacer {
+  flex: 1;
 }
 .shift-page__search {
   position: relative;
   width: 250px;
+  flex-shrink: 0;
 }
 .shift-page__search-icon {
   position: absolute;
@@ -826,10 +830,10 @@ async function handleDelete(ids) {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid #D1D5DB;
+  border: 1px solid #d1d5db;
   color: #111827;
   background-color: #fff;
-  transition: all .2s ease;
+  transition: all 0.2s ease;
   cursor: pointer;
   outline: none;
   border-radius: 4px;
@@ -837,9 +841,10 @@ async function handleDelete(ids) {
   font-size: 13px;
   height: 28px;
   font-weight: 500;
+  flex-shrink: 0;
 }
 .shift-page__reload:hover {
-  border: 1px solid #D1D5DB;
+  border: 1px solid #d1d5db;
   color: var(--primary);
   background-color: #f3f4f6;
 }
@@ -862,56 +867,41 @@ async function handleDelete(ids) {
   background: #d1d5db;
 }
 
-/* ===== FILTER BAR ===== */
-.shift-page__filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 16px;
-  background-color: #f0fdf4;
-  border-bottom: 1px solid #bbf7d0;
-  flex-wrap: wrap;
-}
-
-.filter-bar__label {
-  font-size: 13px;
-  color: #374151;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.filter-bar__separator {
-  width: 1px;
-  height: 20px;
-  background: #d1d5db;
-  flex-shrink: 0;
-}
-
+/* ===== FILTER TAGS (inline trong toolbar) ===== */
 .filter-bar__tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px 4px 10px;
-  background-color: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 12px;
-  color: #374151;
+  gap: 4px;
+  font-size: 13px;
+  color: #111827;
   white-space: nowrap;
+      background: #f3f4f6;
+    padding: 0 8px;
 }
 
-.filter-bar__tag-text {
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.filter-bar__tag-col {
+  color: #374151;
+}
+
+.filter-bar__tag-op {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.filter-bar__tag-val {
+  color: #111827;
+
+  font-weight: 500;
 }
 
 .filter-bar__tag-remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
   height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
   border: none;
   background: none;
   cursor: pointer;
@@ -921,10 +911,11 @@ async function handleDelete(ids) {
   padding: 0;
   flex-shrink: 0;
   transition: all 0.15s;
-}
-.filter-bar__tag-remove:hover {
-  background-color: #fee2e2;
-  color: #dc2626;
+  margin-left: 2px;
+  -webkit-mask-repeat: no-repeat;
+  background-color: #4b5563;
+  mask-position: -96px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 
 .shift-page__footer {
@@ -967,10 +958,7 @@ async function handleDelete(ids) {
   justify-content: center;
   color: #6b7280;
 }
-.pagination__btn:hover:not(:disabled) {
-  border-color: var(--primary);
-  color: var(--primary);
-}
+
 .pagination__btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
