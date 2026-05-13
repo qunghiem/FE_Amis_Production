@@ -134,6 +134,13 @@ const btnClass = computed(() => [
   background-color: #dc2626;
   color: #fff;
   border: none;
+      outline: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+.ms-btn--danger-confirm .ms-btn__content {
+  color: #fff;
 }
 .ms-btn--danger-confirm:hover:not(:disabled) {
   background-color: #b91c1c;

@@ -1,19 +1,26 @@
 <!-- popup xác nhận xóa -->
 
-
 <template>
   <MsModal
     v-model="localVisible"
-    :title="title"
+    :title="''"
     width="420px"
     :close-on-overlay="true"
     @update:modelValue="(v) => !v && $emit('cancel')"
   >
-    <div class="confirm-modal__body">
-      <div class="confirm-modal__icon" :class="`confirm-modal__icon--${type}`">
-        <i :class="iconClass"></i>
+    <!-- Header custom: icon + title -->
+    <template #header>
+      <div class="confirm-modal__header">
+        <div class="confirm-modal__icon" :class="`confirm-modal__icon--${type}`">
+          <i :class="iconClass"></i>
+        </div>
+        <span class="confirm-modal__title">{{ title }}</span>
       </div>
-      <p class="confirm-modal__message">{{ message }}</p>
+    </template>
+
+    <!-- Body -->
+    <div class="confirm-modal__body">
+      <p class="confirm-modal__message" v-html="message"></p>
     </div>
 
     <template #footer>
@@ -50,23 +57,46 @@ const iconClass = computed(() => {
   return map[props.type] ?? map.danger
 })
 
-const confirmBtnType = computed(() => props.type === 'danger' ? 'danger-confirm' : 'save')
+const confirmBtnType = computed(() => (props.type === 'danger' ? 'danger-confirm' : 'save'))
 </script>
 
 <style scoped>
-.confirm-modal__body {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 16px; padding: 8px 0 4px; text-align: center;
+.confirm-modal__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .confirm-modal__icon {
-  width: 56px; height: 56px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px;
+  width: 16px;
+  height: 14px;
+  background-color: #ea580c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
 }
-.confirm-modal__icon--danger { background-color: #fef2f2; color: #dc2626; }
-.confirm-modal__icon--warning { background-color: #fffbeb; color: #d97706; }
-.confirm-modal__icon--info { background-color: #eff6ff; color: #2563eb; }
+.confirm-modal__icon--danger {
+  mask-position: -188px -169px;
+  background: url(https://demoqtsxcdn.misacdn.net/assets/pas.ic_warning-10482646.svg?v=10.0.0.36);
+}
+.confirm-modal__icon--warning {
+  color: #d97706;
+}
+.confirm-modal__icon--info {
+  color: #2563eb;
+}
+.confirm-modal__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+.confirm-modal__body {
+  padding: 0 0 4px;
+}
 .confirm-modal__message {
-  font-size: 14px; color: #374151; line-height: 1.6; max-width: 320px;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
 }
 </style>

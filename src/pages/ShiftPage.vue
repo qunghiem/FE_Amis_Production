@@ -640,18 +640,20 @@ async function handleDuplicateFromDetail() {
 }
 
 // ===== Delete =====
+// Xóa đơn
 function openDeleteConfirm(id) {
   moreMenuId.value = null
   const shift = store.getById(id)
-  confirmState.title = 'Xóa ca làm việc'
-  confirmState.message = `Bạn có chắc muốn xóa ca "${shift?.productionShiftCode || ''}"? Thao tác này không thể hoàn tác.`
+  confirmState.title = 'Xóa Ca làm việc'
+  confirmState.message = `Ca làm việc <b>${shift?.productionShiftCode || ''}</b> sau khi bị xóa sẽ không thể khôi phục. Bạn có muốn tiếp tục xóa không?`
   confirmState.onConfirm = () => handleDelete([id])
   confirmState.visible = true
 }
 
+// Xóa nhiều
 function openBatchDeleteConfirm() {
-  confirmState.title = 'Xóa nhiều ca làm việc'
-  confirmState.message = `Bạn có chắc muốn xóa ${store.selectedIdList.length} ca đã chọn? Thao tác này không thể hoàn tác.`
+  confirmState.title = 'Xóa Ca làm việc'
+  confirmState.message = `<b>${store.selectedIdList.length}</b> ca làm việc sau khi bị xóa sẽ không thể khôi phục. Bạn có muốn tiếp tục xóa không?`
   confirmState.onConfirm = () => handleDelete(store.selectedIdList)
   confirmState.visible = true
 }
@@ -909,7 +911,7 @@ async function handleDelete(ids) {
   border-top: 1px solid #e5e7eb;
   background-color: #fafafa;
   font-size: 13px;
-  color: #6b7280;
+  color: #111827;
   flex-shrink: 0;
 }
 .shift-page__pagination {
@@ -928,6 +930,7 @@ async function handleDelete(ids) {
 .pagination__range {
   min-width: 50px;
   text-align: center;
+  font-weight: 600;
 }
 .pagination__btn {
   width: 28px;
