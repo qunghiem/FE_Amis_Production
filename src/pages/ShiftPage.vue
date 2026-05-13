@@ -13,63 +13,47 @@
 
     <!-- Content container -->
     <div class="shift-page__content">
-      <!-- Thanh bar khi chọn nhiều -->
-      <div v-if="store.selectedCount > 0" class="shift-page__selected-bar">
-        <span class="selected-bar__count"
-          >Đã chọn: <b>{{ store.selectedCount }}</b></span
-        >
-        <MsButton type="text" @click="store.unselectAll()">Bỏ chọn</MsButton>
-        <div class="selected-bar__separator"></div>
-        <MsButton
-          v-if="store.hasInactiveInSelected"
-          type="danger-outline"
-          @click="handleBatchToggle(1)"
-          >Sử dụng</MsButton
-        >
-        <MsButton
-          v-if="store.hasActiveInSelected"
-          type="danger-outline"
-          @click="handleBatchToggle(0)"
-          >Ngừng sử dụng</MsButton
-        >
-        <MsButton type="danger-outline" @click="openBatchDeleteConfirm">Xóa</MsButton>
-      </div>
+      <!-- Toolbar: Search luôn hiển thị -->
+<div class="shift-page__toolbar">
+  <div class="shift-page__search">
+    <span class="shift-page__search-icon"></span>
+    <input
+      type="text"
+      class="shift-page__search-input"
+      placeholder="Tìm kiếm"
+      v-model="store.searchKeyword"
+    />
+  </div>
 
-      <!-- Toolbar: Search + Filter tags cùng 1 hàng -->
-      <div v-else class="shift-page__toolbar">
-        <div class="shift-page__search">
-          <span class="shift-page__search-icon"></span>
-          <input
-            type="text"
-            class="shift-page__search-input"
-            placeholder="Tìm kiếm"
-            v-model="store.searchKeyword"
-          />
-        </div>
+  <!-- Khi có checkbox được chọn -->
+  <template v-if="store.selectedCount > 0">
+    <span class="selected-bar__count">Đã chọn <b>{{ store.selectedCount }}</b></span>
+    <MsButton type="text" @click="store.unselectAll()">Bỏ chọn</MsButton>
+    <div class="selected-bar__separator"></div>
+    <MsButton v-if="store.hasInactiveInSelected" type="danger-outline" @click="handleBatchToggle(1)">Sử dụng</MsButton>
+    <MsButton v-if="store.hasActiveInSelected" type="danger-outline" @click="handleBatchToggle(0)">Ngừng sử dụng</MsButton>
+    <MsButton type="danger-outline" @click="openBatchDeleteConfirm">Xóa</MsButton>
+  </template>
 
-        <!-- Filter tags hiển thị cùng hàng với search -->
-        <template v-if="store.filters.length > 0">
-          <div v-for="(filter, idx) in store.filters" :key="idx" class="filter-bar__tag">
-            <span class="filter-bar__tag-col">{{ getColumnLabel(filter.Property) }}</span>
-            <span class="filter-bar__tag-op">{{ getOperatorLabel(filter) }}</span>
-            <span class="filter-bar__tag-val">{{ getValueLabel(filter) }}</span>
-            <button class="filter-bar__tag-remove" @click="removeFilter(filter.Property)">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <MsButton type="text" @click="clearAllFilters">Bỏ lọc</MsButton>
-        </template>
+  <!-- Khi không chọn: hiện filter tags -->
+  <template v-else-if="store.filters.length > 0">
+    <div v-for="(filter, idx) in store.filters" :key="idx" class="filter-bar__tag">
+      <span class="filter-bar__tag-col">{{ getColumnLabel(filter.Property) }}</span>
+      <span class="filter-bar__tag-op">{{ getOperatorLabel(filter) }}</span>
+      <span class="filter-bar__tag-val">{{ getValueLabel(filter) }}</span>
+      <button class="filter-bar__tag-remove" @click="removeFilter(filter.Property)">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <MsButton type="text" @click="clearAllFilters">Bỏ lọc</MsButton>
+  </template>
 
-        <div class="shift-page__toolbar-spacer"></div>
+  <div class="shift-page__toolbar-spacer"></div>
 
-        <button
-          class="shift-page__reload"
-          @click="store.fetchPage()"
-          data-tooltip="Lấy lại dữ liệu"
-        >
-          <span class="btn-icon btn-icon--reload"></span>
-        </button>
-      </div>
+  <button class="shift-page__reload" @click="store.fetchPage()" data-tooltip="Lấy lại dữ liệu">
+    <span class="btn-icon btn-icon--reload"></span>
+  </button>
+</div>
 
       <!-- Table -->
       <MsTable
@@ -874,8 +858,8 @@ async function handleDelete(ids) {
   font-size: 13px;
   color: #111827;
   white-space: nowrap;
-      background: #f3f4f6;
-    padding: 0 8px;
+  background: #f3f4f6;
+  padding: 0 8px;
 }
 
 .filter-bar__tag-col {

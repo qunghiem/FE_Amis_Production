@@ -147,6 +147,8 @@ const btnClass = computed(() => [
 }
 .ms-btn--text:hover:not(:disabled) {
   text-decoration: underline;
+        color: #f06666;
+
 }
 
 .ms-btn--icon-only {
@@ -229,7 +231,13 @@ const btnClass = computed(() => [
 }
 
 .ms-btn--text .ms-btn__content {
-  color: var(--primary);
+  color: #f06666;
   font-size: 13px;
+}
+
+.ms-btn--text:hover .ms-btn__content {
+  color: #f06666;
+  font-size: 13px;
+      text-decoration-color: var(--primary) !important;
 }
 </style>
