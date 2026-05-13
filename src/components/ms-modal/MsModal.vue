@@ -109,4 +109,8 @@ function onOverlayClick() {
   flex-shrink: 0;
   align-items: center;
 }
+
+.ms-modal__footer .ms-btn__content {
+  color: #111827 !important;
+}
 </style>

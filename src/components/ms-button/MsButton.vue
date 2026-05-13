@@ -231,7 +231,7 @@ const btnClass = computed(() => [
 .ms-btn__content {
   display: inline-flex;
   align-items: center;
-      color: #f06666;
+      /* color: #f06666; */
       cursor: pointer;
   font-size: 13px;
 

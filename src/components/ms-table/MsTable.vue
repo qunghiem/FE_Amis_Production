@@ -222,7 +222,6 @@ input[type="checkbox"] {
   right: 0;
   z-index: 9;
   background: #fff;
-  border-left: 1px solid #f0f0f0;
   padding: 4px 6px;
   width: 72px;
   min-width: 72px;
