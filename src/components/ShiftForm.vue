@@ -174,6 +174,8 @@ const EMPTY_FORM = () => ({
   breakEndTime: '',
   description: '',
   shiftStatus: 1,
+  createdDate: null,
+  createdBy: null,
 })
 
 const ERROR_FIELD_MAP = [
@@ -245,6 +247,8 @@ watch(
         breakEndTime: formatTimeForInput(props.editingShift.breakEndTime),
         description: props.editingShift.description || '',
         shiftStatus: props.editingShift.shiftStatus ?? 1,
+        createdDate: props.editingShift.createdDate || null,
+        createdBy: props.editingShift.createdBy || null,
       }
     } else {
       form.value = EMPTY_FORM()

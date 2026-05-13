@@ -64,7 +64,7 @@ const toBackend = (c) => ({
   description: c.description || null,
   shiftStatus: c.shiftStatus ?? 1,
   createdBy: c.createdBy || null,
-  createdDate: c.createdDate || new Date().toISOString(),
+  createdDate: c.createdDate || null,
   modifiedBy: c.modifiedBy || null,
   modifiedDate: new Date().toISOString(),
 })
