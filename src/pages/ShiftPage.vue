@@ -242,67 +242,6 @@
     </div>
   </teleport>
 
-  <!-- Detail modal -->
-  <MsModal
-    v-model="detailVisible"
-    title="Chi tiết ca làm việc"
-    width="500px"
-    :close-on-overlay="true"
-  >
-    <div v-if="detailShift" class="shift-detail">
-      <div class="detail-row">
-        <span class="detail-label">Mã ca:</span> {{ detailShift.productionShiftCode }}
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Tên ca:</span> {{ detailShift.productionShiftName }}
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Giờ vào ca:</span> {{ detailShift.startTimeDisplay }}
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Giờ hết ca:</span> {{ detailShift.endTimeDisplay }}
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Bắt đầu nghỉ:</span> {{ detailShift.breakStartTimeDisplay }}
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Kết thúc nghỉ:</span> {{ detailShift.breakEndTimeDisplay }}
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Thời gian làm việc:</span> {{ detailShift.workHour }} giờ
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Thời gian nghỉ:</span> {{ detailShift.breakHour }} giờ
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Trạng thái:</span>
-        <span :class="detailShift.shiftStatus === 1 ? 'status--active' : 'status--inactive'">
-          {{ detailShift.shiftStatus === 1 ? 'Sử dụng' : 'Ngừng sử dụng' }}
-        </span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Mô tả:</span> {{ detailShift.description || '-' }}
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Người tạo:</span> {{ detailShift.createdBy || '-' }}
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Ngày tạo:</span> {{ detailShift.createdDateDisplay || '-' }}
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Người sửa:</span> {{ detailShift.modifiedBy || '-' }}
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Ngày sửa:</span> {{ detailShift.modifiedDateDisplay || '-' }}
-      </div>
-    </div>
-
-    <template #footer>
-      <MsButton type="outline" @click="handleDuplicateFromDetail">Nhân bản</MsButton>
-      <MsButton type="outline" @click="editFromDetail">Sửa</MsButton>
-      <MsButton type="danger-outline" @click="deleteFromDetail">Xóa</MsButton>
-    </template>
-  </MsModal>
 </template>
 
 <script setup>
@@ -433,10 +372,11 @@ function getValueLabel(filter) {
 }
 
 // ===== State =====
-const formVisible = ref(false)
-const editingShift = ref(null)
-const moreMenuId = ref(null)
-const moreMenuPos = reactive({ top: 0, left: 0 })
+const formVisible = ref(false) // true nếu modal thêm/sửa đang mở, false nếu đóng
+const editingShift = ref(null) // chứa ca làm việc đang được sửa hoặc nhân bản, nếu null thì đang ở trạng thái thêm mới
+const moreMenuId = ref(null) // id của ca làm việc đang được mở menu More, nếu null thì không có menu nào được mở
+const moreMenuPos = reactive({ top: 0, left: 0 }) // vị trí của menu More đang mở, dùng để đặt dropdown ở đúng vị trí
+// computed để lấy ra dữ liệu ca làm việc đang được mở menu More dựa vào moreMenuId
 const moreMenuRow = computed(() =>
   moreMenuId.value !== null ? store.getById(moreMenuId.value) : null,
 )
@@ -541,8 +481,11 @@ function closeMoreMenu() {
 }
 
 // ===== CRUD =====
+// Hàm mở modal thêm mới
 function openAddModal() {
+  // set editingShift về null để form hiểu là đang ở trạng thái thêm mới
   editingShift.value = null
+  // mở modal
   formVisible.value = true
 }
 
@@ -559,9 +502,10 @@ function closeModal() {
   editingShift.value = null
 }
 
+// Hàm xử lý khi form thêm/sửa ca làm việc gọi sự kiện saved, nhận vào dữ liệu ca làm việc đã được thêm hoặc sửa thành công
 async function handleSaved(data) {
-  const isEdit = !!data.productionShiftID
-  const isSaveAndAdd = data._action === 'save-and-add'
+  const isEdit = !!data.productionShiftID // ép về bool
+  const isSaveAndAdd = data._action === 'save-and-add' // nếu ấn lưu và thêm
   const tid = toast.loading(isEdit ? 'Đang cập nhật...' : 'Đang thêm mới...')
 
   try {
@@ -607,12 +551,16 @@ async function handleSaved(data) {
 
 // ===== Duplicate =====
 async function handleDuplicate(id) {
+  // Đóng menu More đang mở
   moreMenuId.value = null
   const tid = toast.loading('Đang nhân bản...')
   try {
+    // Gọi API nhân bản ca làm việc, API sẽ trả về dữ liệu ca làm việc mới được tạo ra sau khi nhân bản,
     const duplicated = await store.duplicateShift(id)
     toast.update(tid, 'Nhân bản thành công!', 'success')
+    // sau đó gán dữ liệu đó vào editingShift
     editingShift.value = { ...duplicated, productionShiftID: null }
+    // mở modal
     formVisible.value = true
   } catch (err) {
     toast.update(tid, err.message, 'error')
@@ -621,11 +569,18 @@ async function handleDuplicate(id) {
 
 // ===== Toggle status =====
 async function handleToggleSingle(row) {
+  // Đóng menu More đang mở
   moreMenuId.value = null
+
+  // Xác định trạng thái mới: nếu đang là 1 (Sử dụng) thì chuyển thành 0 (Ngừng sử dụng), ngược lại nếu đang là 0 thì chuyển thành 1
   const newStatus = row.shiftStatus === 1 ? 0 : 1
+
+  // Thay đổi label tương ứng với trạng thái mới để hiển thị trong toast
   const label = newStatus === 1 ? 'Sử dụng' : 'Ngừng sử dụng'
+
   const tid = toast.loading('Đang chuyển trạng thái...')
   try {
+    // Gọi API để chuyển trạng thái của ca làm việc, chỉ cần truyền vào một mảng chứa một phần tử là ID của ca làm việc cần chuyển trạng thái và trạng thái mới
     await store.toggleStatus([row.productionShiftID], newStatus)
     toast.update(tid, `Đã chuyển sang "${label}"`, 'success')
   } catch (err) {
@@ -637,8 +592,9 @@ async function handleToggleSingle(row) {
 async function handleBatchToggle(status) {
   // lấy ra list id checked
   const ids = store.selectedIdList
-  //
+  // thay đổi label
   const label = status === 1 ? 'Sử dụng' : 'Ngừng sử dụng'
+
   const tid = toast.loading(`Đang chuyển trạng thái ${ids.length} ca...`)
   try {
     await store.toggleStatus(ids, status)
@@ -648,26 +604,29 @@ async function handleBatchToggle(status) {
   }
 }
 
-function editFromDetail() {
-  detailVisible.value = false
-  if (detailShift.value) {
-    openEditModal(detailShift.value.productionShiftID)
-  }
-}
+// mở model sửa
+// function editFromDetail() {
+//   detailVisible.value = false
+//   if (detailShift.value) {
+//     openEditModal(detailShift.value.productionShiftID)
+//   }
+// }
 
-function deleteFromDetail() {
-  detailVisible.value = false
-  if (detailShift.value) {
-    openDeleteConfirm(detailShift.value.productionShiftID)
-  }
-}
+// // Hàm xóa từ modal chi tiết
+// function deleteFromDetail() {
+//   detailVisible.value = false
+//   if (detailShift.value) {
+//     openDeleteConfirm(detailShift.value.productionShiftID)
+//   }
+// }
 
-async function handleDuplicateFromDetail() {
-  detailVisible.value = false
-  if (detailShift.value) {
-    await handleDuplicate(detailShift.value.productionShiftID)
-  }
-}
+// // Hàm nhân bản từ modal chi tiết
+// async function handleDuplicateFromDetail() {
+//   detailVisible.value = false
+//   if (detailShift.value) {
+//     await handleDuplicate(detailShift.value.productionShiftID)
+//   }
+// }
 
 // ===== Delete =====
 // Xóa đơn
@@ -680,7 +639,7 @@ function openDeleteConfirm(id) {
   confirmState.visible = true
 }
 
-// Xóa nhiều
+// Xóa nhiều sau khi chọn nhiều
 function openBatchDeleteConfirm() {
   confirmState.title = 'Xóa Ca làm việc'
   confirmState.message = `<b>${store.selectedIdList.length}</b> ca làm việc sau khi bị xóa sẽ không thể khôi phục. Bạn có muốn tiếp tục xóa không?`
@@ -701,6 +660,7 @@ async function onConfirm() {
   if (callback) await callback()
 }
 
+// Hàm xóa ca làm việc, nhận vào một mảng id (có thể là 1 hoặc nhiều id)
 async function handleDelete(ids) {
   const tid = toast.loading('Đang xóa...')
   try {

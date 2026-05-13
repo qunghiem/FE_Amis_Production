@@ -32,12 +32,14 @@
       </thead>
 
       <tbody>
+        <!-- Hiển thị thông báo khi không có dữ liệu -->
         <tr v-if="!rows.length">
           <td :colspan="totalCols" class="ms-table__empty">
             <slot name="empty">{{ emptyText }}</slot>
           </td>
         </tr>
 
+        <!-- Hiển thị các dòng dữ liệu -->
         <tr
           v-for="(row, rowIndex) in rows"
           :key="row[rowKey] ?? rowIndex"

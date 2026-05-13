@@ -228,7 +228,7 @@ function formatTimeForInput(ts) {
   const parts = ts.split(':')
   return `${parts[0]}:${parts[1]}`
 }
-
+// watch để reset form mỗi khi mở modal, nếu props.editingShift có dữ liệu thì set form bằng dữ liệu đó để phục vụ cho sửa hoặc nhân bản, nếu không có thì set form về trạng thái trống để phục vụ cho thêm mới
 watch(
   () => props.visible,
   (v) => {

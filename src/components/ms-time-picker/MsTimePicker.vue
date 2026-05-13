@@ -62,11 +62,11 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'blur'])
 
-const pickerRef = ref(null)
-const inputRef = ref(null)
-const dropdownRef = ref(null)
-const dropdownOpen = ref(false)
-const highlightedIndex = ref(-1)
+const pickerRef = ref(null) // ref để truy cập DOM của component, dùng để tính toán vị trí dropdown
+const inputRef = ref(null) // ref để truy cập DOM của input, dùng để focus và tính toán vị trí
+const dropdownRef = ref(null) // ref để truy cập DOM của dropdown, dùng để tính toán vị trí và scroll
+const dropdownOpen = ref(false) // trạng thái mở dropdown
+const highlightedIndex = ref(-1) // index của option đang được highlight khi dùng phím lên xuống
 const dropdownStyle = ref({})
 
 // Tạo danh sách thời gian theo step
@@ -81,12 +81,13 @@ const timeOptions = computed(() => {
   }
   return options
 })
-
+// Tạo computed property để dễ dàng sử dụng v-model với input hiển thị
 const displayValue = computed({
   get: () => props.modelValue || '',
   set: (v) => emit('update:modelValue', v),
 })
 
+// Xử lý khi người dùng nhập thủ công vào input, chỉ cho phép nhập số và dấu :, tự động thêm dấu : sau 2 số đầu tiên
 function onManualInput(e) {
   let val = e.target.value.replace(/[^\d:]/g, '')
   // Auto thêm dấu : sau 2 số
@@ -96,6 +97,7 @@ function onManualInput(e) {
   emit('update:modelValue', val)
 }
 
+// Mở dropdown và highlight option tương ứng khi click vào input hoặc dùng phím lên xuống
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value
   if (dropdownOpen.value) {
@@ -106,11 +108,13 @@ function toggleDropdown() {
   }
 }
 
+// Xử lý khi chọn một option trong dropdown
 function selectTime(time) {
   emit('update:modelValue', time)
   dropdownOpen.value = false
 }
 
+// Đóng dropdown khi click ra ngoài hoặc khi input mất focus, nhưng delay một chút để cho phép click vào dropdown mà không bị đóng ngay
 function onBlur(e) {
   // Delay đóng để cho phép click vào dropdown
   setTimeout(() => {
@@ -121,6 +125,7 @@ function onBlur(e) {
   }, 150)
 }
 
+// Di chuyển highlight lên xuống khi dùng phím, nếu dropdown chưa mở thì mở dropdown và highlight option tương ứng
 function moveHighlight(dir) {
   if (!dropdownOpen.value) {
     dropdownOpen.value = true
@@ -134,12 +139,14 @@ function moveHighlight(dir) {
   scrollToHighlighted()
 }
 
+// Chọn option đang được highlight khi nhấn Enter
 function selectHighlighted() {
   if (highlightedIndex.value >= 0 && highlightedIndex.value < timeOptions.value.length) {
     selectTime(timeOptions.value[highlightedIndex.value])
   }
 }
 
+// Scroll dropdown để đảm bảo option được chọn hoặc được highlight luôn hiển thị khi dropdown mở hoặc khi di chuyển highlight bằng phím
 function scrollToSelected() {
   if (!dropdownRef.value) return
   const idx = timeOptions.value.indexOf(props.modelValue)
@@ -150,12 +157,14 @@ function scrollToSelected() {
   }
 }
 
+// Scroll dropdown để đảm bảo option được highlight luôn hiển thị khi di chuyển highlight bằng phím
 function scrollToHighlighted() {
   if (!dropdownRef.value) return
   const el = dropdownRef.value.children[highlightedIndex.value]
   if (el) el.scrollIntoView({ block: 'nearest' })
 }
 
+// Tính toán vị trí của dropdown để nó luôn hiển thị đầy đủ
 function positionDropdown() {
   if (!pickerRef.value) return
   const rect = pickerRef.value.getBoundingClientRect()
@@ -194,10 +203,11 @@ function onDocClick(e) {
     dropdownOpen.value = false
   }
 }
-
+// Watch modelValue để khi giá trị thay đổi từ bên ngoài thì tự động highlight option tương ứng trong dropdown nếu dropdown đang mở
 watch(dropdownOpen, (v) => {
   if (v) nextTick(() => { positionDropdown(); scrollToSelected() })
 })
+
 
 onMounted(() => document.addEventListener('mousedown', onDocClick))
 onUnmounted(() => document.removeEventListener('mousedown', onDocClick))
