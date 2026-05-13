@@ -77,9 +77,12 @@ const btnClass = computed(() => [
   color: #dc2626;
   border: 1px solid #dc2626;
   padding: 6px 12px;
+  font-weight: 550;
 }
 .ms-btn--danger-outline:hover:not(:disabled) {
-  background-color: #dc2626;
+      background-color: #fee2e2;
+          border: 1px solid #DC2626;
+    color: #dc2626;
   color: #fff;
 }
 
@@ -221,5 +224,12 @@ const btnClass = computed(() => [
   align-items: center;
       color: #f06666;
       cursor: pointer;
+  font-size: 13px;
+
+}
+
+.ms-btn--text .ms-btn__content {
+  color: var(--primary);
+  font-size: 13px;
 }
 </style>
