@@ -794,7 +794,6 @@ async function handleDelete(ids) {
 }
 .shift-page__search {
   position: relative;
-  width: 250px;
   flex-shrink: 0;
 }
 .shift-page__search-icon {
