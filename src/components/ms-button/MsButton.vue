@@ -2,9 +2,15 @@
 
 <template>
   <button :class="btnClass" :disabled="disabled || loading" v-bind="$attrs">
+    <!-- // Nếu đang ở trạng thái loading thì hiển thị spinner, ẩn icon và nội dung -->
     <span v-if="loading" class="ms-btn__spinner"></span>
+
+    <!-- // Nếu có icon và không đang loading thì hiển thị icon // icon bên trái -->
     <i v-if="icon && positionIcon === 'left' && !loading" :class="['ms-btn__icon', icon]"></i>
+    <!-- // nội dung button -->
     <span class="ms-btn__content"><slot></slot></span>
+
+    <!-- // icon bên phải -->
     <i v-if="icon && positionIcon === 'right' && !loading" :class="['ms-btn__icon', icon]"></i>
   </button>
 </template>
@@ -13,8 +19,11 @@
 import { computed } from 'vue'
 
 const props = defineProps({
+  // Các loại button: primary, outline, danger-outline, save, save-and-add, cancel, danger-confirm, text, icon-only
   type: { type: String, default: 'primary' },
+  // Kích thước button: small, medium, large
   icon: { type: String, default: null },
+  // Vị trí icon: left hoặc right (mặc định là left)
   positionIcon: { type: String, default: 'left' },
   loading: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
@@ -65,7 +74,7 @@ const btnClass = computed(() => [
   background-color: #fff;
   color: var(--text-main);
   border: 1px solid var(--border-color);
-  padding: 6px 12px;;
+  padding: 6px 12px;
 }
 .ms-btn--outline:hover:not(:disabled) {
   border-color: var(--primary);
@@ -80,9 +89,9 @@ const btnClass = computed(() => [
   font-weight: 550;
 }
 .ms-btn--danger-outline:hover:not(:disabled) {
-      background-color: #fee2e2;
-          border: 1px solid #DC2626;
-    color: #dc2626;
+  background-color: #fee2e2;
+  border: 1px solid #dc2626;
+  color: #dc2626;
   color: #fff;
 }
 
@@ -109,7 +118,6 @@ const btnClass = computed(() => [
 }
 .ms-btn--save-and-add:hover:not(:disabled) {
   background-color: #f3f4f6;
-
 }
 
 .ms-btn--cancel {
@@ -134,9 +142,9 @@ const btnClass = computed(() => [
   background-color: #dc2626;
   color: #fff;
   border: none;
-      outline: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+  outline: none;
+  padding: 6px 12px;
+  border-radius: 4px;
 }
 
 .ms-btn--danger-confirm .ms-btn__content {
@@ -150,12 +158,11 @@ const btnClass = computed(() => [
   background: none;
   border: none;
   padding: 0;
-      color: #f06666;
+  color: #f06666;
 }
 .ms-btn--text:hover:not(:disabled) {
   text-decoration: underline;
-        color: #f06666;
-
+  color: #f06666;
 }
 
 .ms-btn--icon-only {
@@ -231,10 +238,9 @@ const btnClass = computed(() => [
 .ms-btn__content {
   display: inline-flex;
   align-items: center;
-      /* color: #f06666; */
-      cursor: pointer;
+  /* color: #f06666; */
+  cursor: pointer;
   font-size: 13px;
-
 }
 
 .ms-btn--text .ms-btn__content {
@@ -245,6 +251,6 @@ const btnClass = computed(() => [
 .ms-btn--text:hover .ms-btn__content {
   color: #f06666;
   font-size: 13px;
-      text-decoration-color: var(--primary) !important;
+  text-decoration-color: var(--primary) !important;
 }
 </style>

@@ -69,8 +69,10 @@ const toBackend = (c) => ({
   modifiedDate: new Date().toISOString(),
 })
 
+// API Service
 export const shiftService = {
-  async search(keyword = '', pageNumber = 1, pageSize = 20, filters = [], sortBy = '', sortDirection = 'ASC') {
+  // tìm kiếm với phân trang, filter, sort
+  async search(keyword = '', pageNumber = 1, pageSize = 10, filters = [], sortBy = '', sortDirection = 'ASC') {
     const { data } = await api.post('/Shift/filter-paging', {
       keyword,
       pageNumber,
@@ -81,36 +83,41 @@ export const shiftService = {
     })
     return {
       ...data,
-      data: data.data.map(toFrontend),
+      data: data.data.map(toFrontend), // map từng phần tử trong data sang toFrontend
     }
   },
 
+  // Lấy chi tiết ca làm việc theo ID
   async getById(id) {
     const { data } = await api.get(`/Shift/${id}`)
     return toFrontend(data)
   },
 
+  // Thêm mới ca làm việc
   async insert(shift) {
     const { data } = await api.post('/Shift', toBackend(shift))
     return data
   },
 
-
+  // Cập nhật ca làm việc
   async update(shift) {
     const { data } = await api.put(`/Shift/${shift.productionShiftID}`, toBackend(shift))
     return data
   },
 
+  // Xóa ca làm việc theo ID (có thể xóa nhiều ID cùng lúc)
   async deleteByIds(ids) {
     const { data } = await api.delete('/Shift', { data: ids })
     return data
   },
 
+  // Nhân bản ca làm việc
   async duplicate(id) {
     const { data } = await api.get(`/Shift/duplicate/${id}`)
     return toFrontend(data)
   },
 
+  // Chuyển trạng thái Sử dụng / Ngừng sử dụng hàng loạt
   async toggleStatus(ids, status) {
     const { data } = await api.put('/Shift/toggle-status', { ids, status })
     return data

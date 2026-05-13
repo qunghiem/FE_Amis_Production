@@ -14,46 +14,62 @@
     <!-- Content container -->
     <div class="shift-page__content">
       <!-- Toolbar: Search luôn hiển thị -->
-<div class="shift-page__toolbar">
-  <div class="shift-page__search">
-    <span class="shift-page__search-icon"></span>
-    <input
-      type="text"
-      class="shift-page__search-input"
-      placeholder="Tìm kiếm"
-      v-model="store.searchKeyword"
-    />
-  </div>
+      <div class="shift-page__toolbar">
+        <div class="shift-page__search">
+          <span class="shift-page__search-icon"></span>
+          <input
+            type="text"
+            class="shift-page__search-input"
+            placeholder="Tìm kiếm"
+            v-model="store.searchKeyword"
+          />
+        </div>
 
-  <!-- Khi có checkbox được chọn -->
-  <template v-if="store.selectedCount > 0">
-    <span class="selected-bar__count">Đã chọn <b>{{ store.selectedCount }}</b></span>
-    <MsButton type="text" @click="store.unselectAll()">Bỏ chọn</MsButton>
-    <div class="selected-bar__separator"></div>
-    <MsButton v-if="store.hasInactiveInSelected" type="danger-outline" @click="handleBatchToggle(1)">Sử dụng</MsButton>
-    <MsButton v-if="store.hasActiveInSelected" type="danger-outline" @click="handleBatchToggle(0)">Ngừng sử dụng</MsButton>
-    <MsButton type="danger-outline" @click="openBatchDeleteConfirm">Xóa</MsButton>
-  </template>
+        <!-- Khi có checkbox được chọn -->
+        <template v-if="store.selectedCount > 0">
+          <span class="selected-bar__count"
+            >Đã chọn <b>{{ store.selectedCount }}</b></span
+          >
+          <MsButton type="text" @click="store.unselectAll()">Bỏ chọn</MsButton>
+          <div class="selected-bar__separator"></div>
+          <MsButton
+            v-if="store.hasInactiveInSelected"
+            type="danger-outline"
+            @click="handleBatchToggle(1)"
+            >Sử dụng</MsButton
+          >
+          <MsButton
+            v-if="store.hasActiveInSelected"
+            type="danger-outline"
+            @click="handleBatchToggle(0)"
+            >Ngừng sử dụng</MsButton
+          >
+          <MsButton type="danger-outline" @click="openBatchDeleteConfirm">Xóa</MsButton>
+        </template>
 
-  <!-- Khi không chọn: hiện filter tags -->
-  <template v-else-if="store.filters.length > 0">
-    <div v-for="(filter, idx) in store.filters" :key="idx" class="filter-bar__tag">
-      <span class="filter-bar__tag-col">{{ getColumnLabel(filter.Property) }}</span>
-      <span class="filter-bar__tag-op">{{ getOperatorLabel(filter) }}</span>
-      <span class="filter-bar__tag-val">{{ getValueLabel(filter) }}</span>
-      <button class="filter-bar__tag-remove" @click="removeFilter(filter.Property)">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
-    <MsButton type="text" @click="clearAllFilters">Bỏ lọc</MsButton>
-  </template>
+        <!-- Khi không chọn: hiện filter tags -->
+        <template v-else-if="store.filters.length > 0">
+          <div v-for="(filter, idx) in store.filters" :key="idx" class="filter-bar__tag">
+            <span class="filter-bar__tag-col">{{ getColumnLabel(filter.Property) }}</span>
+            <span class="filter-bar__tag-op">{{ getOperatorLabel(filter) }}</span>
+            <span class="filter-bar__tag-val">{{ getValueLabel(filter) }}</span>
+            <button class="filter-bar__tag-remove" @click="removeFilter(filter.Property)">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <MsButton type="text" @click="clearAllFilters">Bỏ lọc</MsButton>
+        </template>
 
-  <div class="shift-page__toolbar-spacer"></div>
+        <div class="shift-page__toolbar-spacer"></div>
 
-  <button class="shift-page__reload" @click="store.fetchPage()" data-tooltip="Lấy lại dữ liệu">
-    <span class="btn-icon btn-icon--reload"></span>
-  </button>
-</div>
+        <button
+          class="shift-page__reload"
+          @click="store.fetchPage()"
+          data-tooltip="Lấy lại dữ liệu"
+        >
+          <span class="btn-icon btn-icon--reload"></span>
+        </button>
+      </div>
 
       <!-- Table -->
       <MsTable
@@ -465,17 +481,25 @@ const allPageChecked = computed(
     store.pageData.length > 0 && store.pageData.every((s) => store.isSelected(s.productionShiftID)),
 )
 
+// khi click vào chọn tất cả ô
 function toggleAll(e) {
+  // Lấy ra list id của tất cả ca làm việc đang hiển thị trên trang
   const ids = store.pageData.map((s) => s.productionShiftID)
+  // nếu vừa tích thì thêm tất cả id vào selectedIdList, nếu vừa bỏ tích thì xóa tất cả id đó khỏi selectedIdList
   e.target.checked ? store.selectAll(ids) : store.unselectAll()
 }
 
 // ===== Filter =====
+
+// Apply filter khi click Áp dụng trong MsColumnFilter
 function handleFilterApply(filter) {
+  // tìm xem trong ds bộ lọc đã có filter cho cột này chưa
   const idx = store.filters.findIndex((f) => f.Property === filter.Property)
+  // nếu đã tồn tại: thay thế bằng filter mới,
   if (idx >= 0) {
     store.filters.splice(idx, 1, filter)
   } else {
+    // nếu chưa có thì thêm mới
     store.filters.push(filter)
   }
   store.resetPage()
@@ -522,8 +546,11 @@ function openAddModal() {
   formVisible.value = true
 }
 
+// Hàm mở modal sửa, nhận vào ID của ca làm việc cần sửa
 function openEditModal(id) {
+  // Lấy dữ liệu ca làm việc từ store theo ID và gán vào editingShift, sau đó mở modal
   editingShift.value = store.getById(id)
+  // mở model
   formVisible.value = true
 }
 
@@ -606,8 +633,11 @@ async function handleToggleSingle(row) {
   }
 }
 
+// Toggle status hàng loạt
 async function handleBatchToggle(status) {
+  // lấy ra list id checked
   const ids = store.selectedIdList
+  //
   const label = status === 1 ? 'Sử dụng' : 'Ngừng sử dụng'
   const tid = toast.loading(`Đang chuyển trạng thái ${ids.length} ca...`)
   try {
@@ -658,11 +688,13 @@ function openBatchDeleteConfirm() {
   confirmState.visible = true
 }
 
+// Đóng modal Confirm
 function closeConfirm() {
   confirmState.visible = false
   confirmState.onConfirm = null
 }
 
+// Hàm xử lý khi người dùng xác nhận xóa
 async function onConfirm() {
   const callback = confirmState.onConfirm
   closeConfirm()

@@ -1,6 +1,8 @@
+<!-- UI bộ Filter cho từng cột trong bảng, hỗ trợ các loại filter khác nhau (string, number, date, status) -->
+
 <template>
   <div class="col-filter" ref="filterRef">
-    <!-- Trigger icon -->
+    <!-- Icon lọc -->
     <button
       class="col-filter__trigger"
       :class="{ 'col-filter__trigger--active': hasFilter }"
@@ -13,6 +15,7 @@
     <!-- Popover -->
     <teleport to="body">
       <div v-if="open" class="col-filter__popover" :style="popoverStyle" @click.stop>
+        <!-- Tên bộ lọc+icon đóng: Lọc mã ca -->
         <div class="col-filter__header">
           <span class="col-filter__title">Lọc {{ label }}</span>
           <button class="col-filter__close" @click="close">
@@ -35,6 +38,7 @@
               {{ opt.label }}
             </option>
           </select>
+          <!-- End Operator (ẩn khi là status) -->
 
           <!-- Date: input type date -->
           <input
@@ -86,15 +90,14 @@ const props = defineProps({
 
 const emit = defineEmits(['apply', 'clear'])
 
-const open = ref(false)
-const filterRef = ref(null)
-const valueInput = ref(null)
-const localOperator = ref('contains')
-const localValue = ref('')
-const popoverStyle = ref({})
+const open = ref(false) // trạng thái mở/đóng của Bộ lọc
+const filterRef = ref(null) // ref tới element gốc để tính toán vị trí popover
+const valueInput = ref(null) // ref tới input để focus khi mở
+const localOperator = ref('contains') // operator tạm thời khi chỉnh sửa trong Bộ lọc
+const localValue = ref('') // value tạm thời khi chỉnh sửa trong Bộ lọc
+const popoverStyle = ref({}) // style động để position popover dưới icon lọc
 
-// ===== Operator lists theo yêu cầu =====
-
+//toán tử theo từng loại Filter
 const STRING_OPS = [
   { value: 'contains', label: 'Chứa' },
   { value: 'not_equals', label: 'Khác' },
@@ -125,6 +128,7 @@ const statusOptions = [
   { value: '0', label: 'Ngừng sử dụng' },
 ]
 
+// Lấy danh sách operator phù hợp theo loại filter
 const operatorOptions = computed(() => {
   if (props.filterType === 'number') return NUMBER_OPS
   if (props.filterType === 'date') return DATE_OPS
@@ -132,6 +136,7 @@ const operatorOptions = computed(() => {
   return STRING_OPS
 })
 
+// Kiểm tra xem có filter đang áp dụng cho cột này không
 const hasFilter = computed(() => !!props.currentFilter)
 
 // Khi mở, sync với filter hiện tại
@@ -145,44 +150,55 @@ watch(open, (v) => {
   }
 })
 
+// Lấy operator mặc định theo loại filter
 function getDefaultOperator() {
   if (props.filterType === 'string') return 'contains'
   if (props.filterType === 'status') return 'equals'
   return 'equals'
 }
 
+// Khi click vào icon lọc
 function toggle() {
+  // Nếu đang mở thì đóng, nếu đang đóng thì mở và focus vào input
   if (open.value) {
     close()
     return
   }
+
+  // Nếu đang đóng -> mở
   open.value = true
+  // nextTich: đợi DOM cập nhật xong rồi tính toán vị trí và focus vào input
   nextTick(() => {
+    // gọi hàm tính toán vị trí cho popover để nó hiển thị ngay dưới icon lọc
     positionPopover()
+    // Nếu không phải filter trạng thái thì focus vào input để người dùng có thể nhập ngay
     if (props.filterType !== 'status') {
       valueInput.value?.focus()
     }
   })
 }
-
+// Đóng bộ lọc
 function close() {
   open.value = false
 }
 
+// Khi click Áp dụng lọc
 function apply() {
-  // Status luôn dùng operator 'equals'
+  // Nếu lọc cột trạng thái, luôn luôn là equals(bằng)
   const operator = props.filterType === 'status' ? 'equals' : localOperator.value
 
+  // Nếu không có giá trị nào được nhập thì không áp dụng lọc, tránh gửi những filter có value rỗng về backend
   if (!localValue.value && localValue.value !== '0' && localValue.value !== 0) return
 
   emit('apply', {
-    Property: props.property,
-    Operator: operator,
-    Value: String(localValue.value).trim(),
+    Property: props.property, // tên cột cần lọc
+    Operator: operator, // toán tử
+    Value: String(localValue.value).trim(), // giá trị lọc
   })
   close()
 }
 
+// Xóa bộ lọc khi click Bỏ lọc
 function clearFilter() {
   localValue.value = ''
   localOperator.value = getDefaultOperator()
@@ -190,9 +206,13 @@ function clearFilter() {
   close()
 }
 
+// Tính toán vị trí của popover dựa trên vị trí của icon lọc
 function positionPopover() {
   if (!filterRef.value) return
+  // hàm trả về kích thước và vị trí của element so với viewport
   const rect = filterRef.value.getBoundingClientRect()
+
+  // set style vị trí cho popover để nó hiển thị ngay dưới icon lọc, căn trái với icon, và có khoảng cách 6px
   popoverStyle.value = {
     position: 'fixed',
     top: rect.bottom + 6 + 'px',
@@ -201,7 +221,9 @@ function positionPopover() {
   }
 }
 
+// Đóng popover khi click ra ngoài
 function onClickOutside(e) {
+  // Nếu đang mở và click ra ngoài filterRef thì đóng popover, nhưng nếu click vào popover thì không đóng
   if (open.value && filterRef.value && !filterRef.value.contains(e.target)) {
     const popover = document.querySelector('.col-filter__popover')
     if (popover && popover.contains(e.target)) return
@@ -253,7 +275,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   color: var(--primary);
 }
 .col-filter__trigger--active i {
-      mask-position: -720px 0px;
+  mask-position: -720px 0px;
 }
 </style>
 
@@ -281,17 +303,17 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   color: #1f2937;
 }
 .col-filter__close {
-  background: none;
   border: none;
   cursor: pointer;
-  color: #9ca3af;
-  font-size: 14px;
-  padding: 2px;
   border-radius: 4px;
-}
-.col-filter__close:hover {
-  color: #374151;
-  background: #f3f4f6;
+  -webkit-mask-repeat: no-repeat;
+  background-color: #4b5563;
+  height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  mask-position: -96px 0px;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 
 .col-filter__body {

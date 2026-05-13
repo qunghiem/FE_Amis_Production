@@ -2,11 +2,13 @@
 
 <template>
   <div class="ms-input__wrapper">
+    <!-- Label -->
     <label v-if="label" class="ms-input__label">
       {{ label }}
       <span v-if="required" class="ms-input__require">*</span>
     </label>
 
+    <!-- // Control -->
     <div class="ms-input__control">
       <!-- Select -->
       <select
@@ -54,22 +56,25 @@ import { computed, ref } from 'vue'
 defineOptions({ inheritAttrs: false })
 
 const props = defineProps({
-  modelValue: { type: [String, Number], default: '' },
-  type: { type: String, default: 'text' },
-  label: { type: String, default: '' },
-  placeholder: { type: String, default: '' },
-  required: { type: Boolean, default: false },
-  error: { type: String, default: '' },
+  modelValue: { type: [String, Number], default: '' }, // Giá trị của input, dùng v-model để bind dữ liệu 2 chiều
+  type: { type: String, default: 'text' }, // 'text', 'textarea', 'select', 'number', 'password'
+  label: { type: String, default: '' }, // Nhãn hiển thị trên input
+  placeholder: { type: String, default: '' }, // Placeholder khi chưa nhập gì
+  required: { type: Boolean, default: false }, // Cho phép input là bắt buộc
+  error: { type: String, default: '' }, // Thông báo lỗi, nếu có thì sẽ hiển thị và input sẽ có viền đỏ
 })
 
 const emit = defineEmits(['update:modelValue', 'blur'])
 
+// Tạo computed property để dễ dàng sử dụng v-model
 const model = computed({
   get: () => props.modelValue,
   set: (v) => emit('update:modelValue', v),
 })
 
+// tạo ref để có thể focus vào input khi cần thiết, đồng thời expose method focus ra bên ngoài để component cha có thể gọi được (ví dụ: focus vào input khi mở modal)
 const fieldRef = ref(null)
+// expose method focus để component cha có thể gọi được, ví dụ: focus vào input khi mở modal
 defineExpose({ focus: () => fieldRef.value?.focus() })
 </script>
 
@@ -84,7 +89,9 @@ defineExpose({ focus: () => fieldRef.value?.focus() })
   color: #374151;
   font-weight: 500;
 }
-.ms-input__require { color: #dc2626; }
+.ms-input__require {
+  color: #dc2626;
+}
 
 .ms-input__field {
   width: 100%;
@@ -97,13 +104,17 @@ defineExpose({ focus: () => fieldRef.value?.focus() })
   background-color: #fff;
   outline: none;
   font-family: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 .ms-input__field:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px rgba(0, 155, 113, 0.1);
 }
-.ms-input__field::placeholder { color: #9ca3af; }
+.ms-input__field::placeholder {
+  color: #9ca3af;
+}
 
 .ms-input__textarea {
   height: 80px;

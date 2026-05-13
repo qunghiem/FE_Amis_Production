@@ -11,9 +11,7 @@
     <div class="shift-form">
       <!-- Mã ca — full width -->
       <div class="sf-row sf-row--full">
-        <label class="sf-label">
-          Mã ca <span class="sf-required">*</span>
-        </label>
+        <label class="sf-label"> Mã ca <span class="sf-required">*</span> </label>
         <div class="sf-control">
           <input
             ref="codeRef"
@@ -31,9 +29,7 @@
 
       <!-- Tên ca — full width -->
       <div class="sf-row sf-row--full">
-        <label class="sf-label">
-          Tên ca <span class="sf-required">*</span>
-        </label>
+        <label class="sf-label"> Tên ca <span class="sf-required">*</span> </label>
         <div class="sf-control">
           <input
             ref="nameRef"
@@ -51,9 +47,7 @@
 
       <!-- Giờ vào ca + Giờ hết ca -->
       <div class="sf-row sf-row--half">
-        <label class="sf-label">
-          Giờ vào ca <span class="sf-required">*</span>
-        </label>
+        <label class="sf-label"> Giờ vào ca <span class="sf-required">*</span> </label>
         <div class="sf-control">
           <MsTimePicker
             ref="startRef"
@@ -64,9 +58,7 @@
           <div v-if="errors.startTime" class="sf-error">{{ errors.startTime }}</div>
         </div>
 
-        <label class="sf-label">
-          Giờ hết ca <span class="sf-required">*</span>
-        </label>
+        <label class="sf-label"> Giờ hết ca <span class="sf-required">*</span> </label>
         <div class="sf-control">
           <MsTimePicker
             ref="endRef"
@@ -79,19 +71,19 @@
       </div>
 
       <!-- Bắt đầu nghỉ + Kết thúc nghỉ -->
-<div class="sf-row sf-row--half">
-  <label class="sf-label">Bắt đầu nghỉ giữa ca</label>
-  <div class="sf-control">
-    <MsTimePicker v-model="form.breakStartTime" :error="errors.breakStartTime" />
-    <div v-if="errors.breakStartTime" class="sf-error">{{ errors.breakStartTime }}</div>
-  </div>
+      <div class="sf-row sf-row--half">
+        <label class="sf-label">Bắt đầu nghỉ giữa ca</label>
+        <div class="sf-control">
+          <MsTimePicker v-model="form.breakStartTime" :error="errors.breakStartTime" />
+          <div v-if="errors.breakStartTime" class="sf-error">{{ errors.breakStartTime }}</div>
+        </div>
 
-  <label class="sf-label">Kết thúc nghỉ giữa ca</label>
-  <div class="sf-control">
-    <MsTimePicker v-model="form.breakEndTime" :error="errors.breakEndTime" />
-    <div v-if="errors.breakEndTime" class="sf-error">{{ errors.breakEndTime }}</div>
-  </div>
-</div>
+        <label class="sf-label">Kết thúc nghỉ giữa ca</label>
+        <div class="sf-control">
+          <MsTimePicker v-model="form.breakEndTime" :error="errors.breakEndTime" />
+          <div v-if="errors.breakEndTime" class="sf-error">{{ errors.breakEndTime }}</div>
+        </div>
+      </div>
 
       <!-- Thời gian làm việc + Thời gian nghỉ -->
       <div class="sf-row sf-row--half">
@@ -163,10 +155,9 @@ const localVisible = computed(() => props.visible)
 const saving = ref(false)
 
 /** true khi đang sửa bản ghi đã tồn tại (có productionShiftID) */
-const isEditing = computed(
-  () => !!props.editingShift?.productionShiftID,
-)
+const isEditing = computed(() => !!props.editingShift?.productionShiftID)
 
+// Tính tiêu đề form dựa vào trạng thái: Thêm mới, Sửa, Nhân bản
 const formTitle = computed(() => {
   if (!props.editingShift) return 'Thêm Ca làm việc'
   if (!props.editingShift.productionShiftID) return 'Nhân bản Ca làm việc'
@@ -186,10 +177,10 @@ const EMPTY_FORM = () => ({
 })
 
 const ERROR_FIELD_MAP = [
-  { keywords: ['Mã ca'],           field: 'productionShiftCode' },
-  { keywords: ['Tên ca'],          field: 'productionShiftName' },
-  { keywords: ['Giờ vào ca'],      field: 'startTime' },
-  { keywords: ['Giờ hết ca'],      field: 'endTime' },
+  { keywords: ['Mã ca'], field: 'productionShiftCode' },
+  { keywords: ['Tên ca'], field: 'productionShiftName' },
+  { keywords: ['Giờ vào ca'], field: 'startTime' },
+  { keywords: ['Giờ hết ca'], field: 'endTime' },
   { keywords: ['Giờ bắt đầu nghỉ', 'Bắt đầu nghỉ'], field: 'breakStartTime' },
   { keywords: ['Giờ kết thúc nghỉ', 'Kết thúc nghỉ'], field: 'breakEndTime' },
 ]
@@ -261,21 +252,46 @@ watch(
   },
 )
 
-watch(() => form.value.productionShiftCode, (v) => { if (v?.trim()) errors.value.productionShiftCode = '' })
-watch(() => form.value.productionShiftName, (v) => { if (v?.trim()) errors.value.productionShiftName = '' })
-watch(() => form.value.startTime, (v) => { if (v) errors.value.startTime = '' })
-watch(() => form.value.endTime, (v) => { if (v) errors.value.endTime = '' })
+watch(
+  () => form.value.productionShiftCode,
+  (v) => {
+    if (v?.trim()) errors.value.productionShiftCode = ''
+  },
+)
+watch(
+  () => form.value.productionShiftName,
+  (v) => {
+    if (v?.trim()) errors.value.productionShiftName = ''
+  },
+)
+watch(
+  () => form.value.startTime,
+  (v) => {
+    if (v) errors.value.startTime = ''
+  },
+)
+watch(
+  () => form.value.endTime,
+  (v) => {
+    if (v) errors.value.endTime = ''
+  },
+)
 
+// Hàm validate từng field, nhận vào tên field để validate tương ứng, nếu có lỗi thì gán message vào errors, nếu hợp lệ thì xóa lỗi
 function validateField(field) {
   switch (field) {
     case 'productionShiftCode':
-      if (!form.value.productionShiftCode?.trim()) errors.value.productionShiftCode = 'Mã ca không được để trống'
-      else if (form.value.productionShiftCode.length > 20) errors.value.productionShiftCode = 'Mã ca tối đa 20 ký tự'
+      if (!form.value.productionShiftCode?.trim())
+        errors.value.productionShiftCode = 'Mã ca không được để trống'
+      else if (form.value.productionShiftCode.length > 20)
+        errors.value.productionShiftCode = 'Mã ca tối đa 20 ký tự'
       else errors.value.productionShiftCode = ''
       break
     case 'productionShiftName':
-      if (!form.value.productionShiftName?.trim()) errors.value.productionShiftName = 'Tên ca không được để trống'
-      else if (form.value.productionShiftName.length > 50) errors.value.productionShiftName = 'Tên ca tối đa 50 ký tự'
+      if (!form.value.productionShiftName?.trim())
+        errors.value.productionShiftName = 'Tên ca không được để trống'
+      else if (form.value.productionShiftName.length > 50)
+        errors.value.productionShiftName = 'Tên ca tối đa 50 ký tự'
       else errors.value.productionShiftName = ''
       break
     case 'startTime':
@@ -287,11 +303,13 @@ function validateField(field) {
   }
 }
 
+// Hàm validate toàn bộ form, trả về true nếu hợp lệ, false nếu có lỗi
 function validate() {
   ;['productionShiftCode', 'productionShiftName', 'startTime', 'endTime'].forEach(validateField)
   return Object.values(errors.value).every((e) => !e)
 }
 
+// Hàm focus vào field đầu tiên có lỗi để người dùng dễ dàng sửa
 function focusFirstError() {
   const ORDER = ['productionShiftCode', 'productionShiftName', 'startTime', 'endTime']
   const firstKey = ORDER.find((k) => errors.value[k])
@@ -303,8 +321,15 @@ function focusFirstError() {
   }
 }
 
+// Hàm xử lý khi click Lưu: validate form, nếu hợp lệ thì emit sự kiện 'saved' với payload là dữ liệu form + computed workHour và breakHour
+
 async function handleSave() {
-  if (!validate()) { focusFirstError(); return }
+  // Validate form, nếu có lỗi thì focus vào field đầu tiên có lỗi và không tiếp tục
+  if (!validate()) {
+    focusFirstError()
+    return
+  }
+  // Nếu đang ở trạng thái saving thì không cho phép click lưu nữa để tránh gửi nhiều request
   if (saving.value) return
   saving.value = true
   emit('saved', {
@@ -314,9 +339,12 @@ async function handleSave() {
     _action: 'save',
   })
 }
-
+// Hàm xử lý khi click Lưu và Thêm: tương tự handleSave nhưng có thêm _action: 'save-and-add' để parent biết là sau khi lưu xong thì sẽ mở form mới để thêm tiếp, đồng thời parent sẽ gọi resetForm() để reset form về trạng thái trống
 async function handleSaveAndAdd() {
-  if (!validate()) { focusFirstError(); return }
+  if (!validate()) {
+    focusFirstError()
+    return
+  }
   if (saving.value) return
   saving.value = true
   emit('saved', {
@@ -380,7 +408,7 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   align-items: start;
   column-gap: 23px;
   row-gap: 4px;
-    white-space: nowrap;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -402,7 +430,6 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   color: #262626;
   font-weight: 510;
   line-height: 28px;
-
 }
 
 .sf-label--top {
@@ -426,7 +453,7 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
 .sf-input {
   width: 100%;
   height: 28px;
-  border: 1px solid #D1D5DB;
+  border: 1px solid #d1d5db;
   border-radius: 4px;
   padding: 0 10px;
   font-size: 13px;
@@ -434,7 +461,9 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   background-color: #fff;
   outline: none;
   font-family: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .sf-input:focus {
@@ -455,7 +484,7 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   height: 68px;
   padding: 8px 10px;
   resize: vertical;
-      border: 1px solid #d5dfe2;
+  border: 1px solid #d5dfe2;
 }
 
 .sf-readonly {

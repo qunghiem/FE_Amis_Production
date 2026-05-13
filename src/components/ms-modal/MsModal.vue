@@ -1,4 +1,4 @@
-<!-- modal tái sử dụng -->
+<!-- modal tái sử dụng: thêm/ sửa/ nhân bản -->
 
 <template>
   <teleport to="body">
@@ -10,7 +10,6 @@
             <span class="ms-modal__title">{{ title }}</span>
           </slot>
           <button class="ms-modal__close" @click="$emit('update:modelValue', false)">
-            <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
 
@@ -30,14 +29,16 @@
 
 <script setup>
 const props = defineProps({
+  // Giá trị boolean để điều khiển hiển thị modal, dùng v-model để bind dữ liệu 2 chiều
   modelValue: { type: Boolean, default: false },
   width: { type: String, default: '600px' },
-  closeOnOverlay: { type: Boolean, default: true },
-  title: { type: String, default: '' },
+  closeOnOverlay: { type: Boolean, default: true },// Có cho phép đóng modal khi click vào overlay hay không
+  title: { type: String, default: '' }, // Thêm/Sửa/ Nhân bản
 })
 
 const emit = defineEmits(['update:modelValue'])
 
+//
 function onOverlayClick() {
   if (props.closeOnOverlay) emit('update:modelValue', false)
 }
@@ -69,30 +70,30 @@ function onOverlayClick() {
   align-items: center;
   padding: 16px 20px;
   flex-shrink: 0;
-
 }
 .ms-modal__title {
   font-weight: 700;
-    font-size: 24px;
+  font-size: 24px;
   color: #111827;
 }
 .ms-modal__close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  color: #6b7280;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  border-radius: 4px;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-.ms-modal__close:hover {
-  background: #f3f4f6;
-  color: #111;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+    height: 20px;
+    width: 20px;
+    min-height: 20px;
+    min-width: 20px;
+    position: relative;
+    mask-position: -299px -16px;
+    -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+    -webkit-mask-repeat: no-repeat;
+    background-color: #4b5563;
 }
 .ms-modal__body {
   flex: 1;

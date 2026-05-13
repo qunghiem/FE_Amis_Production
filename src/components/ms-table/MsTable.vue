@@ -14,6 +14,7 @@
             :class="{ 'ms-table__th--right': col.align === 'right' }"
           >
             <div class="ms-table__th-content">
+              <!-- Tên cột -->
               <span>{{ col.label }}</span>
               <MsColumnFilter
                 v-if="col.filterable"
@@ -26,7 +27,7 @@
               />
             </div>
           </th>
-          <th v-if="$slots.actions" class="ms-table__th ms-table__th--action"></th>
+          <!-- <th v-if="$slots.actions" class="ms-table__th ms-table__th--action"></th> -->
         </tr>
       </thead>
 
@@ -84,15 +85,16 @@ import { computed } from 'vue'
 import MsColumnFilter from './MsColumnFilter.vue'
 
 const props = defineProps({
-  columns: { type: Array, required: true },
-  rows: { type: Array, default: () => [] },
-  rowKey: { type: String, default: 'id' },
-  selectable: { type: Boolean, default: false },
-  allChecked: { type: Boolean, default: false },
-  isSelected: { type: Function, default: () => false },
-  activeRowId: { type: [String, Number, null], default: null },
-  emptyText: { type: String, default: 'Không có dữ liệu' },
-  activeFilters: { type: Array, default: () => [] },
+  columns: { type: Array, required: true }, // đối tượng định nghĩa bảng [{ key, label, width, align, filterable, filterType }]
+  rows: { type: Array, default: () => [] }, // [{ id, name, ... }]
+
+  rowKey: { type: String, default: 'id' }, // tên trường làm key cho mỗi row, dùng để xác định row nào được chọn, mặc định là 'id'
+  selectable: { type: Boolean, default: false }, // có cho phép chọn nhiều dòng hay không, nếu true sẽ hiển thị checkbox ở đầu mỗi dòng và checkbox chọn tất cả ở header
+  allChecked: { type: Boolean, default: false }, // trạng thái của checkbox chọn tất cả, true nếu tất cả các dòng đều được chọn, false nếu có ít nhất một dòng chưa được chọn
+  isSelected: { type: Function, default: () => false }, // hàm nhận vào id của một dòng và trả về true nếu dòng đó đang được chọn, false nếu không được chọn
+  activeRowId: { type: [String, Number, null], default: null }, // id của dòng đang được hover hoặc active, dùng để highlight dòng đó, chỉ áp dụng khi dòng đó không được chọn
+  emptyText: { type: String, default: 'Không có dữ liệu' }, // text hiển thị khi không có dòng nào trong bảng
+  activeFilters: { type: Array, default: () => [] }, // [{ Property, Operator, Value }] - mảng các bộ lọc đang được áp dụng trên bảng, mỗi bộ lọc gồm tên cột cần lọc, toán tử và giá trị lọc
 })
 
 defineEmits(['toggle-all', 'toggle-row', 'row-click', 'filter-apply', 'filter-clear'])
