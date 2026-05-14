@@ -320,7 +320,7 @@ const computedBreakHour = computed(() => {
   if (!form.value.breakStartTime || !form.value.breakEndTime) return 0
   let diff = timeToMinutes(form.value.breakEndTime) - timeToMinutes(form.value.breakStartTime)
   if (diff <= 0) diff += 24 * 60
-  return +(diff / 60).toFixed(2)
+  return Math.ceil(diff / 60)
 })
 
 const computedWorkHour = computed(() => {
@@ -328,7 +328,7 @@ const computedWorkHour = computed(() => {
   let totalMinutes = timeToMinutes(form.value.endTime) - timeToMinutes(form.value.startTime)
   if (totalMinutes <= 0) totalMinutes += 24 * 60
   const workMinutes = totalMinutes - computedBreakHour.value * 60
-  return +(workMinutes / 60).toFixed(2)
+  return Math.ceil(workMinutes / 60)
 })
 
 function timeToMinutes(timeStr) {
@@ -396,6 +396,19 @@ watch(
   () => form.value.endTime,
   (v) => {
     if (v) errors.value.endTime = ''
+  },
+)
+
+watch(
+  () => form.value.breakStartTime,
+  (v) => {
+    if (v) errors.value.breakStartTime = ''
+  },
+)
+watch(
+  () => form.value.breakEndTime,
+  (v) => {
+    if (v) errors.value.breakEndTime = ''
   },
 )
 
