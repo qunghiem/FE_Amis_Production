@@ -103,6 +103,7 @@
         @filter-apply="handleFilterApply"
         @filter-clear="handleFilterClear"
         @sort-change="handleSortChange"
+        @row-dblclick="(row) => openEditModal(row.productionShiftID)"
       >
         <!-- Thời gian làm việc -->
         <template #cell-workHour="{ row }">
@@ -594,17 +595,15 @@ async function handleSaved(data) {
 async function handleDuplicate(id) {
   // Đóng menu More đang mở
   moreMenuId.value = null
-  const tid = toast.loading('Đang nhân bản...')
   try {
     // Gọi API nhân bản ca làm việc, API sẽ trả về dữ liệu ca làm việc mới được tạo ra sau khi nhân bản,
     const duplicated = await store.duplicateShift(id)
-    toast.update(tid, 'Nhân bản thành công!', 'success')
     // sau đó gán dữ liệu đó vào editingShift
     editingShift.value = { ...duplicated, productionShiftID: null }
     // mở modal
     formVisible.value = true
   } catch (err) {
-    toast.update(tid, err.message, 'error')
+    toast.update(err.message)
   }
 }
 

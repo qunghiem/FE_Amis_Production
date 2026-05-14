@@ -59,6 +59,7 @@
             'ms-table__row--active': row[rowKey] === activeRowId && !isSelected(row[rowKey]),
           }"
           @click="$emit('row-click', row)"
+           @dblclick="$emit('row-dblclick', row)"
         >
           <td v-if="selectable" class="ms-table__td ms-table__checkbox">
             <input
@@ -135,6 +136,7 @@ const emit = defineEmits([
   'toggle-all',
   'toggle-row',
   'row-click',
+  'row-dblclick',
   'filter-apply',
   'filter-clear',
   'sort-change',
