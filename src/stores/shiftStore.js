@@ -97,6 +97,8 @@ export const useShiftStore = defineStore('shifts', () => {
   // Phân trang
   const nextPage = () => { if (!isLastPage.value) currentPage.value++ }
   const prevPage = () => { if (!isFirstPage.value) currentPage.value-- }
+  const goToFirstPage = () => { if (!isFirstPage.value) currentPage.value = 1 }
+  const goToLastPage = () => { if (!isLastPage.value) currentPage.value = totalPage.value }
   const resetPage = () => { currentPage.value = 1 }
   const setPageSize = (size) => {
     pageSize.value = size
@@ -182,7 +184,7 @@ export const useShiftStore = defineStore('shifts', () => {
     selectedCount, selectedIdList,
     hasActiveInSelected, hasInactiveInSelected,
     // actions
-    init, fetchPage, nextPage, prevPage, resetPage, setPageSize,
+    init, fetchPage, nextPage, prevPage, resetPage, setPageSize, goToFirstPage, goToLastPage,
     addShift, updateShift, deleteByIds, duplicateShift, toggleStatus,
     getById, toggleSelect, selectAll, unselectAll, isSelected,
   }

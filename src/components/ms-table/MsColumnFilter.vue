@@ -25,11 +25,31 @@
 
         <div class="col-filter__body">
           <!-- Operator (ẩn khi là status) -->
-          <select v-if="filterType !== 'status'" v-model="localOperator" class="col-filter__select">
-            <option v-for="op in operatorOptions" :key="op.value" :value="op.value">
-              {{ op.label }}
-            </option>
-          </select>
+          <!-- MỚI -->
+<div v-if="filterType !== 'status'" class="col-filter__select-wrapper" ref="selectWrapperRef">
+  <div
+    class="col-filter__select-trigger"
+    :class="{ 'col-filter__select-trigger--open': operatorDropdownOpen }"
+    @click="toggleOperatorDropdown"
+  >
+    <span>{{ getOperatorLabel(localOperator) }}</span>
+    <span class="col-filter__select-arrow" :class="{ 'col-filter__select-arrow--open': operatorDropdownOpen }"></span>
+  </div>
+  <div v-if="operatorDropdownOpen" class="col-filter__operator-dropdown">
+    <div
+      v-for="op in operatorOptions"
+      :key="op.value"
+      class="col-filter__operator-option"
+      :class="{ 'col-filter__operator-option--selected': localOperator === op.value }"
+      @click="selectOperator(op.value)"
+    >
+      <span class="col-filter__operator-check">
+        <i v-if="localOperator === op.value" class="col-filter__check-icon"></i>
+      </span>
+      <span>{{ op.label }}</span>
+    </div>
+  </div>
+</div>
 
           <!-- Status: chọn trạng thái -->
           <select v-if="filterType === 'status'" v-model="localValue" class="col-filter__select">
@@ -97,7 +117,8 @@ const valueInput = ref(null) // ref tới input để focus khi mở
 const localOperator = ref('contains') // operator tạm thời khi chỉnh sửa trong Bộ lọc
 const localValue = ref('') // value tạm thời khi chỉnh sửa trong Bộ lọc
 const popoverStyle = ref({}) // style động để position popover dưới icon lọc
-
+const operatorDropdownOpen = ref(false)
+const selectWrapperRef = ref(null)
 //toán tử theo từng loại Filter
 const STRING_OPS = [
   { value: 'contains', label: 'Chứa' },
@@ -149,6 +170,9 @@ watch(open, (v) => {
     localOperator.value = getDefaultOperator()
     localValue.value = ''
   }
+  if (!v) {
+  operatorDropdownOpen.value = false
+  }
 })
 
 // ★ Đóng khi filter khác được mở
@@ -184,9 +208,24 @@ function toggle() {
   })
 }
 
+function getOperatorLabel(value) {
+  const allOps = [...STRING_OPS, ...NUMBER_OPS, ...DATE_OPS]
+  return allOps.find((o) => o.value === value)?.label || value
+}
+
+function toggleOperatorDropdown() {
+  operatorDropdownOpen.value = !operatorDropdownOpen.value
+}
+
+function selectOperator(value) {
+  localOperator.value = value
+  operatorDropdownOpen.value = false
+}
+
 // Đóng bộ lọc
 function close() {
   open.value = false
+  operatorDropdownOpen.value = false
 }
 
 // Khi click Áp dụng lọc
@@ -230,6 +269,9 @@ function positionPopover() {
 
 // Đóng popover khi click ra ngoài
 function onClickOutside(e) {
+  if (operatorDropdownOpen.value && selectWrapperRef.value && !selectWrapperRef.value.contains(e.target)) {
+    operatorDropdownOpen.value = false
+  }
   // Nếu đang mở và click ra ngoài filterRef thì đóng popover, nhưng nếu click vào popover thì không đóng
   if (open.value && filterRef.value && !filterRef.value.contains(e.target)) {
     const popover = document.querySelector('.col-filter__popover')
@@ -390,5 +432,95 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 }
 .col-filter__btn--apply:hover {
   background: var(--primary-hover);
+}
+
+
+/* ===== Custom Operator Dropdown ===== */
+.col-filter__select-wrapper {
+  position: relative;
+}
+
+.col-filter__select-trigger {
+  width: 100%;
+  height: 36px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #1f2937;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.col-filter__select-trigger--open {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 155, 113, 0.1);
+}
+
+.col-filter__select-arrow {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #6b7280;
+  transition: transform 0.2s;
+}
+
+.col-filter__select-arrow--open {
+  transform: rotate(180deg);
+}
+
+.col-filter__operator-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 10000;
+  padding: 4px 0;
+}
+
+.col-filter__operator-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.col-filter__operator-option:hover {
+  background-color: #f3f4f6;
+}
+
+.col-filter__operator-option--selected {
+  color: var(--primary, #009b71);
+  font-weight: 500;
+}
+
+.col-filter__operator-check {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.col-filter__check-icon {
+  display: block;
+  width: 12px;
+  height: 7px;
+  border-left: 2px solid var(--primary, #009b71);
+  border-bottom: 2px solid var(--primary, #009b71);
+  transform: rotate(-45deg);
 }
 </style>

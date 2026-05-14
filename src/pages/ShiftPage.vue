@@ -80,9 +80,43 @@
           <span class="btn-icon btn-icon--reload"></span>
         </button>
       </div>
+      <!-- Skeleton loading -->
+      <div v-if="store.loading" class="shift-page__skeleton-wrapper">
+        <table class="skeleton-table">
+          <thead>
+            <tr>
+              <th class="skeleton-th skeleton-th--checkbox"><input type="checkbox" disabled /></th>
+              <th
+                v-for="col in COLUMNS"
+                :key="col.key"
+                class="skeleton-th"
+                :style="col.width ? { width: col.width, minWidth: col.width } : {}"
+              >
+                <div class="skeleton-th__content">{{ col.label }}</div>
+              </th>
+              <th class="skeleton-th skeleton-th--action"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="n in store.pageSize" :key="n" class="skeleton-row">
+              <td class="skeleton-td skeleton-td--checkbox"><input type="checkbox" disabled /></td>
+              <td v-for="col in COLUMNS" :key="col.key" class="skeleton-td">
+                <div
+                  class="skeleton-bar"
+                  :style="{ width: (parseInt(col.width) - 40 || 80) + 'px' }"
+                ></div>
+              </td>
+              <td class="skeleton-td skeleton-td--action">
+                <div class="skeleton-bar" style="width: 40px"></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <!-- Table -->
       <MsTable
+        v-show="!store.loading"
         :columns="COLUMNS"
         :rows="store.pageData"
         row-key="productionShiftID"
@@ -142,11 +176,6 @@
         </template>
       </MsTable>
 
-      <!-- Loading -->
-      <div v-if="store.loading" class="shift-page__loading">
-        <div class="spinner"></div>
-      </div>
-
       <!-- Footer pagination -->
       <div class="shift-page__footer">
         <span
@@ -163,11 +192,27 @@
           <span class="pagination__range"
             >{{ store.pageInfo.start }} - {{ store.pageInfo.end }}</span
           >
+          <button
+            class="pagination__btn"
+            :disabled="store.isFirstPage"
+            @click="store.goToFirstPage()"
+            title="Trang đầu"
+          >
+            <span class="btn-icon btn-icon--first-page"></span>
+          </button>
           <button class="pagination__btn" :disabled="store.isFirstPage" @click="store.prevPage()">
             <span class="btn-icon btn-icon--chevron-left"></span>
           </button>
           <button class="pagination__btn" :disabled="store.isLastPage" @click="store.nextPage()">
             <span class="btn-icon btn-icon--chevron-right"></span>
+          </button>
+          <button
+            class="pagination__btn"
+            :disabled="store.isLastPage"
+            @click="store.goToLastPage()"
+            title="Trang cuối"
+          >
+            <span class="btn-icon btn-icon--last-page"></span>
           </button>
         </div>
       </div>
@@ -974,29 +1019,6 @@ async function handleDelete(ids) {
   color: #ea580c;
 }
 
-.shift-page__loading {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 20;
-}
-.spinner {
-  width: 28px;
-  height: 28px;
-  border: 3px solid #e5e7eb;
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .shift-page__error {
   background: #fef2f2;
   border: 1px solid #fca5a5;
@@ -1133,9 +1155,9 @@ async function handleDelete(ids) {
 }
 
 .warning-dialog__title {
-      font-weight: 600;
-    color: #111827;
-    font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  font-size: 20px;
 }
 
 .warning-dialog__close {
@@ -1163,12 +1185,12 @@ async function handleDelete(ids) {
 
 .warning-dialog__body p {
   font-size: 13px;
-    max-height: 400px;
-    overflow-y: auto;
-    font-weight: 400;
-    line-height: 20px;
-    max-width: 100%;
-    overflow-wrap: anywhere;
+  max-height: 400px;
+  overflow-y: auto;
+  font-weight: 400;
+  line-height: 20px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 .warning-dialog__footer {
   display: flex;
@@ -1252,5 +1274,100 @@ async function handleDelete(ids) {
   mask-position: -208px 0px;
   background-color: #dc2626 !important;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+
+.btn-icon--first-page {
+  mask-position: -143px 0px;
+  background-color: #9ca3af;
+  height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  position: relative;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+.btn-icon--last-page {
+  mask-position: -160px 0px;
+  height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  position: relative;
+  -webkit-mask-repeat: no-repeat;
+  background-color: #4b5563;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+
+/* ===== SKELETON LOADING ===== */
+.shift-page__skeleton-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.skeleton-table {
+  border-collapse: collapse;
+  font-size: 13px;
+  width: max-content;
+  min-width: 100%;
+}
+
+.skeleton-th {
+  font-size: 13px;
+  font-weight: 600;
+  color: #262626;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  padding: 10px 0;
+  background-color: #f3f4f6;
+  white-space: nowrap;
+}
+
+.skeleton-th__content {
+  padding: 0 15px;
+  border-left: 1px solid #d1d5db;
+}
+
+.skeleton-th--checkbox {
+  text-align: center;
+  width: 40px;
+  min-width: 40px;
+}
+
+.skeleton-th--action {
+  width: 72px;
+  min-width: 72px;
+}
+
+.skeleton-td {
+  padding: 8px 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.skeleton-td--checkbox {
+  text-align: center;
+  width: 40px;
+}
+
+.skeleton-td--action {
+  width: 72px;
+}
+
+.skeleton-bar {
+  height: 14px;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 3px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 </style>
