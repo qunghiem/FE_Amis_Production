@@ -244,6 +244,9 @@ input[type='checkbox'] {
   appearance: none;
 }
 
+input[type='checkbox']:hover {
+      border: 1.5px solid #009b71;
+}
 .ms-table__th--action {
   width: 72px;
   min-width: 72px;
@@ -303,7 +306,6 @@ input[type='checkbox'] {
   position: sticky;
   right: 0;
   z-index: 9;
-  background: #fff;
   padding: 4px 6px;
   width: 72px;
   min-width: 72px;
@@ -341,6 +343,14 @@ input[type='checkbox'] {
   background-color: #a4f6d3;
 }
 .ms-table__row--active .ms-table__col-action {
+  background-color: #a4f6d3;
+}
+
+.ms-table__row--active:hover .ms-table__checkbox {
+  background-color: #a4f6d3;
+}
+
+.ms-table__row--active:hover .ms-table__col-action {
   background-color: #a4f6d3;
 }
 

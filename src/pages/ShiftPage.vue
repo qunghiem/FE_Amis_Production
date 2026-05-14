@@ -546,8 +546,8 @@ function handleSortChange({ sortBy: newSortBy, sortDirection: newDir }) {
 
 // Hàm xử lý khi form thêm/sửa ca làm việc gọi sự kiện saved, nhận vào dữ liệu ca làm việc đã được thêm hoặc sửa thành công
 async function handleSaved(data) {
-  const isEdit = !!data.productionShiftID // ép về bool
-  const isSaveAndAdd = data._action === 'save-and-add' // nếu ấn lưu và thêm
+  const isEdit = !!data.productionShiftID
+  const isSaveAndAdd = data._action === 'save-and-add'
   const tid = toast.loading(isEdit ? 'Đang cập nhật...' : 'Đang thêm mới...')
 
   try {
@@ -560,33 +560,14 @@ async function handleSaved(data) {
       closeModal()
     }
   } catch (err) {
+    toast.remove(tid)
+    shiftFormRef.value?.resetSaving()
+
     if (err instanceof ApiError && err.errors?.length > 0) {
-      toast.remove(tid)
-
-      const duplicateErrors = err.errors.filter(
-        (msg) => msg.includes('trùng') || msg.includes('tồn tại'),
-      )
-      const otherErrors = err.errors.filter(
-        (msg) => !msg.includes('trùng') && !msg.includes('tồn tại'),
-      )
-
-      if (duplicateErrors.length > 0) {
-        const code = data.productionShiftCode || ''
-        showWarning(`Ca làm việc &lt;<b>${code}</b>&gt; đã tồn tại. Vui lòng kiểm tra lại.`)
-        shiftFormRef.value?.setServerErrors(duplicateErrors)
-      }
-
-      if (otherErrors.length > 0) {
-        const unmapped = shiftFormRef.value?.setServerErrors(otherErrors) ?? []
-        if (unmapped.length > 0) {
-          toast.error(unmapped.join('; '))
-        }
-      }
-
-      shiftFormRef.value?.resetSaving()
+      // Hiện thẳng message backend vào modal cảnh báo
+      showWarning(err.errors.join('<br>'))
     } else {
-      toast.update(tid, err.message, 'error')
-      shiftFormRef.value?.resetSaving()
+      toast.error(err.message)
     }
   }
 }
@@ -1043,7 +1024,7 @@ async function handleDelete(ids) {
   width: 24px;
   height: 24px;
   border: none;
-  background: none;
+  background: #fff;
   border-radius: 4px;
   cursor: pointer;
   flex-shrink: 0;
@@ -1137,20 +1118,24 @@ async function handleDelete(ids) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: #fef3c7;
-  color: #d97706;
-  font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
+  mask-position: -188px -169px;
+  background-color: #ea580c;
+  width: 16px;
+  height: 14px;
+  min-height: 20px;
+  min-width: 20px;
+  position: relative;
+  -webkit-mask-repeat: no-repeat;
+  color: #ea580c;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.0.0.36);
 }
 
 .warning-dialog__title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #111827;
+      font-weight: 600;
+    color: #111827;
+    font-size: 20px;
 }
 
 .warning-dialog__close {
@@ -1176,12 +1161,19 @@ async function handleDelete(ids) {
   line-height: 1.6;
 }
 
+.warning-dialog__body p {
+  font-size: 13px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-weight: 400;
+    line-height: 20px;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
 .warning-dialog__footer {
   display: flex;
   justify-content: flex-end;
   padding: 12px 20px;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
 }
 
 .warning-dialog__btn {
