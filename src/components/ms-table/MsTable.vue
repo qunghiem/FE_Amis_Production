@@ -292,4 +292,20 @@ input[type='checkbox']:checked::after {
 .ms-table__th-content--right {
   justify-content: flex-end;
 }
+
+/* Ẩn icon lọc mặc định */
+.ms-table__th-content :deep(.col-filter__trigger) {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+/* Hover vào cột → hiện icon lọc */
+.ms-table__th:hover :deep(.col-filter__trigger) {
+  opacity: 1;
+}
+
+/* Cột đang có filter active → luôn hiện */
+.ms-table__th-content :deep(.col-filter__trigger--active) {
+  opacity: 1;
+}
 </style>
