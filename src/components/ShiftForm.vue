@@ -530,6 +530,10 @@ function resetForm() {
   form.value = EMPTY_FORM()
   errors.value = {}
   saving.value = false
+  nextTick(() => {
+    initialForm.value = { ...form.value }
+    codeRef.value?.focus()
+  })
 }
 
 defineExpose({ setServerErrors, resetSaving, resetForm })
