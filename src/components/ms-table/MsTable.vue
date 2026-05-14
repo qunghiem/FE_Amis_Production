@@ -208,7 +208,7 @@ const openFilterKey = ref('')
   color: #262626;
   border-bottom: 1px solid #e5e7eb;
   text-align: left;
-  padding: 10px 0px;
+  padding: 7px 0px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -258,7 +258,7 @@ input[type='checkbox']:hover {
 }
 
 .ms-table__td {
-  padding: 8px 15px;
+  padding: 0px 15px;
   border-bottom: 1px solid #f0f0f0;
   text-align: left;
   overflow: hidden;

@@ -520,8 +520,8 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   font-weight: 500;
   color: #009b71;
   background-color: #d0fbe7;
-      display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 }
 
 .col-filter__operator-check {
