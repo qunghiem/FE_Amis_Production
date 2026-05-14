@@ -16,20 +16,25 @@
             <div
               class="ms-table__th-content"
               :class="{ 'ms-table__th-content--right': col.align === 'right' }"
+              @click="showSortMenu(col, $event)"
             >
-              <!-- Tên cột -->
               <span>{{ col.label }}</span>
+              <!-- Sort indicator -->
+              <span v-if="sortBy === (col.filterKey || col.key)" class="ms-table__sort-arrow">{{
+                sortDirection === 'ASC' ? '↑' : '↓'
+              }}</span>
+
               <MsColumnFilter
-  v-if="col.filterable"
-  :label="col.label"
-  :property="col.filterKey || col.key"
-  :filter-type="col.filterType || 'string'"
-  :current-filter="getFilterForCol(col.filterKey || col.key)"
-  :active-filter-key="openFilterKey"
-  @apply="(f) => $emit('filter-apply', f)"
-  @clear="(prop) => $emit('filter-clear', prop)"
-  @filter-opened="(key) => (openFilterKey = key)"
-/>
+                v-if="col.filterable"
+                :label="col.label"
+                :property="col.filterKey || col.key"
+                :filter-type="col.filterType || 'string'"
+                :current-filter="getFilterForCol(col.filterKey || col.key)"
+                :active-filter-key="openFilterKey"
+                @apply="(f) => $emit('filter-apply', f)"
+                @clear="(prop) => $emit('filter-clear', prop)"
+                @filter-opened="(key) => (openFilterKey = key)"
+              />
             </div>
           </th>
           <th v-if="$slots.actions" class="ms-table__th ms-table__th--action"></th>
@@ -84,12 +89,32 @@
         </tr>
       </tbody>
     </table>
+    <!-- ===== SORT MENU ===== -->
+  <teleport to="body">
+    <div
+      v-if="sortMenu.open"
+      class="sort-menu"
+      :style="{ top: sortMenu.top + 'px', left: sortMenu.left + 'px' }"
+      @click.stop
+    >
+      <div class="sort-menu__item" @click="handleSort('')">
+        <span class="sort-menu__icon">⇅</span> Không sắp xếp
+      </div>
+      <div class="sort-menu__item" @click="handleSort('ASC')">
+        <span class="sort-menu__icon">↑</span> Tăng dần
+      </div>
+      <div class="sort-menu__item" @click="handleSort('DESC')">
+        <span class="sort-menu__icon">↓</span> Giảm dần
+      </div>
+    </div>
+  </teleport>
   </div>
 </template>
 
 <script setup>
 import MsColumnFilter from './MsColumnFilter.vue'
-import { computed, ref } from 'vue'
+import { computed, ref, reactive, onMounted, onUnmounted } from 'vue'
+
 const props = defineProps({
   columns: { type: Array, required: true }, // đối tượng định nghĩa bảng [{ key, label, width, align, filterable, filterType }]
   rows: { type: Array, default: () => [] }, // [{ id, name, ... }]
@@ -101,9 +126,19 @@ const props = defineProps({
   activeRowId: { type: [String, Number, null], default: null }, // id của dòng đang được hover hoặc active, dùng để highlight dòng đó, chỉ áp dụng khi dòng đó không được chọn
   emptyText: { type: String, default: 'Không có dữ liệu' }, // text hiển thị khi không có dòng nào trong bảng
   activeFilters: { type: Array, default: () => [] }, // [{ Property, Operator, Value }] - mảng các bộ lọc đang được áp dụng trên bảng, mỗi bộ lọc gồm tên cột cần lọc, toán tử và giá trị lọc
+
+  sortBy: { type: String, default: '' },
+  sortDirection: { type: String, default: 'ASC' },
 })
 
-defineEmits(['toggle-all', 'toggle-row', 'row-click', 'filter-apply', 'filter-clear'])
+const emit = defineEmits([
+  'toggle-all',
+  'toggle-row',
+  'row-click',
+  'filter-apply',
+  'filter-clear',
+  'sort-change',
+])
 
 const totalCols = computed(() => {
   let count = props.columns.length
@@ -115,6 +150,38 @@ function getFilterForCol(key) {
   return props.activeFilters.find((f) => f.Property === key) || null
 }
 
+// ── Sort menu ──
+const sortMenu = reactive({ open: false, col: null, top: 0, left: 0 })
+
+function showSortMenu(col, e) {
+  e.stopPropagation()                        // ★ chặn bubble lên document
+  if (sortMenu.open && sortMenu.col?.key === col.key) {
+    closeSortMenu()                           // ★ click cùng cột → đóng
+    return
+  }
+  const rect = e.currentTarget.getBoundingClientRect()
+  sortMenu.col = col
+  sortMenu.top = rect.bottom + 4
+  sortMenu.left = rect.left
+  sortMenu.open = true
+}
+
+function closeSortMenu() {
+  sortMenu.open = false
+}
+
+function handleSort(direction) {
+    const key = sortMenu.col?.sortKey || sortMenu.col?.filterKey || sortMenu.col?.key || ''
+
+  emit('sort-change', {
+    sortBy: direction ? key : '',
+    sortDirection: direction || 'ASC',
+  })
+  closeSortMenu()
+}
+
+onMounted(() => document.addEventListener('click', closeSortMenu))
+onUnmounted(() => document.removeEventListener('click', closeSortMenu))
 
 const openFilterKey = ref('')
 </script>
@@ -312,4 +379,46 @@ input[type='checkbox']:checked::after {
 .ms-table__th-content :deep(.col-filter__trigger--active) {
   opacity: 1;
 }
+
+/* Sort arrow indicator */
+.ms-table__sort-arrow {
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+</style>
+
+<style>
+/* vì teleport bị nhấc ra khỏi DOM nên k dùng scoped */
+/* ===== SORT MENU ===== */
+.sort-menu {
+  position: fixed;
+  z-index: 99999;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  min-width: 170px;
+  padding: 4px 0;
+}
+.sort-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sort-menu__item:hover {
+  background-color: #f3f4f6;
+}
+.sort-menu__icon {
+  width: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+}
+
 </style>

@@ -81,6 +81,8 @@
         :is-selected="store.isSelected"
         :active-row-id="activeRowId"
         :active-filters="store.filters"
+        :sort-by="store.sortBy"
+        :sort-direction="store.sortDirection"
         empty-text="Chưa có ca làm việc nào"
         @toggle-all="toggleAll"
         @toggle-row="(id) => store.toggleSelect(id)"
@@ -90,6 +92,7 @@
         "
         @filter-apply="handleFilterApply"
         @filter-clear="handleFilterClear"
+        @sort-change="handleSortChange"
       >
         <!-- Thời gian làm việc -->
         <template #cell-workHour="{ row }">
@@ -241,7 +244,6 @@
       </div>
     </div>
   </teleport>
-
 </template>
 
 <script setup>
@@ -276,10 +278,20 @@ const COLUMNS = [
     filterable: true,
     filterType: 'string',
   },
-  { key: 'startTimeDisplay', label: 'Giờ vào ca', width: '130px' },
-  { key: 'endTimeDisplay', label: 'Giờ hết ca', width: '130px' },
-  { key: 'breakStartTimeDisplay', label: 'Bắt đầu nghỉ giữa ca', width: '165px' },
-  { key: 'breakEndTimeDisplay', label: 'Kết thúc nghỉ giữa ca', width: '165px' },
+  { key: 'startTimeDisplay', label: 'Giờ vào ca', width: '130px', sortKey: 'startTime' },
+  { key: 'endTimeDisplay', label: 'Giờ hết ca', width: '130px', sortKey: 'endTime' },
+  {
+    key: 'breakStartTimeDisplay',
+    label: 'Bắt đầu nghỉ giữa ca',
+    width: '165px',
+    sortKey: 'breakStartTime',
+  },
+  {
+    key: 'breakEndTimeDisplay',
+    label: 'Kết thúc nghỉ giữa ca',
+    width: '165px',
+    sortKey: 'breakEndTime',
+  },
   {
     key: 'workHour',
     label: 'Thời gian làm việc (giờ)',
@@ -317,7 +329,9 @@ const COLUMNS = [
     filterable: true,
     filterType: 'date',
     filterKey: 'CreatedDate',
+    sortKey: 'createdDate',
   },
+
   {
     key: 'modifiedBy',
     label: 'Người sửa',
@@ -332,6 +346,7 @@ const COLUMNS = [
     filterable: true,
     filterType: 'date',
     filterKey: 'ModifiedDate',
+    sortKey: 'modifiedDate',
   },
 ]
 
@@ -508,6 +523,14 @@ function openEditModal(id) {
 function closeModal() {
   formVisible.value = false
   editingShift.value = null
+}
+
+// ===== Sort =====
+function handleSortChange({ sortBy: newSortBy, sortDirection: newDir }) {
+  store.sortBy = newSortBy
+  store.sortDirection = newDir
+  store.resetPage()
+  store.fetchPage()
 }
 
 // Hàm xử lý khi form thêm/sửa ca làm việc gọi sự kiện saved, nhận vào dữ liệu ca làm việc đã được thêm hoặc sửa thành công
