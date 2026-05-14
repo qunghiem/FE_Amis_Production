@@ -120,7 +120,7 @@
         <!-- Trạng thái -->
         <template #cell-shiftStatus="{ row }">
           <span :class="row.shiftStatus === 1 ? 'status--active' : 'status--inactive'">
-            {{ row.shiftStatus === 1 ? 'Sử dụng' : 'Ngừng sử dụng' }}
+            {{ row.shiftStatus === 1 ? 'Đang sử dụng' : 'Ngừng sử dụng' }}
           </span>
         </template>
 
@@ -985,10 +985,19 @@ async function handleDelete(ids) {
 .status--active {
   color: var(--primary);
   font-weight: 500;
+  background-color: #ebfef6;
+  color: #009b71;
+  padding: 5px 8px;
+  border-radius: 999px;
 }
 .status--inactive {
-  color: #dc2626;
   font-weight: 500;
+  background-color: #fee2e2;
+  color: #dc2626;
+  width: -moz-fit-content;
+  width: fit-content;
+  padding: 5px 8px;
+  border-radius: 999px;
 }
 .text-orange {
   color: #ea580c;
