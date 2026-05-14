@@ -615,16 +615,11 @@ async function handleToggleSingle(row) {
   // Xác định trạng thái mới: nếu đang là 1 (Sử dụng) thì chuyển thành 0 (Ngừng sử dụng), ngược lại nếu đang là 0 thì chuyển thành 1
   const newStatus = row.shiftStatus === 1 ? 0 : 1
 
-  // Thay đổi label tương ứng với trạng thái mới để hiển thị trong toast
-  const label = newStatus === 1 ? 'Sử dụng' : 'Ngừng sử dụng'
-
-  const tid = toast.loading('Đang chuyển trạng thái...')
   try {
     // Gọi API để chuyển trạng thái của ca làm việc, chỉ cần truyền vào một mảng chứa một phần tử là ID của ca làm việc cần chuyển trạng thái và trạng thái mới
     await store.toggleStatus([row.productionShiftID], newStatus)
-    toast.update(tid, `Đã chuyển sang "${label}"`, 'success')
   } catch (err) {
-    toast.update(tid, err.message, 'error')
+    toast.error(err.message)
   }
 }
 
@@ -632,15 +627,10 @@ async function handleToggleSingle(row) {
 async function handleBatchToggle(status) {
   // lấy ra list id checked
   const ids = store.selectedIdList
-  // thay đổi label
-  const label = status === 1 ? 'Sử dụng' : 'Ngừng sử dụng'
-
-  const tid = toast.loading(`Đang chuyển trạng thái ${ids.length} ca...`)
   try {
     await store.toggleStatus(ids, status)
-    toast.update(tid, `Đã chuyển ${ids.length} ca sang "${label}"`, 'success')
   } catch (err) {
-    toast.update(tid, err.message, 'error')
+    toast.error(err.message)
   }
 }
 
