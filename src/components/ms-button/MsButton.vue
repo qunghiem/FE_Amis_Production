@@ -240,6 +240,7 @@ const btnClass = computed(() => [
   /* color: #f06666; */
   cursor: pointer;
   font-size: 13px;
+  height: 16px;
 }
 
 .ms-btn--text .ms-btn__content {
