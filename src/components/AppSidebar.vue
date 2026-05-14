@@ -502,6 +502,9 @@ const showFlyout = ref(false)
 .sidebar__flyout {
   position: fixed;
   left: calc(var(--sidebar-width) + 15px);
+  bottom: 16px;                          /* ★ neo vào đáy viewport */
+  max-height: calc(100vh - 80px);        /* ★ không vượt quá màn hình */
+  overflow-y: auto;                      /* ★ scroll nếu nội dung dài */
   background-color: var(--sidebar-bg);
   border-radius: 6px;
   box-shadow: 4px 4px 24px rgba(0, 0, 0, 0.5);
