@@ -369,6 +369,7 @@ watch(
     }
     nextTick(() => {
       initialForm.value = { ...form.value }
+      codeRef.value?.focus() // focus vào field Mã ca khi mở form để thêm mới, hoặc sửa nhân bản, nhưng không focus khi mở form để sửa nếu đã có mã ca vì có thể người dùng chỉ muốn sửa tên ca hoặc giờ mà không muốn đổi mã ca
     })
   },
 )
