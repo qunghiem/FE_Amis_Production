@@ -12,77 +12,84 @@
       <!-- Mã ca — full width -->
       <div class="sf-row sf-row--full">
         <label class="sf-label"> Mã ca <span class="sf-required">*</span> </label>
-        <div class="sf-control">
-          <input
-            ref="codeRef"
-            class="sf-input"
-            :class="{ 'sf-input--invalid': errors.productionShiftCode }"
-            v-model="form.productionShiftCode"
-            maxlength="20"
-            @blur="validateField('productionShiftCode')"
-          />
-          <div v-if="errors.productionShiftCode" class="sf-error">
-            {{ errors.productionShiftCode }}
-          </div>
-        </div>
+        <div
+  class="sf-control"
+  :data-error-tooltip="errors.productionShiftCode || undefined"
+>
+  <input
+    ref="codeRef"
+    class="sf-input"
+    :class="{ 'sf-input--invalid': errors.productionShiftCode }"
+    v-model="form.productionShiftCode"
+    maxlength="20"
+    @blur="validateField('productionShiftCode')"
+  />
+</div>
       </div>
 
       <!-- Tên ca — full width -->
       <div class="sf-row sf-row--full">
         <label class="sf-label"> Tên ca <span class="sf-required">*</span> </label>
-        <div class="sf-control">
-          <input
-            ref="nameRef"
-            class="sf-input"
-            :class="{ 'sf-input--invalid': errors.productionShiftName }"
-            v-model="form.productionShiftName"
-            maxlength="50"
-            @blur="validateField('productionShiftName')"
-          />
-          <div v-if="errors.productionShiftName" class="sf-error">
-            {{ errors.productionShiftName }}
-          </div>
-        </div>
+        <div
+  class="sf-control"
+  :data-error-tooltip="errors.productionShiftName || undefined"
+>
+  <input
+    ref="nameRef"
+    class="sf-input"
+    :class="{ 'sf-input--invalid': errors.productionShiftName }"
+    v-model="form.productionShiftName"
+    maxlength="50"
+    @blur="validateField('productionShiftName')"
+  />
+</div>
       </div>
 
       <!-- Giờ vào ca + Giờ hết ca -->
       <div class="sf-row sf-row--half">
         <label class="sf-label"> Giờ vào ca <span class="sf-required">*</span> </label>
-        <div class="sf-control">
-          <MsTimePicker
-            ref="startRef"
-            v-model="form.startTime"
-            :error="errors.startTime"
-            @blur="validateField('startTime')"
-          />
-          <div v-if="errors.startTime" class="sf-error">{{ errors.startTime }}</div>
-        </div>
+        <div
+  class="sf-control"
+  :data-error-tooltip="errors.startTime || undefined"
+>
+  <MsTimePicker
+    ref="startRef"
+    v-model="form.startTime"
+    :error="errors.startTime"
+    @blur="validateField('startTime')"
+  />
+</div>
 
         <label class="sf-label"> Giờ hết ca <span class="sf-required">*</span> </label>
-        <div class="sf-control">
-          <MsTimePicker
-            ref="endRef"
-            v-model="form.endTime"
-            :error="errors.endTime"
-            @blur="validateField('endTime')"
-          />
-          <div v-if="errors.endTime" class="sf-error">{{ errors.endTime }}</div>
-        </div>
+        <div
+  class="sf-control"
+  :data-error-tooltip="errors.endTime || undefined"
+>
+  <MsTimePicker
+    ref="endRef"
+    v-model="form.endTime"
+    :error="errors.endTime"
+    @blur="validateField('endTime')"
+  />
+</div>
       </div>
 
       <!-- Bắt đầu nghỉ + Kết thúc nghỉ -->
       <div class="sf-row sf-row--half">
         <label class="sf-label">Bắt đầu nghỉ giữa ca</label>
-        <div class="sf-control">
-          <MsTimePicker v-model="form.breakStartTime" :error="errors.breakStartTime" />
-          <div v-if="errors.breakStartTime" class="sf-error">{{ errors.breakStartTime }}</div>
-        </div>
-
+        <div
+  class="sf-control"
+  :data-error-tooltip="errors.breakStartTime || undefined"
+>
+  <MsTimePicker v-model="form.breakStartTime" :error="errors.breakStartTime" />
+</div>
         <label class="sf-label">Kết thúc nghỉ giữa ca</label>
-        <div class="sf-control">
-          <MsTimePicker v-model="form.breakEndTime" :error="errors.breakEndTime" />
-          <div v-if="errors.breakEndTime" class="sf-error">{{ errors.breakEndTime }}</div>
-        </div>
+        <div
+  class="sf-control"
+  :data-error-tooltip="errors.breakEndTime || undefined"
+>
+  <MsTimePicker v-model="form.breakEndTime" :error="errors.breakEndTime" />
+</div>
       </div>
 
       <!-- Thời gian làm việc + Thời gian nghỉ -->
@@ -413,8 +420,7 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   column-gap: 23px;
   row-gap: 4px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;       /* ← cho tooltip hiện ra */
 }
 
 /* Full-width: label trái + input kéo hết phải */
@@ -505,11 +511,6 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   justify-content: end;
 }
 
-.sf-error {
-  font-size: 12px;
-  color: #dc2626;
-}
-
 /* ===== RADIO GROUP — Trạng thái ===== */
 .sf-radio-group {
   flex-direction: row;
@@ -563,5 +564,61 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
 
 .sf-radio input[type='radio']:checked + .sf-radio__dot::after {
   background: #009b71;
+}
+
+/* ===== ERROR TOOLTIP ===== */
+/* ===== ERROR TOOLTIP (giống [data-tooltip] của header) ===== */
+.sf-control[data-error-tooltip] {
+  position: relative;
+}
+
+/* Nội dung tooltip */
+.sf-control[data-error-tooltip]::after {
+  content: attr(data-error-tooltip);
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 6px 12px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 9999;
+  pointer-events: none;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+}
+
+/* Mũi tên chỉ lên */
+.sf-control[data-error-tooltip]::before {
+  content: '';
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #111827;
+
+  z-index: 9999;
+  pointer-events: none;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+}
+
+/* Hover hiện tooltip */
+.sf-control[data-error-tooltip]:hover::after,
+.sf-control[data-error-tooltip]:hover::before {
+  opacity: 1;
+  visibility: visible;
 }
 </style>

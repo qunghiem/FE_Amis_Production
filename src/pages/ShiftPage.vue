@@ -283,7 +283,7 @@ const COLUMNS = [
   {
     key: 'workHour',
     label: 'Thời gian làm việc (giờ)',
-    width: '180px',
+    width: '230px',
     align: 'right',
     filterable: true,
     filterType: 'number',
@@ -291,7 +291,7 @@ const COLUMNS = [
   {
     key: 'breakHour',
     label: 'Thời gian nghỉ giữa ca (giờ)',
-    width: '200px',
+    width: '230px',
     align: 'right',
     filterable: true,
     filterType: 'number',

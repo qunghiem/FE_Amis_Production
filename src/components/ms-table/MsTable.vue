@@ -13,7 +13,10 @@
             :style="col.width ? { width: col.width, minWidth: col.width } : {}"
             :class="{ 'ms-table__th--right': col.align === 'right' }"
           >
-            <div class="ms-table__th-content">
+            <div
+              class="ms-table__th-content"
+              :class="{ 'ms-table__th-content--right': col.align === 'right' }"
+            >
               <!-- Tên cột -->
               <span>{{ col.label }}</span>
               <MsColumnFilter
@@ -152,19 +155,18 @@ function getFilterForCol(key) {
   gap: 6px;
   justify-content: space-between;
   cursor: pointer;
-  border-left: 1px solid #D1D5DB;
+  border-left: 1px solid #d1d5db;
   padding: 0 15px;
 }
 
 .ms-table__th-content-first {
-  border-left: 1px solid #D1D5DB;
-
+  border-left: 1px solid #d1d5db;
 }
-input[type="checkbox"] {
+input[type='checkbox'] {
   width: 16px;
   height: 16px;
   background-color: #fff;
-  border: 1.5px solid #D1D5DB;
+  border: 1.5px solid #d1d5db;
   border-radius: 2px;
   appearance: none;
 }
@@ -269,12 +271,12 @@ input[type="checkbox"] {
   background-color: #a4f6d3;
 }
 
-input[type="checkbox"]:checked {
+input[type='checkbox']:checked {
   background-color: var(--primary, #009b71);
   border-color: var(--primary, #009b71);
   position: relative;
 }
-input[type="checkbox"]:checked::after {
+input[type='checkbox']:checked::after {
   content: '';
   position: absolute;
   width: 9px;
@@ -285,5 +287,9 @@ input[type="checkbox"]:checked::after {
   border-style: solid;
   border-color: #fff;
   transform: rotate(-45deg) translateY(5px);
+}
+
+.ms-table__th-content--right {
+  justify-content: flex-end;
 }
 </style>

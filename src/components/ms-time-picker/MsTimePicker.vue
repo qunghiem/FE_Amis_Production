@@ -90,11 +90,67 @@ const displayValue = computed({
 // Xử lý khi người dùng nhập thủ công vào input, chỉ cho phép nhập số và dấu :, tự động thêm dấu : sau 2 số đầu tiên
 function onManualInput(e) {
   let val = e.target.value.replace(/[^\d:]/g, '')
-  // Auto thêm dấu : sau 2 số
-  if (val.length === 2 && !val.includes(':')) {
-    val = val + ':'
+
+  // Tách phần giờ và phút
+  const colonIdx = val.indexOf(':')
+
+  if (colonIdx === -1) {
+    // Chưa có dấu ":" — chỉ đang nhập phần giờ
+    if (val.length >= 2) {
+      let h = parseInt(val.substring(0, 2))
+      if (h > 23) val = '23'
+      else val = val.substring(0, 2)
+      val += ':'
+      // Nếu user paste "2530" → giữ lại phần phút phía sau
+      const rest = e.target.value.replace(/[^\d:]/g, '').substring(2)
+      if (rest && rest !== ':') {
+        let m = parseInt(rest.replace(':', ''))
+        if (!isNaN(m)) {
+          if (m > 59) m = 59
+          val += String(m).padStart(2, '0')
+        }
+      }
+    }
+  } else {
+    // Đã có dấu ":"
+    let hStr = val.substring(0, colonIdx)
+    let mStr = val.substring(colonIdx + 1)
+
+    let h = parseInt(hStr)
+    if (isNaN(h)) h = 0
+    if (h > 23) h = 23
+    hStr = hStr.length > 0 ? String(Math.min(parseInt(hStr) || 0, 23)).padStart(hStr.length === 1 ? 1 : 2, '0') : ''
+
+    if (mStr.length > 0) {
+      let m = parseInt(mStr)
+      if (!isNaN(m) && m > 59) mStr = '59'
+      if (mStr.length > 2) mStr = mStr.substring(0, 2)
+    }
+
+    val = hStr + ':' + mStr
   }
+
+  // Giới hạn tối đa 5 ký tự (HH:MM)
+  if (val.length > 5) val = val.substring(0, 5)
+
   emit('update:modelValue', val)
+}
+
+function normalizeTime(val) {
+  if (!val || val.trim() === '') return ''
+  const clean = val.replace(/[^\d:]/g, '')
+  let h = 0, m = 0
+  if (clean.includes(':')) {
+    const parts = clean.split(':')
+    h = parseInt(parts[0]) || 0
+    m = parseInt(parts[1]) || 0
+  } else {
+    h = parseInt(clean.substring(0, 2)) || 0
+    m = parseInt(clean.substring(2, 4)) || 0
+  }
+  h = Math.min(h, 23)
+  m = Math.min(m, 59)
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
 // Mở dropdown và highlight option tương ứng khi click vào input hoặc dùng phím lên xuống
@@ -116,10 +172,16 @@ function selectTime(time) {
 
 // Đóng dropdown khi click ra ngoài hoặc khi input mất focus, nhưng delay một chút để cho phép click vào dropdown mà không bị đóng ngay
 function onBlur(e) {
-  // Delay đóng để cho phép click vào dropdown
   setTimeout(() => {
     if (!dropdownRef.value?.contains(document.activeElement)) {
       dropdownOpen.value = false
+    }
+    // Normalize khi rời input
+    if (props.modelValue && props.modelValue.trim() !== '') {
+      const normalized = normalizeTime(props.modelValue)
+      if (normalized !== props.modelValue) {
+        emit('update:modelValue', normalized)
+      }
     }
     emit('blur', e)
   }, 150)
