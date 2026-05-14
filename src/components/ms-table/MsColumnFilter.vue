@@ -86,6 +86,7 @@ const props = defineProps({
   filterType: { type: String, default: 'string' },
   /** Filter hiện tại (nếu có) */
   currentFilter: { type: Object, default: null },
+  activeFilterKey: { type: String, default: '' },
 })
 
 const emit = defineEmits(['apply', 'clear'])
@@ -150,6 +151,16 @@ watch(open, (v) => {
   }
 })
 
+// ★ Đóng khi filter khác được mở
+watch(
+  () => props.activeFilterKey,
+  (newKey) => {
+    if (newKey && newKey !== props.property && open.value) {
+      close()
+    }
+  },
+)
+
 // Lấy operator mặc định theo loại filter
 function getDefaultOperator() {
   if (props.filterType === 'string') return 'contains'
@@ -159,24 +170,20 @@ function getDefaultOperator() {
 
 // Khi click vào icon lọc
 function toggle() {
-  // Nếu đang mở thì đóng, nếu đang đóng thì mở và focus vào input
   if (open.value) {
     close()
     return
   }
-
-  // Nếu đang đóng -> mở
   open.value = true
-  // nextTich: đợi DOM cập nhật xong rồi tính toán vị trí và focus vào input
+  emit('filter-opened', props.property)   // ★ báo parent
   nextTick(() => {
-    // gọi hàm tính toán vị trí cho popover để nó hiển thị ngay dưới icon lọc
     positionPopover()
-    // Nếu không phải filter trạng thái thì focus vào input để người dùng có thể nhập ngay
     if (props.filterType !== 'status') {
       valueInput.value?.focus()
     }
   })
 }
+
 // Đóng bộ lọc
 function close() {
   open.value = false

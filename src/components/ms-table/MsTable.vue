@@ -20,14 +20,16 @@
               <!-- Tên cột -->
               <span>{{ col.label }}</span>
               <MsColumnFilter
-                v-if="col.filterable"
-                :label="col.label"
-                :property="col.filterKey || col.key"
-                :filter-type="col.filterType || 'string'"
-                :current-filter="getFilterForCol(col.filterKey || col.key)"
-                @apply="(f) => $emit('filter-apply', f)"
-                @clear="(prop) => $emit('filter-clear', prop)"
-              />
+  v-if="col.filterable"
+  :label="col.label"
+  :property="col.filterKey || col.key"
+  :filter-type="col.filterType || 'string'"
+  :current-filter="getFilterForCol(col.filterKey || col.key)"
+  :active-filter-key="openFilterKey"
+  @apply="(f) => $emit('filter-apply', f)"
+  @clear="(prop) => $emit('filter-clear', prop)"
+  @filter-opened="(key) => (openFilterKey = key)"
+/>
             </div>
           </th>
           <th v-if="$slots.actions" class="ms-table__th ms-table__th--action"></th>
@@ -86,9 +88,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import MsColumnFilter from './MsColumnFilter.vue'
-
+import { computed, ref } from 'vue'
 const props = defineProps({
   columns: { type: Array, required: true }, // đối tượng định nghĩa bảng [{ key, label, width, align, filterable, filterType }]
   rows: { type: Array, default: () => [] }, // [{ id, name, ... }]
@@ -113,6 +114,9 @@ const totalCols = computed(() => {
 function getFilterForCol(key) {
   return props.activeFilters.find((f) => f.Property === key) || null
 }
+
+
+const openFilterKey = ref('')
 </script>
 
 <style scoped>
