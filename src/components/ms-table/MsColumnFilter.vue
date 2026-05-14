@@ -26,30 +26,37 @@
         <div class="col-filter__body">
           <!-- Operator (ẩn khi là status) -->
           <!-- MỚI -->
-<div v-if="filterType !== 'status'" class="col-filter__select-wrapper" ref="selectWrapperRef">
-  <div
-    class="col-filter__select-trigger"
-    :class="{ 'col-filter__select-trigger--open': operatorDropdownOpen }"
-    @click="toggleOperatorDropdown"
-  >
-    <span>{{ getOperatorLabel(localOperator) }}</span>
-    <span class="col-filter__select-arrow" :class="{ 'col-filter__select-arrow--open': operatorDropdownOpen }"></span>
-  </div>
-  <div v-if="operatorDropdownOpen" class="col-filter__operator-dropdown">
-    <div
-      v-for="op in operatorOptions"
-      :key="op.value"
-      class="col-filter__operator-option"
-      :class="{ 'col-filter__operator-option--selected': localOperator === op.value }"
-      @click="selectOperator(op.value)"
-    >
-      <span class="col-filter__operator-check">
-        <i v-if="localOperator === op.value" class="col-filter__check-icon"></i>
-      </span>
-      <span>{{ op.label }}</span>
-    </div>
-  </div>
-</div>
+          <div
+            v-if="filterType !== 'status'"
+            class="col-filter__select-wrapper"
+            ref="selectWrapperRef"
+          >
+            <div
+              class="col-filter__select-trigger"
+              :class="{ 'col-filter__select-trigger--open': operatorDropdownOpen }"
+              @click="toggleOperatorDropdown"
+            >
+              <span>{{ getOperatorLabel(localOperator) }}</span>
+              <span
+                class="col-filter__select-arrow"
+                :class="{ 'col-filter__select-arrow--open': operatorDropdownOpen }"
+              ></span>
+            </div>
+            <div v-if="operatorDropdownOpen" class="col-filter__operator-dropdown">
+              <div
+                v-for="op in operatorOptions"
+                :key="op.value"
+                class="col-filter__operator-option"
+                :class="{ 'col-filter__operator-option--selected': localOperator === op.value }"
+                @click="selectOperator(op.value)"
+              >
+                <span>{{ op.label }}</span>
+                <span class="col-filter__operator-check">
+                  <i v-if="localOperator === op.value" class="col-filter__check-icon"></i>
+                </span>
+              </div>
+            </div>
+          </div>
 
           <!-- Status: chọn trạng thái -->
           <select v-if="filterType === 'status'" v-model="localValue" class="col-filter__select">
@@ -171,7 +178,7 @@ watch(open, (v) => {
     localValue.value = ''
   }
   if (!v) {
-  operatorDropdownOpen.value = false
+    operatorDropdownOpen.value = false
   }
 })
 
@@ -199,7 +206,7 @@ function toggle() {
     return
   }
   open.value = true
-  emit('filter-opened', props.property)   // ★ báo parent
+  emit('filter-opened', props.property) // ★ báo parent
   nextTick(() => {
     positionPopover()
     if (props.filterType !== 'status') {
@@ -269,7 +276,11 @@ function positionPopover() {
 
 // Đóng popover khi click ra ngoài
 function onClickOutside(e) {
-  if (operatorDropdownOpen.value && selectWrapperRef.value && !selectWrapperRef.value.contains(e.target)) {
+  if (
+    operatorDropdownOpen.value &&
+    selectWrapperRef.value &&
+    !selectWrapperRef.value.contains(e.target)
+  ) {
     operatorDropdownOpen.value = false
   }
   // Nếu đang mở và click ra ngoài filterRef thì đóng popover, nhưng nếu click vào popover thì không đóng
@@ -434,7 +445,6 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   background: var(--primary-hover);
 }
 
-
 /* ===== Custom Operator Dropdown ===== */
 .col-filter__select-wrapper {
   position: relative;
@@ -453,7 +463,9 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .col-filter__select-trigger--open {
@@ -462,12 +474,15 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 }
 
 .col-filter__select-arrow {
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 5px solid #6b7280;
-  transition: transform 0.2s;
+  mask-position: -202px -18px;
+  height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  position: relative;
+  -webkit-mask-repeat: no-repeat;
+  background-color: #4b5563;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 
 .col-filter__select-arrow--open {
@@ -502,8 +517,11 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 }
 
 .col-filter__operator-option--selected {
-  color: var(--primary, #009b71);
   font-weight: 500;
+  color: #009b71;
+  background-color: #d0fbe7;
+      display: flex;
+    justify-content: space-between;
 }
 
 .col-filter__operator-check {
