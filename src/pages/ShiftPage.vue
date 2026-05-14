@@ -381,10 +381,12 @@ const moreMenuRow = computed(() =>
   moreMenuId.value !== null ? store.getById(moreMenuId.value) : null,
 )
 
+// lưu trạng thái của confirm modal để khi cần xác nhận xóa thì set trạng thái này với nội dung phù hợp rồi mở modal, sau khi người dùng xác nhận hoặc hủy thì reset lại trạng thái
 const confirmState = reactive({
   visible: false,
   title: '',
   message: '',
+  //
   onConfirm: null,
 })
 
@@ -446,6 +448,7 @@ function handleFilterApply(filter) {
   store.fetchPage()
 }
 
+// Clear filter khi click vào nút x trong tag filter
 function handleFilterClear(property) {
   const idx = store.filters.findIndex((f) => f.Property === property)
   if (idx >= 0) store.filters.splice(idx, 1)
@@ -453,10 +456,12 @@ function handleFilterClear(property) {
   store.fetchPage()
 }
 
+// khi click vào nút x trong tag filter thì gọi hàm handleFilterClear với đúng property cần xóa
 function removeFilter(property) {
   handleFilterClear(property)
 }
 
+// khi click vào nút Bỏ lọc thì xóa hết tất cả filter
 function clearAllFilters() {
   store.filters.splice(0, store.filters.length)
   store.resetPage()
@@ -464,11 +469,13 @@ function clearAllFilters() {
 }
 
 // ===== More menu =====
+// Hàm toggle menu More, nhận vào ID của ca làm việc và event click để tính toán vị trí hiển thị dropdown
 function toggleMoreMenu(id, event) {
   if (moreMenuId.value === id) {
     moreMenuId.value = null
     return
   }
+  // Tính toán vị trí hiển thị dropdown dựa vào vị trí của nút More được click
   const btn = event.currentTarget
   const rect = btn.getBoundingClientRect()
   moreMenuPos.top = rect.bottom + 4
@@ -476,6 +483,7 @@ function toggleMoreMenu(id, event) {
   moreMenuId.value = id
 }
 
+// Hàm đóng menu More
 function closeMoreMenu() {
   moreMenuId.value = null
 }
@@ -655,7 +663,7 @@ function closeConfirm() {
 
 // Hàm xử lý khi người dùng xác nhận xóa
 async function onConfirm() {
-  const callback = confirmState.onConfirm
+  const callback = confirmState.onConfirm // gửi hành động vào onConfirm để khi người dùng xác nhận thì hàm onConfirm sẽ gọi callback này, callback này được set khi mở confirm modal với đúng hành động cần thực hiện (xóa đơn nào)
   closeConfirm()
   if (callback) await callback()
 }
