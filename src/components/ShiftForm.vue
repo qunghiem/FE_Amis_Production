@@ -6,90 +6,72 @@
     :title="formTitle"
     width="650px"
     :close-on-overlay="false"
-    @update:modelValue="(v) => !v && $emit('close')"
+    @update:modelValue="(v) => !v && handleClose()"
   >
     <div class="shift-form">
       <!-- Mã ca — full width -->
       <div class="sf-row sf-row--full">
         <label class="sf-label"> Mã ca <span class="sf-required">*</span> </label>
-        <div
-  class="sf-control"
-  :data-error-tooltip="errors.productionShiftCode || undefined"
->
-  <input
-    ref="codeRef"
-    class="sf-input"
-    :class="{ 'sf-input--invalid': errors.productionShiftCode }"
-    v-model="form.productionShiftCode"
-    maxlength="20"
-    @blur="validateField('productionShiftCode')"
-  />
-</div>
+        <div class="sf-control" :data-error-tooltip="errors.productionShiftCode || undefined">
+          <input
+            ref="codeRef"
+            class="sf-input"
+            :class="{ 'sf-input--invalid': errors.productionShiftCode }"
+            v-model="form.productionShiftCode"
+            maxlength="20"
+            @blur="validateField('productionShiftCode')"
+          />
+        </div>
       </div>
 
       <!-- Tên ca — full width -->
       <div class="sf-row sf-row--full">
         <label class="sf-label"> Tên ca <span class="sf-required">*</span> </label>
-        <div
-  class="sf-control"
-  :data-error-tooltip="errors.productionShiftName || undefined"
->
-  <input
-    ref="nameRef"
-    class="sf-input"
-    :class="{ 'sf-input--invalid': errors.productionShiftName }"
-    v-model="form.productionShiftName"
-    maxlength="50"
-    @blur="validateField('productionShiftName')"
-  />
-</div>
+        <div class="sf-control" :data-error-tooltip="errors.productionShiftName || undefined">
+          <input
+            ref="nameRef"
+            class="sf-input"
+            :class="{ 'sf-input--invalid': errors.productionShiftName }"
+            v-model="form.productionShiftName"
+            maxlength="50"
+            @blur="validateField('productionShiftName')"
+          />
+        </div>
       </div>
 
       <!-- Giờ vào ca + Giờ hết ca -->
       <div class="sf-row sf-row--half">
         <label class="sf-label"> Giờ vào ca <span class="sf-required">*</span> </label>
-        <div
-  class="sf-control"
-  :data-error-tooltip="errors.startTime || undefined"
->
-  <MsTimePicker
-    ref="startRef"
-    v-model="form.startTime"
-    :error="errors.startTime"
-    @blur="validateField('startTime')"
-  />
-</div>
+        <div class="sf-control" :data-error-tooltip="errors.startTime || undefined">
+          <MsTimePicker
+            ref="startRef"
+            v-model="form.startTime"
+            :error="errors.startTime"
+            @blur="validateField('startTime')"
+          />
+        </div>
 
         <label class="sf-label"> Giờ hết ca <span class="sf-required">*</span> </label>
-        <div
-  class="sf-control"
-  :data-error-tooltip="errors.endTime || undefined"
->
-  <MsTimePicker
-    ref="endRef"
-    v-model="form.endTime"
-    :error="errors.endTime"
-    @blur="validateField('endTime')"
-  />
-</div>
+        <div class="sf-control" :data-error-tooltip="errors.endTime || undefined">
+          <MsTimePicker
+            ref="endRef"
+            v-model="form.endTime"
+            :error="errors.endTime"
+            @blur="validateField('endTime')"
+          />
+        </div>
       </div>
 
       <!-- Bắt đầu nghỉ + Kết thúc nghỉ -->
       <div class="sf-row sf-row--half">
         <label class="sf-label">Bắt đầu nghỉ giữa ca</label>
-        <div
-  class="sf-control"
-  :data-error-tooltip="errors.breakStartTime || undefined"
->
-  <MsTimePicker v-model="form.breakStartTime" :error="errors.breakStartTime" />
-</div>
+        <div class="sf-control" :data-error-tooltip="errors.breakStartTime || undefined">
+          <MsTimePicker v-model="form.breakStartTime" :error="errors.breakStartTime" />
+        </div>
         <label class="sf-label">Kết thúc nghỉ giữa ca</label>
-        <div
-  class="sf-control"
-  :data-error-tooltip="errors.breakEndTime || undefined"
->
-  <MsTimePicker v-model="form.breakEndTime" :error="errors.breakEndTime" />
-</div>
+        <div class="sf-control" :data-error-tooltip="errors.breakEndTime || undefined">
+          <MsTimePicker v-model="form.breakEndTime" :error="errors.breakEndTime" />
+        </div>
       </div>
 
       <!-- Thời gian làm việc + Thời gian nghỉ -->
@@ -136,17 +118,63 @@
     </div>
 
     <template #footer>
-      <MsButton type="cancel" @click="$emit('close')">Huỷ</MsButton>
-      <MsButton type="save-and-add" :loading="saving" @click="handleSaveAndAdd">
-        Lưu và Thêm
-      </MsButton>
-      <MsButton type="save" :loading="saving" @click="handleSave">Lưu</MsButton>
+      <MsButton type="cancel" @click="handleClose">Huỷ</MsButton>
+      <div class="sf-btn-tip" data-shortcut="Ctrl + Shift + S">
+        <MsButton type="save-and-add" :loading="saving" @click="handleSaveAndAdd">
+          Lưu và Thêm
+        </MsButton>
+      </div>
+      <div class="sf-btn-tip" data-shortcut="Ctrl + S">
+        <MsButton type="save" :loading="saving" @click="handleSave">Lưu</MsButton>
+      </div>
     </template>
   </MsModal>
+
+  <!-- ===== CẢNH BÁO VALIDATE ===== -->
+  <teleport to="body">
+    <div v-if="warnValidate.visible" class="sf-overlay" @click.self="closeWarnValidate">
+      <div class="sf-dialog">
+        <div class="sf-dialog__header">
+          <div class="sf-dialog__title-row">
+            <span class="sf-dialog__icon sf-dialog__icon--warn">⚠</span>
+            <span class="sf-dialog__title">Cảnh báo!</span>
+          </div>
+          <button class="sf-dialog__close" @click="closeWarnValidate">&times;</button>
+        </div>
+        <div class="sf-dialog__body">{{ warnValidate.message }}</div>
+        <div class="sf-dialog__footer">
+          <MsButton type="save" @click="closeWarnValidate">Đóng</MsButton>
+        </div>
+      </div>
+    </div>
+  </teleport>
+
+  <!-- ===== XÁC NHẬN THOÁT ===== -->
+  <teleport to="body">
+    <div v-if="confirmExit.visible" class="sf-overlay" @click.self="cancelExit">
+      <div class="sf-dialog">
+        <div class="sf-dialog__header">
+          <div class="sf-dialog__title-row">
+            <span class="sf-dialog__icon sf-dialog__icon--info">ℹ</span>
+            <span class="sf-dialog__title">Thoát và không lưu?</span>
+          </div>
+          <button class="sf-dialog__close" @click="cancelExit">&times;</button>
+        </div>
+        <div class="sf-dialog__body">
+          Nếu bạn thoát, các dữ liệu đang nhập liệu sẽ không được lưu lại.
+        </div>
+        <div class="sf-dialog__footer">
+          <MsButton type="cancel" @click="cancelExit">Huỷ</MsButton>
+          <MsButton type="save" @click="forceClose">Đồng ý</MsButton>
+        </div>
+      </div>
+    </div>
+  </teleport>
 </template>
 
 <script setup>
-import { ref, watch, computed, nextTick } from 'vue'
+import { ref, watch, computed, nextTick, reactive, onMounted, onUnmounted } from 'vue'
+
 import MsModal from './ms-modal/MsModal.vue'
 import MsButton from './ms-button/MsButton.vue'
 import MsTimePicker from './ms-time-picker/MsTimePicker.vue'
@@ -209,6 +237,85 @@ const fieldRefMap = {
   endTime: endRef,
 }
 
+// ── Dirty tracking ──────────────────────────────────────
+const initialForm = ref(null)
+
+const isDirty = computed(() => {
+  if (!initialForm.value) return false
+  const c = form.value
+  const i = initialForm.value
+  return (
+    c.productionShiftCode !== i.productionShiftCode ||
+    c.productionShiftName !== i.productionShiftName ||
+    c.startTime !== i.startTime ||
+    c.endTime !== i.endTime ||
+    c.breakStartTime !== i.breakStartTime ||
+    c.breakEndTime !== i.breakEndTime ||
+    c.description !== i.description ||
+    c.shiftStatus !== i.shiftStatus
+  )
+})
+
+// ── Cảnh báo validate ───────────────────────────────────
+const warnValidate = reactive({ visible: false, message: '' })
+
+function showWarnValidate(msg) {
+  warnValidate.message = msg
+  warnValidate.visible = true
+}
+function closeWarnValidate() {
+  warnValidate.visible = false
+  warnValidate.message = ''
+}
+
+// ── Xác nhận thoát ─────────────────────────────────────
+const confirmExit = reactive({ visible: false })
+
+function handleClose() {
+  if (isDirty.value) {
+    confirmExit.visible = true
+  } else {
+    emit('close')
+  }
+}
+function cancelExit() {
+  confirmExit.visible = false
+}
+function forceClose() {
+  confirmExit.visible = false
+  emit('close')
+}
+
+// ── Phím tắt ────────────────────────────────────────────
+function onKeydown(e) {
+  if (!props.visible) return
+
+  // Nếu dialog cảnh báo đang mở → ESC đóng nó
+  if (warnValidate.visible) {
+    if (e.key === 'Escape') closeWarnValidate()
+    return
+  }
+  // Nếu dialog xác nhận thoát đang mở → ESC đóng nó
+  if (confirmExit.visible) {
+    if (e.key === 'Escape') cancelExit()
+    return
+  }
+
+  if (e.key === 'Escape') {
+    e.preventDefault()
+    handleClose()
+  } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 's') {
+    e.preventDefault()
+    handleSaveAndAdd()
+  } else if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 's') {
+    e.preventDefault()
+    handleSave()
+  }
+}
+
+onMounted(() => document.addEventListener('keydown', onKeydown))
+onUnmounted(() => document.removeEventListener('keydown', onKeydown))
+
 const computedBreakHour = computed(() => {
   if (!form.value.breakStartTime || !form.value.breakEndTime) return 0
   let diff = timeToMinutes(form.value.breakEndTime) - timeToMinutes(form.value.breakStartTime)
@@ -260,6 +367,9 @@ watch(
     } else {
       form.value = EMPTY_FORM()
     }
+    nextTick(() => {
+      initialForm.value = { ...form.value }
+    })
   },
 )
 
@@ -335,12 +445,13 @@ function focusFirstError() {
 // Hàm xử lý khi click Lưu: validate form, nếu hợp lệ thì emit sự kiện 'saved' với payload là dữ liệu form + computed workHour và breakHour
 
 async function handleSave() {
-  // Validate form, nếu có lỗi thì focus vào field đầu tiên có lỗi và không tiếp tục
   if (!validate()) {
+    // ★ Hiện cảnh báo với lỗi đầu tiên
+    const firstError = Object.values(errors.value).find((e) => e)
+    if (firstError) showWarnValidate(firstError)
     focusFirstError()
     return
   }
-  // Nếu đang ở trạng thái saving thì không cho phép click lưu nữa để tránh gửi nhiều request
   if (saving.value) return
   saving.value = true
   emit('saved', {
@@ -350,9 +461,13 @@ async function handleSave() {
     _action: 'save',
   })
 }
+
 // Hàm xử lý khi click Lưu và Thêm: tương tự handleSave nhưng có thêm _action: 'save-and-add' để parent biết là sau khi lưu xong thì sẽ mở form mới để thêm tiếp, đồng thời parent sẽ gọi resetForm() để reset form về trạng thái trống
 async function handleSaveAndAdd() {
   if (!validate()) {
+    // ★ Hiện cảnh báo với lỗi đầu tiên
+    const firstError = Object.values(errors.value).find((e) => e)
+    if (firstError) showWarnValidate(firstError)
     focusFirstError()
     return
   }
@@ -420,7 +535,7 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   column-gap: 23px;
   row-gap: 4px;
   white-space: nowrap;
-  overflow: visible;       /* ← cho tooltip hiện ra */
+  overflow: visible; /* ← cho tooltip hiện ra */
 }
 
 /* Full-width: label trái + input kéo hết phải */
@@ -620,5 +735,162 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
 .sf-control[data-error-tooltip]:hover::before {
   opacity: 1;
   visibility: visible;
+}
+
+/* ===== TOOLTIP PHÍM TẮT TRÊN BUTTON ===== */
+.sf-btn-tip {
+  position: relative;
+  display: inline-flex;
+}
+
+.sf-btn-tip::after {
+  content: attr(data-shortcut);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  background: #111827;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+}
+
+/* Mũi tên chỉ xuống */
+.sf-btn-tip::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #111827;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+}
+
+.sf-btn-tip:hover::after,
+.sf-btn-tip:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ===== DIALOG DÙNG CHUNG (Cảnh báo + Xác nhận thoát) ===== */
+.sf-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background-color: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sf-dialog {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+  width: 420px;
+  max-width: 90vw;
+  overflow: hidden;
+}
+
+.sf-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px 12px;
+}
+
+.sf-dialog__title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sf-dialog__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sf-dialog__icon--warn {
+  mask-position: -188px -169px;
+  background-color: #ea580c !important;
+  color: #ea580c !important;
+  width: 16px;
+  height: 14px;
+  min-height: 20px;
+  min-width: 20px;
+  position: relative;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.0.0.36);
+  background: url(https://demoqtsxcdn.misacdn.net/assets/pas.ic_warning-10482646.svg?v=10.0.0.36);
+}
+
+.sf-dialog__icon--info {
+  mask-position: -218px -167px;
+  background-color: #2563eb;
+  height: 20px;
+  width: 20px;
+  min-height: 20px;
+  min-width: 20px;
+  position: relative;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.0.0.36);
+  -webkit-mask-repeat: no-repeat;
+}
+
+.sf-dialog__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.sf-dialog__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 20px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+}
+.sf-dialog__close:hover {
+  background: #f3f4f6;
+  color: #111;
+}
+
+.sf-dialog__body {
+  padding: 0 20px 16px;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.sf-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  gap: 8px;
 }
 </style>
