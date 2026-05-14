@@ -92,7 +92,6 @@ const btnClass = computed(() => [
   background-color: #fee2e2;
   border: 1px solid #dc2626;
   color: #dc2626;
-  color: #fff;
 }
 
 .ms-btn--save {
@@ -252,5 +251,33 @@ const btnClass = computed(() => [
   color: #f06666;
   font-size: 13px;
   text-decoration-color: var(--primary) !important;
+}
+
+
+/* Nút text màu xanh (cho Bỏ chọn) */
+.ms-btn--text-primary {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+}
+.ms-btn--text-primary:hover:not(:disabled) {
+  text-decoration: underline;
+}
+.ms-btn--text-primary .ms-btn__content {
+  color: var(--primary);
+  font-size: 13px;
+}
+
+/* Nút outline màu xanh (cho Sử dụng) */
+.ms-btn--primary-outline {
+  background-color: #fff;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 6px 12px;
+  font-weight: 550;
+}
+.ms-btn--primary-outline:hover:not(:disabled) {
+  background-color: #e0f7ef;
 }
 </style>

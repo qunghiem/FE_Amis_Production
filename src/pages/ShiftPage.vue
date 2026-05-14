@@ -30,20 +30,30 @@
           <span class="selected-bar__count"
             >Đã chọn <b>{{ store.selectedCount }}</b></span
           >
-          <MsButton type="text" @click="store.unselectAll()">Bỏ chọn</MsButton>
+          <MsButton type="text-primary" @click="store.unselectAll()">Bỏ chọn</MsButton>
           <div class="selected-bar__separator"></div>
           <MsButton
             v-if="store.hasInactiveInSelected"
-            type="danger-outline"
+            type="primary-outline"
             @click="handleBatchToggle(1)"
-            >Sử dụng</MsButton
           >
+            <span
+              class="dropdown-icon dropdown-icon--toggle"
+              style="background-color: var(--primary)"
+            ></span>
+            Sử dụng
+          </MsButton>
           <MsButton
             v-if="store.hasActiveInSelected"
             type="danger-outline"
             @click="handleBatchToggle(0)"
-            >Ngừng sử dụng</MsButton
           >
+            <span
+              class="dropdown-icon dropdown-icon--toggle"
+              style="background-color: #dc2626"
+            ></span>
+            Ngừng sử dụng
+          </MsButton>
           <MsButton type="danger-outline" @click="openBatchDeleteConfirm">Xóa</MsButton>
         </template>
 
