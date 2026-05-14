@@ -67,7 +67,7 @@
             :key="col.key"
             class="ms-table__td"
             :class="{ 'ms-table__td--right': col.align === 'right' }"
-            :title="col.showTitle ? String(row[col.key] ?? '') : undefined"
+            :title="String(row[col.key] ?? '')"
           >
             <slot :name="`cell-${col.key}`" :row="row" :value="row[col.key]">
               {{ row[col.key] ?? '-' }}
