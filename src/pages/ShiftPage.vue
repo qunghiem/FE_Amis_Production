@@ -1267,6 +1267,7 @@ async function handleDelete(ids) {
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .dropdown-icon--toggle {
+  margin-right: 5px;;
   mask-position: -192px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
