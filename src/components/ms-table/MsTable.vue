@@ -27,7 +27,7 @@
               />
             </div>
           </th>
-          <!-- <th v-if="$slots.actions" class="ms-table__th ms-table__th--action"></th> -->
+          <th v-if="$slots.actions" class="ms-table__th ms-table__th--action"></th>
         </tr>
       </thead>
 
@@ -131,9 +131,8 @@ function getFilterForCol(key) {
   font-weight: 600;
   color: #262626;
   border-bottom: 1px solid #e5e7eb;
-  border-right: 1px solid #f0f0f0;
   text-align: left;
-  padding: 10px 12px;
+  padding: 10px 0px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -153,10 +152,14 @@ function getFilterForCol(key) {
   gap: 6px;
   justify-content: space-between;
   cursor: pointer;
-  border-right: 1px solid #D1D5DB;
+  border-left: 1px solid #D1D5DB;
   padding: 0 15px;
 }
 
+.ms-table__th-content-first {
+  border-left: 1px solid #D1D5DB;
+
+}
 input[type="checkbox"] {
   width: 16px;
   height: 16px;
@@ -177,7 +180,7 @@ input[type="checkbox"] {
 }
 
 .ms-table__td {
-  padding: 8px 12px;
+  padding: 8px 15px;
   border-bottom: 1px solid #f0f0f0;
   text-align: left;
   overflow: hidden;
