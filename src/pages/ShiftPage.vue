@@ -76,6 +76,7 @@
         <div class="shift-page__toolbar-spacer"></div>
 
         <button
+          v-if="store.selectedCount === 0"
           class="shift-page__reload"
           @click="store.fetchPage()"
           :data-tooltip="$t('common.reload')"
