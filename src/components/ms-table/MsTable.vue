@@ -59,7 +59,7 @@
             'ms-table__row--active': row[rowKey] === activeRowId && !isSelected(row[rowKey]),
           }"
           @click="$emit('row-click', row)"
-           @dblclick="$emit('row-dblclick', row)"
+          @dblclick="$emit('row-dblclick', row)"
         >
           <td v-if="selectable" class="ms-table__td ms-table__checkbox">
             <input
@@ -91,31 +91,34 @@
       </tbody>
     </table>
     <!-- ===== SORT MENU ===== -->
-  <teleport to="body">
-    <div
-      v-if="sortMenu.open"
-      class="sort-menu"
-      :style="{ top: sortMenu.top + 'px', left: sortMenu.left + 'px' }"
-      @click.stop
-    >
-      <div class="sort-menu__item" @click="handleSort('')">
-        <span class="sort-menu__icon">⇅</span> Không sắp xếp
+    <teleport to="body">
+      <div
+        v-if="sortMenu.open"
+        class="sort-menu"
+        :style="{ top: sortMenu.top + 'px', left: sortMenu.left + 'px' }"
+        @click.stop
+      >
+        <!-- Thay text cứng bằng $t -->
+        <div class="sort-menu__item" @click="handleSort('')">
+          <span class="sort-menu__icon">⇅</span> {{ $t('sort.none') }}
+        </div>
+        <div class="sort-menu__item" @click="handleSort('ASC')">
+          <span class="sort-menu__icon">↑</span> {{ $t('sort.asc') }}
+        </div>
+        <div class="sort-menu__item" @click="handleSort('DESC')">
+          <span class="sort-menu__icon">↓</span> {{ $t('sort.desc') }}
+        </div>
       </div>
-      <div class="sort-menu__item" @click="handleSort('ASC')">
-        <span class="sort-menu__icon">↑</span> Tăng dần
-      </div>
-      <div class="sort-menu__item" @click="handleSort('DESC')">
-        <span class="sort-menu__icon">↓</span> Giảm dần
-      </div>
-    </div>
-  </teleport>
+    </teleport>
   </div>
 </template>
 
 <script setup>
 import MsColumnFilter from './MsColumnFilter.vue'
 import { computed, ref, reactive, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const props = defineProps({
   columns: { type: Array, required: true }, // đối tượng định nghĩa bảng [{ key, label, width, align, filterable, filterType }]
   rows: { type: Array, default: () => [] }, // [{ id, name, ... }]
@@ -156,9 +159,9 @@ function getFilterForCol(key) {
 const sortMenu = reactive({ open: false, col: null, top: 0, left: 0 })
 
 function showSortMenu(col, e) {
-  e.stopPropagation()                        // ★ chặn bubble lên document
+  e.stopPropagation() // ★ chặn bubble lên document
   if (sortMenu.open && sortMenu.col?.key === col.key) {
-    closeSortMenu()                           // ★ click cùng cột → đóng
+    closeSortMenu() // ★ click cùng cột → đóng
     return
   }
   const rect = e.currentTarget.getBoundingClientRect()
@@ -173,7 +176,7 @@ function closeSortMenu() {
 }
 
 function handleSort(direction) {
-    const key = sortMenu.col?.sortKey || sortMenu.col?.filterKey || sortMenu.col?.key || ''
+  const key = sortMenu.col?.sortKey || sortMenu.col?.filterKey || sortMenu.col?.key || ''
 
   emit('sort-change', {
     sortBy: direction ? key : '',
@@ -245,7 +248,7 @@ input[type='checkbox'] {
 }
 
 input[type='checkbox']:hover {
-      border: 1.5px solid #009b71;
+  border: 1.5px solid #009b71;
 }
 .ms-table__th--action {
   width: 72px;
@@ -432,5 +435,4 @@ input[type='checkbox']:checked::after {
   font-size: 14px;
   color: #6b7280;
 }
-
 </style>

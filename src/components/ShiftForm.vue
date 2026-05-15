@@ -11,7 +11,9 @@
     <div class="shift-form">
       <!-- Mã ca — full width -->
       <div class="sf-row sf-row--full">
-        <label class="sf-label"> Mã ca <span class="sf-required">*</span> </label>
+        <label class="sf-label">
+          {{ $t('shift.form.code') }} <span class="sf-required">*</span>
+        </label>
         <div class="sf-control" :data-error-tooltip="errors.productionShiftCode || undefined">
           <input
             ref="codeRef"
@@ -26,7 +28,9 @@
 
       <!-- Tên ca — full width -->
       <div class="sf-row sf-row--full">
-        <label class="sf-label"> Tên ca <span class="sf-required">*</span> </label>
+        <label class="sf-label">
+          {{ $t('shift.form.name') }} <span class="sf-required">*</span>
+        </label>
         <div class="sf-control" :data-error-tooltip="errors.productionShiftName || undefined">
           <input
             ref="nameRef"
@@ -41,7 +45,9 @@
 
       <!-- Giờ vào ca + Giờ hết ca -->
       <div class="sf-row sf-row--half">
-        <label class="sf-label"> Giờ vào ca <span class="sf-required">*</span> </label>
+        <label class="sf-label">
+          {{ $t('shift.form.startTime') }} <span class="sf-required">*</span>
+        </label>
         <div class="sf-control" :data-error-tooltip="errors.startTime || undefined">
           <MsTimePicker
             ref="startRef"
@@ -51,7 +57,9 @@
           />
         </div>
 
-        <label class="sf-label"> Giờ hết ca <span class="sf-required">*</span> </label>
+        <label class="sf-label">
+          {{ $t('shift.form.endTime') }} <span class="sf-required">*</span>
+        </label>
         <div class="sf-control" :data-error-tooltip="errors.endTime || undefined">
           <MsTimePicker
             ref="endRef"
@@ -64,11 +72,11 @@
 
       <!-- Bắt đầu nghỉ + Kết thúc nghỉ -->
       <div class="sf-row sf-row--half">
-        <label class="sf-label">Bắt đầu nghỉ giữa ca</label>
+        <label class="sf-label">{{ $t('shift.form.breakStart') }}</label>
         <div class="sf-control" :data-error-tooltip="errors.breakStartTime || undefined">
           <MsTimePicker v-model="form.breakStartTime" :error="errors.breakStartTime" />
         </div>
-        <label class="sf-label">Kết thúc nghỉ giữa ca</label>
+        <label class="sf-label">{{ $t('shift.form.breakEnd') }}</label>
         <div class="sf-control" :data-error-tooltip="errors.breakEndTime || undefined">
           <MsTimePicker v-model="form.breakEndTime" :error="errors.breakEndTime" />
         </div>
@@ -76,12 +84,12 @@
 
       <!-- Thời gian làm việc + Thời gian nghỉ -->
       <div class="sf-row sf-row--half">
-        <label class="sf-label">Thời gian làm việc (giờ)</label>
+        <label class="sf-label">{{ $t('shift.form.workHour') }}</label>
         <div class="sf-control">
           <div class="sf-readonly">{{ computedWorkHour }}</div>
         </div>
 
-        <label class="sf-label">Thời gian nghỉ giữa ca (giờ)</label>
+        <label class="sf-label">{{ $t('shift.form.breakHour') }}</label>
         <div class="sf-control">
           <div class="sf-readonly">{{ computedBreakHour }}</div>
         </div>
@@ -89,43 +97,45 @@
 
       <!-- Mô tả — full width -->
       <div class="sf-row sf-row--full">
-        <label class="sf-label sf-label--top">Mô tả</label>
+        <label class="sf-label sf-label--top">{{ $t('shift.form.description') }}</label>
         <div class="sf-control">
           <textarea
             class="sf-input sf-textarea"
             v-model="form.description"
-            placeholder="Nhập mô tả"
+            :placeholder="$t('shift.form.descriptionPlaceholder')"
           ></textarea>
         </div>
       </div>
 
       <!-- Trạng thái — chỉ hiển thị khi Sửa -->
       <div v-if="isEditing" class="sf-row sf-row--full">
-        <label class="sf-label">Trạng thái</label>
+        <label class="sf-label">{{ $t('shift.form.status') }}</label>
         <div class="sf-control sf-radio-group">
           <label class="sf-radio">
             <input type="radio" v-model="form.shiftStatus" :value="1" />
             <span class="sf-radio__dot"></span>
-            Đang sử dụng
+            {{ $t('shift.status.active') }}
           </label>
           <label class="sf-radio">
             <input type="radio" v-model="form.shiftStatus" :value="0" />
             <span class="sf-radio__dot"></span>
-            Ngừng sử dụng
+            {{ $t('shift.status.inactive') }}
           </label>
         </div>
       </div>
     </div>
 
     <template #footer>
-      <MsButton type="cancel" @click="handleClose">Huỷ</MsButton>
-      <div class="sf-btn-tip" data-shortcut="Ctrl + Shift + S">
+      <MsButton type="cancel" @click="handleClose">{{ $t('common.cancel') }}</MsButton>
+      <div class="sf-btn-tip" :data-shortcut="$t('shortcut.ctrlShiftS')">
         <MsButton type="save-and-add" :loading="saving" @click="handleSaveAndAdd">
-          Lưu và Thêm
+          {{ $t('common.saveAndAdd') }}
         </MsButton>
       </div>
-      <div class="sf-btn-tip" data-shortcut="Ctrl + S">
-        <MsButton type="save" :loading="saving" @click="handleSave">Lưu</MsButton>
+      <div class="sf-btn-tip" :data-shortcut="$t('shortcut.ctrlS')">
+        <MsButton type="save" :loading="saving" @click="handleSave">{{
+          $t('common.save')
+        }}</MsButton>
       </div>
     </template>
   </MsModal>
@@ -137,13 +147,13 @@
         <div class="sf-dialog__header">
           <div class="sf-dialog__title-row">
             <span class="sf-dialog__icon sf-dialog__icon--warn">⚠</span>
-            <span class="sf-dialog__title">Cảnh báo!</span>
+            <span class="sf-dialog__title">{{ $t('dialog.warning') }}</span>
           </div>
           <button class="sf-dialog__close" @click="closeWarnValidate">&times;</button>
         </div>
         <div class="sf-dialog__body">{{ warnValidate.message }}</div>
         <div class="sf-dialog__footer">
-          <MsButton type="save" @click="closeWarnValidate">Đóng</MsButton>
+          <MsButton type="save" @click="closeWarnValidate">{{ $t('common.close') }}</MsButton>
         </div>
       </div>
     </div>
@@ -156,16 +166,16 @@
         <div class="sf-dialog__header">
           <div class="sf-dialog__title-row">
             <span class="sf-dialog__icon sf-dialog__icon--info">ℹ</span>
-            <span class="sf-dialog__title">Thoát và không lưu?</span>
+            <span class="sf-dialog__title">{{ $t('dialog.exitTitle') }}</span>
           </div>
           <button class="sf-dialog__close" @click="cancelExit">&times;</button>
         </div>
         <div class="sf-dialog__body">
-          Nếu bạn thoát, các dữ liệu đang nhập liệu sẽ không được lưu lại.
+          {{ $t('dialog.exitMessage') }}
         </div>
         <div class="sf-dialog__footer">
-          <MsButton type="cancel" @click="cancelExit">Huỷ</MsButton>
-          <MsButton type="save" @click="forceClose">Đồng ý</MsButton>
+          <MsButton type="cancel" @click="cancelExit">{{ $t('common.cancel') }}</MsButton>
+          <MsButton type="save" @click="forceClose">{{ $t('common.agree') }}</MsButton>
         </div>
       </div>
     </div>
@@ -174,10 +184,13 @@
 
 <script setup>
 import { ref, watch, computed, nextTick, reactive, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import MsModal from './ms-modal/MsModal.vue'
 import MsButton from './ms-button/MsButton.vue'
 import MsTimePicker from './ms-time-picker/MsTimePicker.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   visible: Boolean,
@@ -189,14 +202,12 @@ const emit = defineEmits(['close', 'saved'])
 const localVisible = computed(() => props.visible)
 const saving = ref(false)
 
-/** true khi đang sửa bản ghi đã tồn tại (có productionShiftID) */
 const isEditing = computed(() => !!props.editingShift?.productionShiftID)
 
-// Tính tiêu đề form dựa vào trạng thái: Thêm mới, Sửa, Nhân bản
 const formTitle = computed(() => {
-  if (!props.editingShift) return 'Thêm Ca làm việc'
-  if (!props.editingShift.productionShiftID) return 'Nhân bản Ca làm việc'
-  return 'Sửa Ca làm việc'
+  if (!props.editingShift) return t('shift.addTitle')
+  if (!props.editingShift.productionShiftID) return t('shift.duplicateTitle')
+  return t('shift.editTitle')
 })
 
 const EMPTY_FORM = () => ({
@@ -237,7 +248,6 @@ const fieldRefMap = {
   endTime: endRef,
 }
 
-// ── Dirty tracking ──────────────────────────────────────
 const initialForm = ref(null)
 
 const isDirty = computed(() => {
@@ -256,7 +266,6 @@ const isDirty = computed(() => {
   )
 })
 
-// ── Cảnh báo validate ───────────────────────────────────
 const warnValidate = reactive({ visible: false, message: '' })
 
 function showWarnValidate(msg) {
@@ -268,7 +277,6 @@ function closeWarnValidate() {
   warnValidate.message = ''
 }
 
-// ── Xác nhận thoát ─────────────────────────────────────
 const confirmExit = reactive({ visible: false })
 
 function handleClose() {
@@ -286,21 +294,16 @@ function forceClose() {
   emit('close')
 }
 
-// ── Phím tắt ────────────────────────────────────────────
 function onKeydown(e) {
   if (!props.visible) return
-
-  // Nếu dialog cảnh báo đang mở → ESC đóng nó
   if (warnValidate.visible) {
     if (e.key === 'Escape') closeWarnValidate()
     return
   }
-  // Nếu dialog xác nhận thoát đang mở → ESC đóng nó
   if (confirmExit.visible) {
     if (e.key === 'Escape') cancelExit()
     return
   }
-
   if (e.key === 'Escape') {
     e.preventDefault()
     handleClose()
@@ -342,7 +345,7 @@ function formatTimeForInput(ts) {
   const parts = ts.split(':')
   return `${parts[0]}:${parts[1]}`
 }
-// watch để reset form mỗi khi mở modal, nếu props.editingShift có dữ liệu thì set form bằng dữ liệu đó để phục vụ cho sửa hoặc nhân bản, nếu không có thì set form về trạng thái trống để phục vụ cho thêm mới
+
 watch(
   () => props.visible,
   (v) => {
@@ -369,7 +372,7 @@ watch(
     }
     nextTick(() => {
       initialForm.value = { ...form.value }
-      codeRef.value?.focus() // focus vào field Mã ca khi mở form để thêm mới, hoặc sửa nhân bản, nhưng không focus khi mở form để sửa nếu đã có mã ca vì có thể người dùng chỉ muốn sửa tên ca hoặc giờ mà không muốn đổi mã ca
+      codeRef.value?.focus()
     })
   },
 )
@@ -398,7 +401,6 @@ watch(
     if (v) errors.value.endTime = ''
   },
 )
-
 watch(
   () => form.value.breakStartTime,
   (v) => {
@@ -412,39 +414,36 @@ watch(
   },
 )
 
-// Hàm validate từng field, nhận vào tên field để validate tương ứng, nếu có lỗi thì gán message vào errors, nếu hợp lệ thì xóa lỗi
 function validateField(field) {
   switch (field) {
     case 'productionShiftCode':
       if (!form.value.productionShiftCode?.trim())
-        errors.value.productionShiftCode = 'Mã ca không được để trống'
+        errors.value.productionShiftCode = t('shift.validation.codeRequired')
       else if (form.value.productionShiftCode.length > 20)
-        errors.value.productionShiftCode = 'Mã ca tối đa 20 ký tự'
+        errors.value.productionShiftCode = t('shift.validation.codeMaxLength')
       else errors.value.productionShiftCode = ''
       break
     case 'productionShiftName':
       if (!form.value.productionShiftName?.trim())
-        errors.value.productionShiftName = 'Tên ca không được để trống'
+        errors.value.productionShiftName = t('shift.validation.nameRequired')
       else if (form.value.productionShiftName.length > 50)
-        errors.value.productionShiftName = 'Tên ca tối đa 50 ký tự'
+        errors.value.productionShiftName = t('shift.validation.nameMaxLength')
       else errors.value.productionShiftName = ''
       break
     case 'startTime':
-      errors.value.startTime = form.value.startTime ? '' : 'Giờ vào ca không được để trống'
+      errors.value.startTime = form.value.startTime ? '' : t('shift.validation.startTimeRequired')
       break
     case 'endTime':
-      errors.value.endTime = form.value.endTime ? '' : 'Giờ hết ca không được để trống'
+      errors.value.endTime = form.value.endTime ? '' : t('shift.validation.endTimeRequired')
       break
   }
 }
 
-// Hàm validate toàn bộ form, trả về true nếu hợp lệ, false nếu có lỗi
 function validate() {
   ;['productionShiftCode', 'productionShiftName', 'startTime', 'endTime'].forEach(validateField)
   return Object.values(errors.value).every((e) => !e)
 }
 
-// Hàm focus vào field đầu tiên có lỗi để người dùng dễ dàng sửa
 function focusFirstError() {
   const ORDER = ['productionShiftCode', 'productionShiftName', 'startTime', 'endTime']
   const firstKey = ORDER.find((k) => errors.value[k])
@@ -456,11 +455,8 @@ function focusFirstError() {
   }
 }
 
-// Hàm xử lý khi click Lưu: validate form, nếu hợp lệ thì emit sự kiện 'saved' với payload là dữ liệu form + computed workHour và breakHour
-
 async function handleSave() {
   if (!validate()) {
-    // ★ Hiện cảnh báo với lỗi đầu tiên
     const firstError = Object.values(errors.value).find((e) => e)
     if (firstError) showWarnValidate(firstError)
     focusFirstError()
@@ -476,10 +472,8 @@ async function handleSave() {
   })
 }
 
-// Hàm xử lý khi click Lưu và Thêm: tương tự handleSave nhưng có thêm _action: 'save-and-add' để parent biết là sau khi lưu xong thì sẽ mở form mới để thêm tiếp, đồng thời parent sẽ gọi resetForm() để reset form về trạng thái trống
 async function handleSaveAndAdd() {
   if (!validate()) {
-    // ★ Hiện cảnh báo với lỗi đầu tiên
     const firstError = Object.values(errors.value).find((e) => e)
     if (firstError) showWarnValidate(firstError)
     focusFirstError()
@@ -495,14 +489,9 @@ async function handleSaveAndAdd() {
   })
 }
 
-/**
- * Nhận list lỗi từ backend, map vào errors reactive để hiển thị trên form
- * Lỗi nào không map được field → trả về để parent hiện toast
- */
 function setServerErrors(serverErrors) {
   saving.value = false
   const unmapped = []
-
   for (const msg of serverErrors) {
     let matched = false
     for (const rule of ERROR_FIELD_MAP) {
@@ -514,14 +503,10 @@ function setServerErrors(serverErrors) {
     }
     if (!matched) unmapped.push(msg)
   }
-
-  // Focus vào field lỗi đầu tiên
   focusFirstError()
-
-  return unmapped // trả về lỗi không map được để parent show toast
+  return unmapped
 }
 
-/** Reset form về trạng thái trống (dùng cho Lưu và Thêm) */
 function resetSaving() {
   saving.value = false
 }
@@ -540,59 +525,45 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
 </script>
 
 <style scoped>
+/* Giữ nguyên toàn bộ CSS gốc */
 .shift-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
-/* ===== ROW — CSS Grid đều 2 bên ===== */
 .sf-row {
   display: grid;
   align-items: start;
   column-gap: 23px;
   row-gap: 4px;
   white-space: nowrap;
-  overflow: visible; /* ← cho tooltip hiện ra */
+  overflow: visible;
 }
-
-/* Full-width: label trái + input kéo hết phải */
 .sf-row--full {
   grid-template-columns: 150px 1fr;
 }
-
-/* Chia đôi đều: [label1][input1] [label2][input2]
-   Dùng tỉ lệ cố định để 2 bên hoàn toàn đối xứng */
 .sf-row--half {
   grid-template-columns: 150px 1fr 175px 1fr;
 }
-
-/* ===== LABEL ===== */
 .sf-label {
   font-size: 13px;
   color: #262626;
   font-weight: 510;
   line-height: 28px;
 }
-
 .sf-label--top {
   line-height: 1.3;
   padding-top: 8px;
 }
-
 .sf-required {
   color: #dc2626;
 }
-
-/* ===== CONTROL ===== */
 .sf-control {
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
-/* ===== INPUT ===== */
 .sf-input {
   width: 100%;
   height: 28px;
@@ -608,28 +579,23 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
     border-color 0.2s,
     box-shadow 0.2s;
 }
-
 .sf-input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px rgba(0, 155, 113, 0.1);
 }
-
 .sf-input::placeholder {
   color: #9ca3af;
 }
-
 .sf-input--invalid {
   border-color: #dc2626 !important;
   box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15) !important;
 }
-
 .sf-textarea {
   height: 68px;
   padding: 8px 10px;
   resize: vertical;
   border: 1px solid #d5dfe2;
 }
-
 .sf-readonly {
   height: 28px;
   display: flex;
@@ -643,15 +609,12 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   max-width: 122px;
   justify-content: end;
 }
-
-/* ===== RADIO GROUP — Trạng thái ===== */
 .sf-radio-group {
   flex-direction: row;
   align-items: center;
   gap: 24px;
   height: 28px;
 }
-
 .sf-radio {
   display: inline-flex;
   align-items: center;
@@ -662,14 +625,12 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   user-select: none;
   white-space: nowrap;
 }
-
 .sf-radio input[type='radio'] {
   position: absolute;
   opacity: 0;
   width: 0;
   height: 0;
 }
-
 .sf-radio__dot {
   width: 16px;
   height: 16px;
@@ -681,7 +642,6 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   flex-shrink: 0;
   transition: border-color 0.15s;
 }
-
 .sf-radio__dot::after {
   content: '';
   width: 8px;
@@ -690,29 +650,21 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   background: transparent;
   transition: background 0.15s;
 }
-
 .sf-radio input[type='radio']:checked + .sf-radio__dot {
   border-color: #009b71;
 }
-
 .sf-radio input[type='radio']:checked + .sf-radio__dot::after {
   background: #009b71;
 }
-
-/* ===== ERROR TOOLTIP ===== */
-/* ===== ERROR TOOLTIP (giống [data-tooltip] của header) ===== */
 .sf-control[data-error-tooltip] {
   position: relative;
 }
-
-/* Nội dung tooltip */
 .sf-control[data-error-tooltip]::after {
   content: attr(data-error-tooltip);
   position: absolute;
   top: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-
   padding: 6px 12px;
   background: #111827;
   color: #ffffff;
@@ -722,45 +674,34 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   white-space: nowrap;
   z-index: 9999;
   pointer-events: none;
-
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease;
 }
-
-/* Mũi tên chỉ lên */
 .sf-control[data-error-tooltip]::before {
   content: '';
   position: absolute;
   top: calc(100% + 4px);
   left: 50%;
   transform: translateX(-50%);
-
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
   border-bottom: 6px solid #111827;
-
   z-index: 9999;
   pointer-events: none;
-
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease;
 }
-
-/* Hover hiện tooltip */
 .sf-control[data-error-tooltip]:hover::after,
 .sf-control[data-error-tooltip]:hover::before {
   opacity: 1;
   visibility: visible;
 }
-
-/* ===== TOOLTIP PHÍM TẮT TRÊN BUTTON ===== */
 .sf-btn-tip {
   position: relative;
   display: inline-flex;
 }
-
 .sf-btn-tip::after {
   content: attr(data-shortcut);
   position: absolute;
@@ -780,8 +721,6 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   visibility: hidden;
   transition: opacity 0.2s ease;
 }
-
-/* Mũi tên chỉ xuống */
 .sf-btn-tip::before {
   content: '';
   position: absolute;
@@ -797,14 +736,11 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   visibility: hidden;
   transition: opacity 0.2s ease;
 }
-
 .sf-btn-tip:hover::after,
 .sf-btn-tip:hover::before {
   opacity: 1;
   visibility: visible;
 }
-
-/* ===== DIALOG DÙNG CHUNG (Cảnh báo + Xác nhận thoát) ===== */
 .sf-overlay {
   position: fixed;
   inset: 0;
@@ -814,7 +750,6 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   align-items: center;
   justify-content: center;
 }
-
 .sf-dialog {
   background: #fff;
   border-radius: 8px;
@@ -823,20 +758,17 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   max-width: 90vw;
   overflow: hidden;
 }
-
 .sf-dialog__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px 12px;
 }
-
 .sf-dialog__title-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .sf-dialog__icon {
   display: inline-flex;
   align-items: center;
@@ -848,7 +780,6 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   font-weight: 700;
   flex-shrink: 0;
 }
-
 .sf-dialog__icon--warn {
   mask-position: -188px -169px;
   background-color: #ea580c !important;
@@ -862,7 +793,6 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.0.0.36);
   background: url(https://demoqtsxcdn.misacdn.net/assets/pas.ic_warning-10482646.svg?v=10.0.0.36);
 }
-
 .sf-dialog__icon--info {
   mask-position: -218px -167px;
   background-color: #2563eb;
@@ -874,13 +804,11 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.0.0.36);
   -webkit-mask-repeat: no-repeat;
 }
-
 .sf-dialog__title {
   font-size: 16px;
   font-weight: 700;
   color: #111827;
 }
-
 .sf-dialog__close {
   background: none;
   border: none;
@@ -895,14 +823,12 @@ defineExpose({ setServerErrors, resetSaving, resetForm })
   background: #f3f4f6;
   color: #111;
 }
-
 .sf-dialog__body {
   padding: 0 20px 16px;
   font-size: 14px;
   color: #374151;
   line-height: 1.6;
 }
-
 .sf-dialog__footer {
   display: flex;
   justify-content: flex-end;

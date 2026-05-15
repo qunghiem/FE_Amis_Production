@@ -1,0 +1,199 @@
+{
+  "app": {
+    "name": "Sản xuất"
+  },
+  "header": {
+    "allApps": "Tất cả ứng dụng",
+    "company": "Công ty cổ phần MISA Test - 345",
+    "exportExcel": "Xuất Excel",
+    "inventoryLookup": "Tra cứu tồn kho",
+    "inviteMisa": "Mời tham gia Misa",
+    "smartReminder": "Nhắc nhở thông minh",
+    "notification": "Thông báo",
+    "help": "Trợ giúp",
+    "moreFeatures": "Tính năng khác",
+    "knowledge": "Kiến thức hữu ích"
+  },
+  "sidebar": {
+    "overview": "Tổng quan",
+    "saleOrder": "Đơn đặt hàng",
+    "productionPlan": "Kế hoạch sản xuất",
+    "masterPlan": "Kế hoạch tổng thể",
+    "detailPlan": "Kế hoạch chi tiết",
+    "dispatch": "Điều phối và thực thi",
+    "workOrder": "Phiếu công việc",
+    "progress": "Tiến độ sản xuất",
+    "quality": "Kiểm tra chất lượng",
+    "inspection": "Phiếu kiểm tra",
+    "defect": "Lỗi sản phẩm",
+    "warehouse": "Kho vật tư",
+    "receipt": "Phiếu nhập kho",
+    "issue": "Phiếu xuất kho",
+    "inventory": "Tồn kho",
+    "task": "Giao việc",
+    "taskAssign": "Phân công công việc",
+    "taskTracking": "Theo dõi công việc",
+    "cost": "Giá thành kế hoạch",
+    "costEstimate": "Dự toán giá thành",
+    "costActual": "Giá thành thực tế",
+    "outsource": "Thuê gia công",
+    "outsourceContract": "Hợp đồng gia công",
+    "outsourceTracking": "Theo dõi gia công",
+    "trace": "Truy xuất nguồn gốc",
+    "report": "Báo cáo",
+    "product": "Sản phẩm, NVL",
+    "productList": "Danh sách sản phẩm",
+    "material": "Nguyên vật liệu",
+    "bom": "Định mức nguyên liệu (BOM)",
+    "process": "Quy trình sản xuất",
+    "routing": "Quy trình (Routing)",
+    "operation": "Công đoạn sản xuất",
+    "capacity": "Năng lực sản xuất",
+    "machine": "Máy móc thiết bị",
+    "workcenter": "Trung tâm làm việc",
+    "otherCategory": "Danh mục khác",
+    "settings": "Thiết lập",
+    "generalSettings": "Cài đặt chung",
+    "permission": "Phân quyền",
+    "collapse": "Thu gọn",
+    "expand": "Mở rộng",
+    "flyout": {
+      "object": "Đối tượng",
+      "customer": "Khách hàng",
+      "supplier": "Nhà cung cấp",
+      "employee": "Nhân viên",
+      "costObject": "Đối tượng tập hợp chi phí",
+      "workSchedule": "Lịch làm việc",
+      "shift": "Ca làm việc",
+      "holiday": "Ngày nghỉ",
+      "workCalendar": "Lịch làm việc",
+      "other": "Khác",
+      "orgStructure": "Cơ cấu tổ chức",
+      "warehouseItem": "Kho",
+      "unitOfMeasure": "Đơn vị tính",
+      "stopReason": "Lý do dừng công việc",
+      "currency": "Loại tiền"
+    }
+  },
+  "shift": {
+    "pageTitle": "Ca làm việc",
+    "add": "Thêm",
+    "addTitle": "Thêm Ca làm việc",
+    "editTitle": "Sửa Ca làm việc",
+    "duplicateTitle": "Nhân bản Ca làm việc",
+    "columns": {
+      "code": "Mã ca",
+      "name": "Tên ca",
+      "startTime": "Giờ vào ca",
+      "endTime": "Giờ hết ca",
+      "breakStart": "Bắt đầu nghỉ giữa ca",
+      "breakEnd": "Kết thúc nghỉ giữa ca",
+      "workHour": "Thời gian làm việc (giờ)",
+      "breakHour": "Thời gian nghỉ giữa ca (giờ)",
+      "status": "Trạng thái",
+      "createdBy": "Người tạo",
+      "createdDate": "Ngày tạo",
+      "modifiedBy": "Người sửa",
+      "modifiedDate": "Ngày sửa"
+    },
+    "status": {
+      "active": "Đang sử dụng",
+      "inactive": "Ngừng sử dụng"
+    },
+    "form": {
+      "code": "Mã ca",
+      "name": "Tên ca",
+      "startTime": "Giờ vào ca",
+      "endTime": "Giờ hết ca",
+      "breakStart": "Bắt đầu nghỉ giữa ca",
+      "breakEnd": "Kết thúc nghỉ giữa ca",
+      "workHour": "Thời gian làm việc (giờ)",
+      "breakHour": "Thời gian nghỉ giữa ca (giờ)",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Nhập mô tả",
+      "status": "Trạng thái"
+    },
+    "validation": {
+      "codeRequired": "Mã ca không được để trống",
+      "codeMaxLength": "Mã ca tối đa 20 ký tự",
+      "nameRequired": "Tên ca không được để trống",
+      "nameMaxLength": "Tên ca tối đa 50 ký tự",
+      "startTimeRequired": "Giờ vào ca không được để trống",
+      "endTimeRequired": "Giờ hết ca không được để trống"
+    },
+    "actions": {
+      "duplicate": "Nhân bản",
+      "use": "Sử dụng",
+      "stopUse": "Ngừng sử dụng",
+      "delete": "Xóa",
+      "edit": "Sửa",
+      "moreOptions": "Thêm tùy chọn"
+    },
+    "confirm": {
+      "deleteTitle": "Xóa Ca làm việc",
+      "deleteSingle": "Ca làm việc <b>{code}</b> sau khi bị xóa sẽ không thể khôi phục. Bạn có muốn tiếp tục xóa không?",
+      "deleteBatch": "<b>{count}</b> ca làm việc sau khi bị xóa sẽ không thể khôi phục. Bạn có muốn tiếp tục xóa không?"
+    },
+    "toast": {
+      "updating": "Đang cập nhật...",
+      "adding": "Đang thêm mới...",
+      "updateSuccess": "Cập nhật thành công!",
+      "addSuccess": "Thêm mới thành công!",
+      "deleting": "Đang xóa...",
+      "deleteSuccess": "Xóa thành công {count} ca!"
+    },
+    "empty": "Chưa có ca làm việc nào"
+  },
+  "common": {
+    "search": "Tìm kiếm",
+    "save": "Lưu",
+    "saveAndAdd": "Lưu và Thêm",
+    "cancel": "Huỷ",
+    "confirm": "Xác nhận",
+    "delete": "Xóa",
+    "close": "Đóng",
+    "agree": "Đồng ý",
+    "reload": "Lấy lại dữ liệu",
+    "selected": "Đã chọn",
+    "deselect": "Bỏ chọn",
+    "noData": "Không có dữ liệu",
+    "total": "Tổng số",
+    "rowsPerPage": "Số dòng/trang",
+    "developing": "Tính năng đang được phát triển",
+    "page": "Trang",
+    "firstPage": "Trang đầu",
+    "lastPage": "Trang cuối"
+  },
+  "dialog": {
+    "warning": "Cảnh báo!",
+    "exitTitle": "Thoát và không lưu?",
+    "exitMessage": "Nếu bạn thoát, các dữ liệu đang nhập liệu sẽ không được lưu lại."
+  },
+  "filter": {
+    "filterLabel": "Lọc {label}",
+    "selectStatus": "-- Chọn trạng thái --",
+    "enterValue": "Nhập giá trị lọc",
+    "clear": "Bỏ lọc",
+    "apply": "Áp dụng",
+    "operators": {
+      "contains": "Chứa",
+      "not_contains": "Không chứa",
+      "not_equals": "Khác",
+      "equals": "Bằng",
+      "starts_with": "Bắt đầu với",
+      "ends_with": "Kết thúc với",
+      "less_than": "Nhỏ hơn",
+      "less_than_or_equal": "Nhỏ hơn hoặc bằng",
+      "greater_than": "Lớn hơn"
+    }
+  },
+  "sort": {
+    "none": "Không sắp xếp",
+    "asc": "Tăng dần",
+    "desc": "Giảm dần"
+  },
+  "shortcut": {
+    "ctrlS": "Ctrl + S",
+    "ctrlShiftS": "Ctrl + Shift + S"
+  }
+}

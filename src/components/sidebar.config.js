@@ -1,196 +1,171 @@
 /**
- * Item đơn (không có con)
- * { label, icon, to }
- *
- * Item có submenu
- * { key, label, icon, children: [{ label, to }] }
- *
- * Divider
- * { type: 'divider' }
- *
- * Flyout đặc biệt
- * { type: 'flyout', label, icon, columns: [{ title, items: [{ label, to }] }] }
+ * Sidebar config sử dụng i18n key thay vì text cứng.
+ * Trong template, dùng $t(item.labelKey) để hiển thị.
  */
 
-// =============================================
-// SIDEBAR MENU CONFIG
-// =============================================
-
-// =============================================
-// SIDEBAR MENU CONFIG
-// =============================================
-
 export const MENU_CONFIG = [
-  // ── Đơn lẻ ────────────────────────────────
   {
-    label: 'Tổng quan',
+    labelKey: 'sidebar.overview',
     icon: 'overview',
     to: '/production/dashboard',
   },
   {
-    label: 'Đơn đặt hàng',
+    labelKey: 'sidebar.saleOrder',
     icon: 'order',
     to: '/production/sale-order',
   },
-
-  // ── Có submenu ────────────────────────────
   {
     key: 'plan',
-    label: 'Kế hoạch sản xuất',
+    labelKey: 'sidebar.productionPlan',
     icon: 'plan',
     children: [
-      { label: 'Kế hoạch tổng thể', to: '/production/plan/manufacturing-order' },
-      { label: 'Kế hoạch chi tiết', to: '/production/plan/schedule' },
+      { labelKey: 'sidebar.masterPlan', to: '/production/plan/manufacturing-order' },
+      { labelKey: 'sidebar.detailPlan', to: '/production/plan/schedule' },
     ],
   },
   {
     key: 'dispatch',
-    label: 'Điều phối và thực thi',
+    labelKey: 'sidebar.dispatch',
     icon: 'dispatch',
     children: [
-      { label: 'Phiếu công việc', to: '/production/dispatch/work-order' },
-      { label: 'Tiến độ sản xuất', to: '/production/dispatch/progress' },
+      { labelKey: 'sidebar.workOrder', to: '/production/dispatch/work-order' },
+      { labelKey: 'sidebar.progress', to: '/production/dispatch/progress' },
     ],
   },
   {
     key: 'quality',
-    label: 'Kiểm tra chất lượng',
+    labelKey: 'sidebar.quality',
     icon: 'quality',
     children: [
-      { label: 'Phiếu kiểm tra', to: '/production/quality/inspection' },
-      { label: 'Lỗi sản phẩm', to: '/production/quality/defect' },
+      { labelKey: 'sidebar.inspection', to: '/production/quality/inspection' },
+      { labelKey: 'sidebar.defect', to: '/production/quality/defect' },
     ],
   },
   {
     key: 'warehouse',
-    label: 'Kho vật tư',
+    labelKey: 'sidebar.warehouse',
     icon: 'warehouse',
     children: [
-      { label: 'Phiếu nhập kho', to: '/production/warehouse/receipt' },
-      { label: 'Phiếu xuất kho', to: '/production/warehouse/issue' },
-      { label: 'Tồn kho', to: '/production/warehouse/inventory' },
+      { labelKey: 'sidebar.receipt', to: '/production/warehouse/receipt' },
+      { labelKey: 'sidebar.issue', to: '/production/warehouse/issue' },
+      { labelKey: 'sidebar.inventory', to: '/production/warehouse/inventory' },
     ],
   },
-  {
-    key: 'task',
-    label: 'Giao việc',
-    icon: 'task',
-    children: [
-      { label: 'Phân công công việc', to: '/production/task/assign' },
-      { label: 'Theo dõi công việc', to: '/production/task/tracking' },
-    ],
-  },
+  // {
+  //   key: 'task',
+  //   labelKey: 'sidebar.task',
+  //   icon: 'task',
+  //   children: [
+  //     { labelKey: 'sidebar.taskAssign', to: '/production/task/assign' },
+  //     { labelKey: 'sidebar.taskTracking', to: '/production/task/tracking' },
+  //   ],
+  // },
   {
     key: 'cost',
-    label: 'Giá thành kế hoạch',
+    labelKey: 'sidebar.cost',
     icon: 'price',
     children: [
-      { label: 'Dự toán giá thành', to: '/production/cost/estimate' },
-      { label: 'Giá thành thực tế', to: '/production/cost/actual' },
+      { labelKey: 'sidebar.costEstimate', to: '/production/cost/estimate' },
+      { labelKey: 'sidebar.costActual', to: '/production/cost/actual' },
     ],
   },
   {
     key: 'outsource',
-    label: 'Thuê gia công',
+    labelKey: 'sidebar.outsource',
     icon: 'outsource',
     children: [
-      { label: 'Hợp đồng gia công', to: '/production/outsource/contract' },
-      { label: 'Theo dõi gia công', to: '/production/outsource/tracking' },
+      { labelKey: 'sidebar.outsourceContract', to: '/production/outsource/contract' },
+      { labelKey: 'sidebar.outsourceTracking', to: '/production/outsource/tracking' },
     ],
   },
-
-  // ── Đơn lẻ ────────────────────────────────
-  {
-    label: 'Truy xuất nguồn gốc',
-    icon: 'trace',
-    to: '/production/trace',
-  },
+  // {
+  //   labelKey: 'sidebar.trace',
+  //   icon: 'trace',
+  //   to: '/production/trace',
+  // },
 
   { type: 'divider' },
 
   {
-    label: 'Báo cáo',
+    labelKey: 'sidebar.report',
     icon: 'report',
     to: '/production/report',
   },
 
   { type: 'divider' },
 
-  // ── Có submenu ────────────────────────────
   {
     key: 'product',
-    label: 'Sản phẩm, NVL',
+    labelKey: 'sidebar.product',
     icon: 'product',
     children: [
-      { label: 'Danh sách sản phẩm', to: '/production/product/list' },
-      { label: 'Nguyên vật liệu', to: '/production/product/material' },
-      { label: 'Định mức nguyên liệu (BOM)', to: '/production/product/bom' },
+      { labelKey: 'sidebar.productList', to: '/production/product/list' },
+      { labelKey: 'sidebar.material', to: '/production/product/material' },
+      { labelKey: 'sidebar.bom', to: '/production/product/bom' },
     ],
   },
   {
     key: 'process',
-    label: 'Quy trình sản xuất',
+    labelKey: 'sidebar.process',
     icon: 'process',
     children: [
-      { label: 'Quy trình (Routing)', to: '/production/process/routing' },
-      { label: 'Công đoạn sản xuất', to: '/production/process/operation' },
+      { labelKey: 'sidebar.routing', to: '/production/process/routing' },
+      { labelKey: 'sidebar.operation', to: '/production/process/operation' },
     ],
   },
   {
     key: 'capacity',
-    label: 'Năng lực sản xuất',
+    labelKey: 'sidebar.capacity',
     icon: 'capacity',
     children: [
-      { label: 'Máy móc thiết bị', to: '/production/capacity/machine' },
-      { label: 'Trung tâm làm việc', to: '/production/capacity/workcenter' },
+      { labelKey: 'sidebar.machine', to: '/production/capacity/machine' },
+      { labelKey: 'sidebar.workcenter', to: '/production/capacity/workcenter' },
     ],
   },
 
-  // ── Flyout đặc biệt ───────────────────────
   {
     type: 'flyout',
-    label: 'Danh mục khác',
+    labelKey: 'sidebar.otherCategory',
     icon: 'other',
     activePrefixes: ['/production/dictionary/'],
     columns: [
       {
-        title: 'Đối tượng',
+        titleKey: 'sidebar.flyout.object',
         items: [
-          { label: 'Khách hàng', to: '/production/dictionary/customer' },
-          { label: 'Nhà cung cấp', to: '/production/dictionary/supplier' },
-          { label: 'Nhân viên', to: '/production/dictionary/employee' },
-          { label: 'Đối tượng tập hợp chi phí', to: '/production/dictionary/cost-object' },
+          { labelKey: 'sidebar.flyout.customer', to: '/production/dictionary/customer' },
+          { labelKey: 'sidebar.flyout.supplier', to: '/production/dictionary/supplier' },
+          { labelKey: 'sidebar.flyout.employee', to: '/production/dictionary/employee' },
+          { labelKey: 'sidebar.flyout.costObject', to: '/production/dictionary/cost-object' },
         ],
       },
       {
-        title: 'Lịch làm việc',
+        titleKey: 'sidebar.flyout.workSchedule',
         items: [
-          { label: 'Ca làm việc', to: '/production/dictionary/shift' },
-          { label: 'Ngày nghỉ', to: '/production/dictionary/holiday' },
-          { label: 'Lịch làm việc', to: '/production/dictionary/work-calendar' },
+          { labelKey: 'sidebar.flyout.shift', to: '/production/dictionary/shift' },
+          { labelKey: 'sidebar.flyout.holiday', to: '/production/dictionary/holiday' },
+          { labelKey: 'sidebar.flyout.workCalendar', to: '/production/dictionary/work-calendar' },
         ],
       },
       {
-        title: 'Khác',
+        titleKey: 'sidebar.flyout.other',
         items: [
-          { label: 'Cơ cấu tổ chức', to: '/production/dictionary/org-structure' },
-          { label: 'Kho', to: '/production/dictionary/warehouse' },
-          { label: 'Đơn vị tính', to: '/production/dictionary/unit-of-measure' },
-          { label: 'Lý do dừng công việc', to: '/production/dictionary/stop-reason' },
-          { label: 'Loại tiền', to: '/production/dictionary/currency' },
+          { labelKey: 'sidebar.flyout.orgStructure', to: '/production/dictionary/org-structure' },
+          { labelKey: 'sidebar.flyout.warehouseItem', to: '/production/dictionary/warehouse' },
+          { labelKey: 'sidebar.flyout.unitOfMeasure', to: '/production/dictionary/unit-of-measure' },
+          { labelKey: 'sidebar.flyout.stopReason', to: '/production/dictionary/stop-reason' },
+          { labelKey: 'sidebar.flyout.currency', to: '/production/dictionary/currency' },
         ],
       },
     ],
   },
 
-  // ── Có submenu ────────────────────────────
   {
     key: 'settings',
-    label: 'Thiết lập',
+    labelKey: 'sidebar.settings',
     icon: 'settings',
     children: [
-      { label: 'Cài đặt chung', to: '/production/settings/general' },
-      { label: 'Phân quyền', to: '/production/settings/permission' },
+      { labelKey: 'sidebar.generalSettings', to: '/production/settings/general' },
+      { labelKey: 'sidebar.permission', to: '/production/settings/permission' },
     ],
   },
 ]

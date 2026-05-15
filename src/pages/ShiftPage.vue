@@ -2,25 +2,25 @@
   <main class="layout__content">
     <!-- Title header -->
     <div class="shift-page__header">
-      <h1 class="shift-page__title">Ca làm việc</h1>
+      <h1 class="shift-page__title">{{ $t('shift.pageTitle') }}</h1>
       <div class="shift-page__actions">
         <button class="btn btn--primary" @click="openAddModal">
           <span class="btn-icon btn-icon--plus"></span>
-          Thêm
+          {{ $t('shift.add') }}
         </button>
       </div>
     </div>
 
     <!-- Content container -->
     <div class="shift-page__content">
-      <!-- Toolbar: Search luôn hiển thị -->
+      <!-- Toolbar -->
       <div class="shift-page__toolbar">
         <div class="shift-page__search">
           <span class="shift-page__search-icon"></span>
           <input
             type="text"
             class="shift-page__search-input"
-            placeholder="Tìm kiếm"
+            :placeholder="$t('common.search')"
             v-model="store.searchKeyword"
           />
         </div>
@@ -28,9 +28,11 @@
         <!-- Khi có checkbox được chọn -->
         <template v-if="store.selectedCount > 0">
           <span class="selected-bar__count"
-            >Đã chọn <b>{{ store.selectedCount }}</b></span
+            >{{ $t('common.selected') }} <b>{{ store.selectedCount }}</b></span
           >
-          <MsButton type="text-primary" @click="store.unselectAll()">Bỏ chọn</MsButton>
+          <MsButton type="text-primary" @click="store.unselectAll()">{{
+            $t('common.deselect')
+          }}</MsButton>
           <div class="selected-bar__separator"></div>
           <MsButton
             v-if="store.hasInactiveInSelected"
@@ -41,7 +43,7 @@
               class="dropdown-icon dropdown-icon--toggle"
               style="background-color: var(--primary)"
             ></span>
-            Sử dụng
+            {{ $t('shift.actions.use') }}
           </MsButton>
           <MsButton
             v-if="store.hasActiveInSelected"
@@ -52,9 +54,11 @@
               class="dropdown-icon dropdown-icon--toggle"
               style="background-color: #dc2626"
             ></span>
-            Ngừng sử dụng
+            {{ $t('shift.actions.stopUse') }}
           </MsButton>
-          <MsButton type="danger-outline" @click="openBatchDeleteConfirm">Xóa</MsButton>
+          <MsButton type="danger-outline" @click="openBatchDeleteConfirm">{{
+            $t('shift.actions.delete')
+          }}</MsButton>
         </template>
 
         <!-- Khi không chọn: hiện filter tags -->
@@ -67,7 +71,7 @@
               <i class="fa-solid fa-xmark"></i>
             </button>
           </div>
-          <MsButton type="text" @click="clearAllFilters">Bỏ lọc</MsButton>
+          <MsButton type="text" @click="clearAllFilters">{{ $t('filter.clear') }}</MsButton>
         </template>
 
         <div class="shift-page__toolbar-spacer"></div>
@@ -75,11 +79,12 @@
         <button
           class="shift-page__reload"
           @click="store.fetchPage()"
-          data-tooltip="Lấy lại dữ liệu"
+          :data-tooltip="$t('common.reload')"
         >
           <span class="btn-icon btn-icon--reload"></span>
         </button>
       </div>
+
       <!-- Skeleton loading -->
       <div v-if="store.loading" class="shift-page__skeleton-wrapper">
         <table class="skeleton-table">
@@ -127,7 +132,7 @@
         :active-filters="store.filters"
         :sort-by="store.sortBy"
         :sort-direction="store.sortDirection"
-        empty-text="Chưa có ca làm việc nào"
+        :empty-text="$t('shift.empty')"
         @toggle-all="toggleAll"
         @toggle-row="(id) => store.toggleSelect(id)"
         @row-click="
@@ -139,36 +144,33 @@
         @sort-change="handleSortChange"
         @row-dblclick="(row) => openEditModal(row.productionShiftID)"
       >
-        <!-- Thời gian làm việc -->
         <template #cell-workHour="{ row }">
           <span :class="{ 'text-orange': row.workHour < 0 }">
             {{ row.workHour != null ? row.workHour : '-' }}
           </span>
         </template>
 
-        <!-- Thời gian nghỉ -->
         <template #cell-breakHour="{ row }">
           {{ row.breakHour != null ? row.breakHour : 0 }}
         </template>
 
-        <!-- Trạng thái -->
         <template #cell-shiftStatus="{ row }">
           <span :class="row.shiftStatus === 1 ? 'status--active' : 'status--inactive'">
-            {{ row.shiftStatus === 1 ? 'Đang sử dụng' : 'Ngừng sử dụng' }}
+            {{ row.shiftStatus === 1 ? $t('shift.status.active') : $t('shift.status.inactive') }}
           </span>
         </template>
 
-        <!-- Action: Sửa + More -->
         <template #actions="{ row }">
-          <!-- Nút Sửa -->
-          <button class="action-btn" title="Sửa" @click.stop="openEditModal(row.productionShiftID)">
-            <span class="action-icon action-icon--edit"></span>
-          </button>
-
-          <!-- Nút More -->
           <button
             class="action-btn"
-            title="Thêm tùy chọn"
+            :title="$t('shift.actions.edit')"
+            @click.stop="openEditModal(row.productionShiftID)"
+          >
+            <span class="action-icon action-icon--edit"></span>
+          </button>
+          <button
+            class="action-btn"
+            :title="$t('shift.actions.moreOptions')"
             @click.stop="toggleMoreMenu(row.productionShiftID, $event)"
           >
             <span class="action-icon action-icon--more"></span>
@@ -179,10 +181,10 @@
       <!-- Footer pagination -->
       <div class="shift-page__footer">
         <span
-          >Tổng số: <b>{{ store.pageInfo.total }}</b></span
+          >{{ $t('common.total') }}: <b>{{ store.pageInfo.total }}</b></span
         >
         <div class="shift-page__pagination">
-          <span>Số dòng/trang</span>
+          <span>{{ $t('common.rowsPerPage') }}</span>
           <select
             :value="store.pageSize"
             @change="(e) => store.setPageSize(Number(e.target.value))"
@@ -196,7 +198,7 @@
             class="pagination__btn"
             :disabled="store.isFirstPage"
             @click="store.goToFirstPage()"
-            title="Trang đầu"
+            :title="$t('common.firstPage')"
           >
             <span class="btn-icon btn-icon--first-page"></span>
           </button>
@@ -210,7 +212,7 @@
             class="pagination__btn"
             :disabled="store.isLastPage"
             @click="store.goToLastPage()"
-            title="Trang cuối"
+            :title="$t('common.lastPage')"
           >
             <span class="btn-icon btn-icon--last-page"></span>
           </button>
@@ -225,7 +227,7 @@
     </div>
   </main>
 
-  <!-- ===== TELEPORT: More dropdown ra body ===== -->
+  <!-- ===== More dropdown ===== -->
   <teleport to="body">
     <div
       v-if="moreMenuId !== null"
@@ -241,18 +243,20 @@
       <template v-if="moreMenuRow">
         <div class="action-more__item" @click="handleDuplicate(moreMenuId)">
           <span class="dropdown-icon dropdown-icon--clone"></span>
-          Nhân bản
+          {{ $t('shift.actions.duplicate') }}
         </div>
         <div class="action-more__item" @click="handleToggleSingle(moreMenuRow)">
           <span class="dropdown-icon dropdown-icon--toggle"></span>
-          {{ moreMenuRow.shiftStatus === 1 ? 'Ngừng sử dụng' : 'Sử dụng' }}
+          {{
+            moreMenuRow.shiftStatus === 1 ? $t('shift.actions.stopUse') : $t('shift.actions.use')
+          }}
         </div>
         <div
           class="action-more__item action-more__item--danger"
           @click="openDeleteConfirm(moreMenuId)"
         >
           <span class="dropdown-icon dropdown-icon--delete"></span>
-          Xóa
+          {{ $t('shift.actions.delete') }}
         </div>
       </template>
     </div>
@@ -273,7 +277,7 @@
     :title="confirmState.title"
     :message="confirmState.message"
     type="danger"
-    confirm-text="Xóa"
+    :confirm-text="$t('common.delete')"
     @confirm="onConfirm"
     @cancel="closeConfirm"
   />
@@ -285,7 +289,7 @@
         <div class="warning-dialog__header">
           <div class="warning-dialog__title-row">
             <span class="warning-dialog__icon">⚠</span>
-            <span class="warning-dialog__title">Cảnh báo!</span>
+            <span class="warning-dialog__title">{{ $t('dialog.warning') }}</span>
           </div>
           <button class="warning-dialog__close" @click="closeWarning">
             <i class="fa-solid fa-xmark"></i>
@@ -295,7 +299,9 @@
           <p v-html="warningState.message"></p>
         </div>
         <div class="warning-dialog__footer">
-          <button class="warning-dialog__btn" @click="closeWarning">Đóng</button>
+          <button class="warning-dialog__btn" @click="closeWarning">
+            {{ $t('common.close') }}
+          </button>
         </div>
       </div>
     </div>
@@ -304,53 +310,59 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useShiftStore } from '@/stores/shiftStore'
 import { useToast } from '@/composables/useToast'
 import MsTable from '@/components/ms-table/MsTable.vue'
 import MsButton from '@/components/ms-button/MsButton.vue'
-import MsModal from '@/components/ms-modal/MsModal.vue'
 import ShiftForm from '@/components/ShiftForm.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import { ApiError } from '@/services/api'
 
+const { t } = useI18n()
 const shiftFormRef = ref(null)
 const store = useShiftStore()
 const toast = useToast()
 const activeRowId = ref(null)
 
 // ===== Columns config =====
-const COLUMNS = [
+const COLUMNS = computed(() => [
   {
     key: 'productionShiftCode',
-    label: 'Mã ca',
+    label: t('shift.columns.code'),
     width: '120px',
     filterable: true,
     filterType: 'string',
   },
   {
     key: 'productionShiftName',
-    label: 'Tên ca',
+    label: t('shift.columns.name'),
     width: '250px',
     filterable: true,
     filterType: 'string',
   },
-  { key: 'startTimeDisplay', label: 'Giờ vào ca', width: '130px', sortKey: 'startTime' },
-  { key: 'endTimeDisplay', label: 'Giờ hết ca', width: '130px', sortKey: 'endTime' },
+  {
+    key: 'startTimeDisplay',
+    label: t('shift.columns.startTime'),
+    width: '130px',
+    sortKey: 'startTime',
+  },
+  { key: 'endTimeDisplay', label: t('shift.columns.endTime'), width: '130px', sortKey: 'endTime' },
   {
     key: 'breakStartTimeDisplay',
-    label: 'Bắt đầu nghỉ giữa ca',
+    label: t('shift.columns.breakStart'),
     width: '165px',
     sortKey: 'breakStartTime',
   },
   {
     key: 'breakEndTimeDisplay',
-    label: 'Kết thúc nghỉ giữa ca',
+    label: t('shift.columns.breakEnd'),
     width: '165px',
     sortKey: 'breakEndTime',
   },
   {
     key: 'workHour',
-    label: 'Thời gian làm việc (giờ)',
+    label: t('shift.columns.workHour'),
     width: '230px',
     align: 'right',
     filterable: true,
@@ -358,7 +370,7 @@ const COLUMNS = [
   },
   {
     key: 'breakHour',
-    label: 'Thời gian nghỉ giữa ca (giờ)',
+    label: t('shift.columns.breakHour'),
     width: '230px',
     align: 'right',
     filterable: true,
@@ -366,118 +378,91 @@ const COLUMNS = [
   },
   {
     key: 'shiftStatus',
-    label: 'Trạng thái',
+    label: t('shift.columns.status'),
     width: '140px',
     filterable: true,
     filterType: 'status',
   },
   {
     key: 'createdBy',
-    label: 'Người tạo',
+    label: t('shift.columns.createdBy'),
     width: '150px',
     filterable: true,
     filterType: 'string',
   },
   {
     key: 'createdDateDisplay',
-    label: 'Ngày tạo',
+    label: t('shift.columns.createdDate'),
     width: '150px',
     filterable: true,
     filterType: 'date',
     filterKey: 'CreatedDate',
     sortKey: 'createdDate',
   },
-
   {
     key: 'modifiedBy',
-    label: 'Người sửa',
+    label: t('shift.columns.modifiedBy'),
     width: '150px',
     filterable: true,
     filterType: 'string',
   },
   {
     key: 'modifiedDateDisplay',
-    label: 'Ngày sửa',
+    label: t('shift.columns.modifiedDate'),
     width: '150px',
     filterable: true,
     filterType: 'date',
     filterKey: 'ModifiedDate',
     sortKey: 'modifiedDate',
   },
-]
+])
 
-// ===== Map tên operator → label tiếng Việt =====
-const OPERATOR_LABELS = {
-  contains: 'Chứa',
-  not_contains: 'Không chứa',
-  not_equals: 'Khác',
-  equals: 'Bằng',
-  starts_with: 'Bắt đầu với',
-  ends_with: 'Kết thúc với',
-  less_than: 'Nhỏ hơn',
-  less_than_or_equal: 'Nhỏ hơn hoặc bằng',
-  greater_than: 'Lớn hơn',
-}
-
-// ===== Map property → tên cột hiển thị =====
+// ===== Map operator → label =====
 function getColumnLabel(property) {
-  const col = COLUMNS.find((c) => c.key === property || c.filterKey === property)
+  const col = COLUMNS.value.find((c) => c.key === property || c.filterKey === property)
   return col?.label || property
 }
 
-// ===== Lấy label operator cho filter tag =====
 function getOperatorLabel(filter) {
-  const col = COLUMNS.find((c) => c.key === filter.Property || c.filterKey === filter.Property)
-  // Status không hiển thị operator
+  const col = COLUMNS.value.find(
+    (c) => c.key === filter.Property || c.filterKey === filter.Property,
+  )
   if (col?.filterType === 'status') return ''
-  return OPERATOR_LABELS[filter.Operator] || filter.Operator
+  return t(`filter.operators.${filter.Operator}`)
 }
 
-// ===== Lấy label giá trị cho filter tag =====
 function getValueLabel(filter) {
-  const col = COLUMNS.find((c) => c.key === filter.Property || c.filterKey === filter.Property)
+  const col = COLUMNS.value.find(
+    (c) => c.key === filter.Property || c.filterKey === filter.Property,
+  )
   if (col?.filterType === 'status') {
-    return filter.Value === '1' || filter.Value === 1 ? 'Đang sử dụng' : 'Ngừng sử dụng'
+    return filter.Value === '1' || filter.Value === 1
+      ? t('shift.status.active')
+      : t('shift.status.inactive')
   }
   return filter.Value
 }
 
 // ===== State =====
-const formVisible = ref(false) // true nếu modal thêm/sửa đang mở, false nếu đóng
-const editingShift = ref(null) // chứa ca làm việc đang được sửa hoặc nhân bản, nếu null thì đang ở trạng thái thêm mới
-const moreMenuId = ref(null) // id của ca làm việc đang được mở menu More, nếu null thì không có menu nào được mở
-const moreMenuPos = reactive({ top: 0, left: 0 }) // vị trí của menu More đang mở, dùng để đặt dropdown ở đúng vị trí
-// computed để lấy ra dữ liệu ca làm việc đang được mở menu More dựa vào moreMenuId
+const formVisible = ref(false)
+const editingShift = ref(null)
+const moreMenuId = ref(null)
+const moreMenuPos = reactive({ top: 0, left: 0 })
 const moreMenuRow = computed(() =>
   moreMenuId.value !== null ? store.getById(moreMenuId.value) : null,
 )
 
-// lưu trạng thái của confirm modal để khi cần xác nhận xóa thì set trạng thái này với nội dung phù hợp rồi mở modal, sau khi người dùng xác nhận hoặc hủy thì reset lại trạng thái
-const confirmState = reactive({
-  visible: false,
-  title: '',
-  message: '',
-  //
-  onConfirm: null,
-})
-
-const warningState = reactive({
-  visible: false,
-  message: '',
-})
+const confirmState = reactive({ visible: false, title: '', message: '', onConfirm: null })
+const warningState = reactive({ visible: false, message: '' })
 
 function showWarning(message) {
   warningState.message = message
   warningState.visible = true
 }
-
 function closeWarning() {
   warningState.visible = false
   warningState.message = ''
 }
-
-const detailVisible = ref(false)
-const detailShift = ref(null)
 
 // ===== Init =====
 onMounted(() => {
@@ -494,32 +479,20 @@ const allPageChecked = computed(
     store.pageData.length > 0 && store.pageData.every((s) => store.isSelected(s.productionShiftID)),
 )
 
-// khi click vào chọn tất cả ô
 function toggleAll(e) {
-  // Lấy ra list id của tất cả ca làm việc đang hiển thị trên trang
   const ids = store.pageData.map((s) => s.productionShiftID)
-  // nếu vừa tích thì thêm tất cả id vào selectedIdList, nếu vừa bỏ tích thì xóa tất cả id đó khỏi selectedIdList
   e.target.checked ? store.selectAll(ids) : store.unselectAll()
 }
 
 // ===== Filter =====
-
-// Apply filter khi click Áp dụng trong MsColumnFilter
 function handleFilterApply(filter) {
-  // tìm xem trong ds bộ lọc đã có filter cho cột này chưa
   const idx = store.filters.findIndex((f) => f.Property === filter.Property)
-  // nếu đã tồn tại: thay thế bằng filter mới,
-  if (idx >= 0) {
-    store.filters.splice(idx, 1, filter)
-  } else {
-    // nếu chưa có thì thêm mới
-    store.filters.push(filter)
-  }
+  if (idx >= 0) store.filters.splice(idx, 1, filter)
+  else store.filters.push(filter)
   store.resetPage()
   store.fetchPage()
 }
 
-// Clear filter khi click vào nút x trong tag filter
 function handleFilterClear(property) {
   const idx = store.filters.findIndex((f) => f.Property === property)
   if (idx >= 0) store.filters.splice(idx, 1)
@@ -527,12 +500,10 @@ function handleFilterClear(property) {
   store.fetchPage()
 }
 
-// khi click vào nút x trong tag filter thì gọi hàm handleFilterClear với đúng property cần xóa
 function removeFilter(property) {
   handleFilterClear(property)
 }
 
-// khi click vào nút Bỏ lọc thì xóa hết tất cả filter
 function clearAllFilters() {
   store.filters.splice(0, store.filters.length)
   store.resetPage()
@@ -540,13 +511,11 @@ function clearAllFilters() {
 }
 
 // ===== More menu =====
-// Hàm toggle menu More, nhận vào ID của ca làm việc và event click để tính toán vị trí hiển thị dropdown
 function toggleMoreMenu(id, event) {
   if (moreMenuId.value === id) {
     moreMenuId.value = null
     return
   }
-  // Tính toán vị trí hiển thị dropdown dựa vào vị trí của nút More được click
   const btn = event.currentTarget
   const rect = btn.getBoundingClientRect()
   moreMenuPos.top = rect.bottom + 4
@@ -554,28 +523,19 @@ function toggleMoreMenu(id, event) {
   moreMenuId.value = id
 }
 
-// Hàm đóng menu More
 function closeMoreMenu() {
   moreMenuId.value = null
 }
 
 // ===== CRUD =====
-// Hàm mở modal thêm mới
 function openAddModal() {
-  // set editingShift về null để form hiểu là đang ở trạng thái thêm mới
   editingShift.value = null
-  // mở modal
   formVisible.value = true
 }
-
-// Hàm mở modal sửa, nhận vào ID của ca làm việc cần sửa
 function openEditModal(id) {
-  // Lấy dữ liệu ca làm việc từ store theo ID và gán vào editingShift, sau đó mở modal
   editingShift.value = store.getById(id)
-  // mở model
   formVisible.value = true
 }
-
 function closeModal() {
   formVisible.value = false
   editingShift.value = null
@@ -589,27 +549,24 @@ function handleSortChange({ sortBy: newSortBy, sortDirection: newDir }) {
   store.fetchPage()
 }
 
-// Hàm xử lý khi form thêm/sửa ca làm việc gọi sự kiện saved, nhận vào dữ liệu ca làm việc đã được thêm hoặc sửa thành công
 async function handleSaved(data) {
   const isEdit = !!data.productionShiftID
   const isSaveAndAdd = data._action === 'save-and-add'
-  const tid = toast.loading(isEdit ? 'Đang cập nhật...' : 'Đang thêm mới...')
+  const tid = toast.loading(isEdit ? t('shift.toast.updating') : t('shift.toast.adding'))
 
   try {
     isEdit ? await store.updateShift(data) : await store.addShift(data)
-    toast.update(tid, isEdit ? 'Cập nhật thành công!' : 'Thêm mới thành công!', 'success')
-
-    if (isSaveAndAdd) {
-      shiftFormRef.value?.resetForm()
-    } else {
-      closeModal()
-    }
+    toast.update(
+      tid,
+      isEdit ? t('shift.toast.updateSuccess') : t('shift.toast.addSuccess'),
+      'success',
+    )
+    if (isSaveAndAdd) shiftFormRef.value?.resetForm()
+    else closeModal()
   } catch (err) {
     toast.remove(tid)
     shiftFormRef.value?.resetSaving()
-
     if (err instanceof ApiError && err.errors?.length > 0) {
-      // Hiện thẳng message backend vào modal cảnh báo
       showWarning(err.errors.join('<br>'))
     } else {
       toast.error(err.message)
@@ -619,14 +576,10 @@ async function handleSaved(data) {
 
 // ===== Duplicate =====
 async function handleDuplicate(id) {
-  // Đóng menu More đang mở
   moreMenuId.value = null
   try {
-    // Gọi API nhân bản ca làm việc, API sẽ trả về dữ liệu ca làm việc mới được tạo ra sau khi nhân bản,
     const duplicated = await store.duplicateShift(id)
-    // sau đó gán dữ liệu đó vào editingShift
     editingShift.value = { ...duplicated, productionShiftID: null }
-    // mở modal
     formVisible.value = true
   } catch (err) {
     toast.update(err.message)
@@ -635,23 +588,16 @@ async function handleDuplicate(id) {
 
 // ===== Toggle status =====
 async function handleToggleSingle(row) {
-  // Đóng menu More đang mở
   moreMenuId.value = null
-
-  // Xác định trạng thái mới: nếu đang là 1 (Sử dụng) thì chuyển thành 0 (Ngừng sử dụng), ngược lại nếu đang là 0 thì chuyển thành 1
   const newStatus = row.shiftStatus === 1 ? 0 : 1
-
   try {
-    // Gọi API để chuyển trạng thái của ca làm việc, chỉ cần truyền vào một mảng chứa một phần tử là ID của ca làm việc cần chuyển trạng thái và trạng thái mới
     await store.toggleStatus([row.productionShiftID], newStatus)
   } catch (err) {
     toast.error(err.message)
   }
 }
 
-// Toggle status hàng loạt
 async function handleBatchToggle(status) {
-  // lấy ra list id checked
   const ids = store.selectedIdList
   try {
     await store.toggleStatus(ids, status)
@@ -660,68 +606,39 @@ async function handleBatchToggle(status) {
   }
 }
 
-// mở model sửa
-// function editFromDetail() {
-//   detailVisible.value = false
-//   if (detailShift.value) {
-//     openEditModal(detailShift.value.productionShiftID)
-//   }
-// }
-
-// // Hàm xóa từ modal chi tiết
-// function deleteFromDetail() {
-//   detailVisible.value = false
-//   if (detailShift.value) {
-//     openDeleteConfirm(detailShift.value.productionShiftID)
-//   }
-// }
-
-// // Hàm nhân bản từ modal chi tiết
-// async function handleDuplicateFromDetail() {
-//   detailVisible.value = false
-//   if (detailShift.value) {
-//     await handleDuplicate(detailShift.value.productionShiftID)
-//   }
-// }
-
 // ===== Delete =====
-// Xóa đơn
 function openDeleteConfirm(id) {
   moreMenuId.value = null
   const shift = store.getById(id)
-  confirmState.title = 'Xóa Ca làm việc'
-  confirmState.message = `Ca làm việc <b>${shift?.productionShiftCode || ''}</b> sau khi bị xóa sẽ không thể khôi phục. Bạn có muốn tiếp tục xóa không?`
+  confirmState.title = t('shift.confirm.deleteTitle')
+  confirmState.message = t('shift.confirm.deleteSingle', { code: shift?.productionShiftCode || '' })
   confirmState.onConfirm = () => handleDelete([id])
   confirmState.visible = true
 }
 
-// Xóa nhiều sau khi chọn nhiều
 function openBatchDeleteConfirm() {
-  confirmState.title = 'Xóa Ca làm việc'
-  confirmState.message = `<b>${store.selectedIdList.length}</b> ca làm việc sau khi bị xóa sẽ không thể khôi phục. Bạn có muốn tiếp tục xóa không?`
+  confirmState.title = t('shift.confirm.deleteTitle')
+  confirmState.message = t('shift.confirm.deleteBatch', { count: store.selectedIdList.length })
   confirmState.onConfirm = () => handleDelete(store.selectedIdList)
   confirmState.visible = true
 }
 
-// Đóng modal Confirm
 function closeConfirm() {
   confirmState.visible = false
   confirmState.onConfirm = null
 }
 
-// Hàm xử lý khi người dùng xác nhận xóa
 async function onConfirm() {
-  const callback = confirmState.onConfirm // gửi hành động vào onConfirm để khi người dùng xác nhận thì hàm onConfirm sẽ gọi callback này, callback này được set khi mở confirm modal với đúng hành động cần thực hiện (xóa đơn nào)
+  const callback = confirmState.onConfirm
   closeConfirm()
   if (callback) await callback()
 }
 
-// Hàm xóa ca làm việc, nhận vào một mảng id (có thể là 1 hoặc nhiều id)
 async function handleDelete(ids) {
-  const tid = toast.loading('Đang xóa...')
+  const tid = toast.loading(t('shift.toast.deleting'))
   try {
     await store.deleteByIds(ids)
-    toast.update(tid, `Xóa thành công ${ids.length} ca!`, 'success')
+    toast.update(tid, t('shift.toast.deleteSuccess', { count: ids.length }), 'success')
   } catch (err) {
     toast.update(tid, err.message, 'error')
   }
@@ -729,6 +646,7 @@ async function handleDelete(ids) {
 </script>
 
 <style scoped>
+/* Giữ nguyên toàn bộ CSS gốc */
 .shift-page__header {
   display: flex;
   justify-content: space-between;
@@ -741,8 +659,6 @@ async function handleDelete(ids) {
   font-weight: 700;
   color: var(--text-main);
 }
-
-/* ===== Base mask icon ===== */
 .btn-icon {
   -webkit-mask-repeat: no-repeat;
   background-color: currentColor;
@@ -762,7 +678,6 @@ async function handleDelete(ids) {
   min-height: 16px;
   min-width: 16px;
   position: relative;
-  mask-position: -80px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .btn-icon--reload {
@@ -784,7 +699,6 @@ async function handleDelete(ids) {
   mask-position: -64px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
-
 .btn {
   display: inline-flex;
   align-items: center;
@@ -805,7 +719,6 @@ async function handleDelete(ids) {
 .btn--primary:hover {
   background-color: var(--primary-hover);
 }
-
 .shift-page__content {
   flex: 1;
   background-color: #fff;
@@ -815,7 +728,6 @@ async function handleDelete(ids) {
   overflow: hidden;
   position: relative;
 }
-
 .shift-page__toolbar {
   padding: 8px 16px;
   display: flex;
@@ -840,7 +752,6 @@ async function handleDelete(ids) {
   height: 16px;
   width: 16px;
   min-height: 16px;
-  min-width: 16px;
   -webkit-mask-repeat: no-repeat;
   background-color: #4b5563;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
@@ -851,13 +762,11 @@ async function handleDelete(ids) {
   border-radius: 4px;
   font-size: 13px;
   outline: none;
-  column-gap: 4px;
   background-color: #fff;
 }
 .shift-page__search-input:focus {
   border-color: var(--primary);
 }
-
 .shift-page__reload {
   padding: 6px 12px;
   display: flex;
@@ -881,15 +790,6 @@ async function handleDelete(ids) {
   color: var(--primary);
   background-color: #f3f4f6;
 }
-
-.shift-page__selected-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  background-color: #f0fdf4;
-  border-bottom: 1px solid #bbf7d0;
-}
 .selected-bar__count {
   font-size: 13px;
   color: #374151;
@@ -899,8 +799,6 @@ async function handleDelete(ids) {
   height: 20px;
   background: #d1d5db;
 }
-
-/* ===== FILTER TAGS (inline trong toolbar) ===== */
 .filter-bar__tag {
   display: inline-flex;
   align-items: center;
@@ -911,22 +809,17 @@ async function handleDelete(ids) {
   background: #f3f4f6;
   padding: 0 8px;
 }
-
 .filter-bar__tag-col {
   color: #374151;
 }
-
 .filter-bar__tag-op {
   color: var(--primary);
   font-weight: 500;
 }
-
 .filter-bar__tag-val {
   color: #111827;
-
   font-weight: 500;
 }
-
 .filter-bar__tag-remove {
   display: inline-flex;
   align-items: center;
@@ -938,19 +831,11 @@ async function handleDelete(ids) {
   border: none;
   background: none;
   cursor: pointer;
-  color: #9ca3af;
-  font-size: 10px;
-  border-radius: 50%;
-  padding: 0;
-  flex-shrink: 0;
-  transition: all 0.15s;
-  margin-left: 2px;
   -webkit-mask-repeat: no-repeat;
   background-color: #4b5563;
   mask-position: -96px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
-
 .shift-page__footer {
   display: flex;
   justify-content: space-between;
@@ -992,12 +877,10 @@ async function handleDelete(ids) {
   justify-content: center;
   color: #6b7280;
 }
-
 .pagination__btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-
 .status--active {
   color: var(--primary);
   font-weight: 500;
@@ -1010,7 +893,6 @@ async function handleDelete(ids) {
   font-weight: 500;
   background-color: #fee2e2;
   color: #dc2626;
-  width: -moz-fit-content;
   width: fit-content;
   padding: 5px 8px;
   border-radius: 999px;
@@ -1018,7 +900,6 @@ async function handleDelete(ids) {
 .text-orange {
   color: #ea580c;
 }
-
 .shift-page__error {
   background: #fef2f2;
   border: 1px solid #fca5a5;
@@ -1037,8 +918,6 @@ async function handleDelete(ids) {
   cursor: pointer;
   font-family: inherit;
 }
-
-/* ===== Action buttons ===== */
 .action-btn {
   display: inline-flex;
   align-items: center;
@@ -1047,11 +926,10 @@ async function handleDelete(ids) {
   height: 24px;
   border: none;
   background: #fff;
-  border-radius: 4px;
+  border-radius: 50%;
   cursor: pointer;
   flex-shrink: 0;
   transition: background-color 0.15s;
-  border-radius: 50%;
 }
 .action-btn:hover {
   background-color: #f3f4f6;
@@ -1059,7 +937,6 @@ async function handleDelete(ids) {
 .action-btn:hover .action-icon {
   background-color: var(--primary);
 }
-
 .action-icon {
   -webkit-mask-repeat: no-repeat;
   background-color: #4b5563;
@@ -1071,7 +948,6 @@ async function handleDelete(ids) {
   display: inline-block;
   flex-shrink: 0;
 }
-
 .action-icon--edit {
   mask-position: -271px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
@@ -1080,30 +956,6 @@ async function handleDelete(ids) {
   mask-position: -288px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
-
-/* ===== Detail modal ===== */
-.shift-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.detail-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #374151;
-  padding: 4px 0;
-  border-bottom: 1px solid #f3f4f6;
-}
-.detail-label {
-  font-weight: 600;
-  min-width: 180px;
-  color: #6b7280;
-  flex-shrink: 0;
-}
-
-/* ===== WARNING DIALOG ===== */
 .warning-overlay {
   position: fixed;
   inset: 0;
@@ -1113,7 +965,6 @@ async function handleDelete(ids) {
   align-items: center;
   justify-content: center;
 }
-
 .warning-dialog {
   background: #fff;
   border-radius: 8px;
@@ -1122,20 +973,17 @@ async function handleDelete(ids) {
   max-width: 90vw;
   overflow: hidden;
 }
-
 .warning-dialog__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px 12px;
 }
-
 .warning-dialog__title-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .warning-dialog__icon {
   display: inline-flex;
   align-items: center;
@@ -1153,13 +1001,11 @@ async function handleDelete(ids) {
   color: #ea580c;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.0.0.36);
 }
-
 .warning-dialog__title {
   font-weight: 600;
   color: #111827;
   font-size: 20px;
 }
-
 .warning-dialog__close {
   background: none;
   border: none;
@@ -1175,14 +1021,12 @@ async function handleDelete(ids) {
   background: #f3f4f6;
   color: #111;
 }
-
 .warning-dialog__body {
   padding: 0 20px 16px;
   font-size: 14px;
   color: #374151;
   line-height: 1.6;
 }
-
 .warning-dialog__body p {
   font-size: 13px;
   max-height: 400px;
@@ -1197,7 +1041,6 @@ async function handleDelete(ids) {
   justify-content: flex-end;
   padding: 12px 20px;
 }
-
 .warning-dialog__btn {
   background-color: var(--primary, #009b71);
   color: #fff;
@@ -1213,9 +1056,68 @@ async function handleDelete(ids) {
 .warning-dialog__btn:hover {
   background-color: var(--primary-hover, #007b5d);
 }
+.shift-page__skeleton-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+.skeleton-table {
+  border-collapse: collapse;
+  font-size: 13px;
+  width: max-content;
+  min-width: 100%;
+}
+.skeleton-th {
+  font-size: 13px;
+  font-weight: 600;
+  color: #262626;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  padding: 10px 0;
+  background-color: #f3f4f6;
+  white-space: nowrap;
+}
+.skeleton-th__content {
+  padding: 0 15px;
+  border-left: 1px solid #d1d5db;
+}
+.skeleton-th--checkbox {
+  text-align: center;
+  width: 40px;
+  min-width: 40px;
+}
+.skeleton-th--action {
+  width: 72px;
+  min-width: 72px;
+}
+.skeleton-td {
+  padding: 8px 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.skeleton-td--checkbox {
+  text-align: center;
+  width: 40px;
+}
+.skeleton-td--action {
+  width: 72px;
+}
+.skeleton-bar {
+  height: 14px;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 3px;
+}
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
 </style>
 
-<!-- Global styles cho teleported dropdown -->
 <style>
 .action-more__dropdown {
   background: #fff;
@@ -1225,7 +1127,6 @@ async function handleDelete(ids) {
   min-width: 170px;
   padding: 4px 0;
 }
-
 .action-more__item {
   padding: 8px 16px;
   font-size: 13px;
@@ -1239,7 +1140,6 @@ async function handleDelete(ids) {
 .action-more__item:hover {
   background: #f3f4f6;
 }
-
 .action-more__item--danger {
   color: #dc2626;
 }
@@ -1250,7 +1150,6 @@ async function handleDelete(ids) {
 .action-more__item--danger:hover .dropdown-icon {
   background-color: #dc2626;
 }
-
 .dropdown-icon {
   -webkit-mask-repeat: no-repeat;
   background-color: #4b5563;
@@ -1267,7 +1166,6 @@ async function handleDelete(ids) {
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 .dropdown-icon--toggle {
-  margin-right: 5px;;
   mask-position: -192px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
@@ -1276,7 +1174,6 @@ async function handleDelete(ids) {
   background-color: #dc2626 !important;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
-
 .btn-icon--first-page {
   mask-position: -143px 0px;
   background-color: #9ca3af;
@@ -1298,77 +1195,5 @@ async function handleDelete(ids) {
   -webkit-mask-repeat: no-repeat;
   background-color: #4b5563;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
-}
-
-/* ===== SKELETON LOADING ===== */
-.shift-page__skeleton-wrapper {
-  flex: 1;
-  overflow-x: auto;
-  overflow-y: visible;
-}
-
-.skeleton-table {
-  border-collapse: collapse;
-  font-size: 13px;
-  width: max-content;
-  min-width: 100%;
-}
-
-.skeleton-th {
-  font-size: 13px;
-  font-weight: 600;
-  color: #262626;
-  border-bottom: 1px solid #e5e7eb;
-  text-align: left;
-  padding: 10px 0;
-  background-color: #f3f4f6;
-  white-space: nowrap;
-}
-
-.skeleton-th__content {
-  padding: 0 15px;
-  border-left: 1px solid #d1d5db;
-}
-
-.skeleton-th--checkbox {
-  text-align: center;
-  width: 40px;
-  min-width: 40px;
-}
-
-.skeleton-th--action {
-  width: 72px;
-  min-width: 72px;
-}
-
-.skeleton-td {
-  padding: 8px 15px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.skeleton-td--checkbox {
-  text-align: center;
-  width: 40px;
-}
-
-.skeleton-td--action {
-  width: 72px;
-}
-
-.skeleton-bar {
-  height: 14px;
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 3px;
-}
-
-@keyframes skeleton-shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
 }
 </style>

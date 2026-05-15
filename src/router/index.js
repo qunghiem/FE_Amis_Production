@@ -76,17 +76,17 @@ const routes = [
   },
 
   // Giao việc
-  { path: '/production/task', component: PlaceholderPage, meta: { title: 'Giao việc' } },
-  {
-    path: '/production/task/assign',
-    component: PlaceholderPage,
-    meta: { title: 'Phân công công việc' },
-  },
-  {
-    path: '/production/task/tracking',
-    component: PlaceholderPage,
-    meta: { title: 'Theo dõi công việc' },
-  },
+  // { path: '/production/task', component: PlaceholderPage, meta: { title: 'Giao việc' } },
+  // {
+  //   path: '/production/task/assign',
+  //   component: PlaceholderPage,
+  //   meta: { title: 'Phân công công việc' },
+  // },
+  // {
+  //   path: '/production/task/tracking',
+  //   component: PlaceholderPage,
+  //   meta: { title: 'Theo dõi công việc' },
+  // },
 
   // Giá thành kế hoạch
   { path: '/production/cost', component: PlaceholderPage, meta: { title: 'Giá thành kế hoạch' } },
@@ -115,7 +115,7 @@ const routes = [
   },
 
   // Truy xuất nguồn gốc
-  { path: '/production/trace', component: PlaceholderPage, meta: { title: 'Truy xuất nguồn gốc' } },
+  // { path: '/production/trace', component: PlaceholderPage, meta: { title: 'Truy xuất nguồn gốc' } },
 
   // Báo cáo
   { path: '/production/report', component: PlaceholderPage, meta: { title: 'Báo cáo' } },

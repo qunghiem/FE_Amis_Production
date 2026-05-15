@@ -14,14 +14,14 @@
           @mouseleave="showFlyout = false"
         >
           <span class="sidebar__icon" :class="`sidebar__icon--${item.icon}`" />
-          <span class="sidebar__label">{{ item.label }}</span>
+          <span class="sidebar__label">{{ $t(item.labelKey) }}</span>
           <i class="sidebar__chevron sidebar__chevron--right" />
 
           <transition name="flyout">
             <div class="sidebar__flyout" v-show="showFlyout">
               <div class="flyout__columns">
-                <div v-for="col in item.columns" :key="col.title" class="flyout__col">
-                  <div class="flyout__col-title">{{ col.title }}</div>
+                <div v-for="col in item.columns" :key="col.titleKey" class="flyout__col">
+                  <div class="flyout__col-title">{{ $t(col.titleKey) }}</div>
                   <router-link
                     v-for="link in col.items"
                     :key="link.to"
@@ -29,7 +29,7 @@
                     class="flyout__item"
                     active-class="flyout__item--active"
                   >
-                    {{ link.label }}
+                    {{ $t(link.labelKey) }}
                   </router-link>
                 </div>
               </div>
@@ -49,7 +49,7 @@
             @click="toggleMenu(item.key)"
           >
             <span class="sidebar__icon" :class="`sidebar__icon--${item.icon}`" />
-            <span class="sidebar__label">{{ item.label }}</span>
+            <span class="sidebar__label">{{ $t(item.labelKey) }}</span>
             <i
               class="sidebar__chevron"
               :class="{ 'sidebar__chevron--open': openMenus[item.key] }"
@@ -63,7 +63,7 @@
               class="sidebar__subitem"
               active-class="sidebar__subitem--active"
             >
-              {{ child.label }}
+              {{ $t(child.labelKey) }}
             </router-link>
           </div>
         </template>
@@ -76,7 +76,7 @@
           :class="{ 'sidebar__item--active': isExactActive(item.to) }"
         >
           <span class="sidebar__icon" :class="`sidebar__icon--${item.icon}`" />
-          <span class="sidebar__label">{{ item.label }}</span>
+          <span class="sidebar__label">{{ $t(item.labelKey) }}</span>
         </router-link>
       </template>
     </nav>
@@ -87,7 +87,9 @@
         class="sidebar__icon sidebar__icon--collapse"
         :class="{ 'sidebar__icon--expand': collapsed }"
       />
-      <span class="sidebar__label">{{ collapsed ? 'Mở rộng' : 'Thu gọn' }}</span>
+      <span class="sidebar__label">{{
+        collapsed ? $t('sidebar.expand') : $t('sidebar.collapse')
+      }}</span>
     </div>
   </aside>
 </template>
@@ -101,7 +103,6 @@ const props = defineProps({ collapsed: { type: Boolean, default: false } })
 const emit = defineEmits(['update:collapsed'])
 const route = useRoute()
 
-// ── Collapse ──────────────────────────────────────────────────────────────────
 const COLLAPSE_KEY = 'sidebar_collapsed'
 function toggleCollapse() {
   const next = !props.collapsed
@@ -109,10 +110,8 @@ function toggleCollapse() {
   emit('update:collapsed', next)
 }
 
-// ── Open menus ────────────────────────────────────────────────────────────────
 const OPEN_MENUS_KEY = 'sidebar_open_menus'
 
-// lấy các menu đang mở, đang đóng trước đó nếu có
 function loadOpenMenus() {
   try {
     const saved = localStorage.getItem(OPEN_MENUS_KEY)
@@ -121,22 +120,8 @@ function loadOpenMenus() {
   return {}
 }
 
-// ghi nhớ những menu đang mở, đang đóng đc lưu ở localStorage
-// { "products": true, "settings": false }
 const openMenus = reactive(loadOpenMenus())
 
-// Build map: key → [child routes]
-// [
-//   [
-//     "products",
-//     ["/products/list", "/products/name"]
-//   ]
-// ]
-// =>
-// {
-//   "products": ["/products/list", "/products/name"]
-// }
-// chỉ lấy những menu cha có children, bỏ loại fly
 const menuRoutes = Object.fromEntries(
   MENU_CONFIG.filter((item) => item.key && item.children).map((item) => [
     item.key,
@@ -144,7 +129,6 @@ const menuRoutes = Object.fromEntries(
   ]),
 )
 
-// Tự động mở menu khi route thay đổi, lưu giá trị cho openMenus
 watch(
   () => route.path,
   (newPath) => {
@@ -156,21 +140,15 @@ watch(
   { immediate: true },
 )
 
-// Xử lí đóng mở menu cha
 function toggleMenu(key) {
   const isOpen = openMenus[key]
   Object.keys(openMenus).forEach((k) => {
-    // tắt hết menu khác
     openMenus[k] = false
   })
-  // đảo ngược bật/ tắt menu được click, mở-thu menu chứ k phải active
   openMenus[key] = !isOpen
   localStorage.setItem(OPEN_MENUS_KEY, JSON.stringify({ ...openMenus }))
 }
 
-// Active helpers
-
-// path hiện tại trùng với path click và k có menu nào đang active thì ok
 function isExactActive(path) {
   return route.path === path && !Object.values(openMenus).some(Boolean)
 }
@@ -179,8 +157,6 @@ function isParentActive(childPaths) {
   return childPaths.some((p) => route.path === p || route.path.startsWith(p + '/'))
 }
 
-// Flyout active: kiểm tra các prefix từ config
-// url được mở phải có tiền tố giống route hiện tại và tất cả đều đang đóng thì mới trả về true
 function isOtherActive(item) {
   return (
     item.activePrefixes.some((prefix) => route.path.startsWith(prefix)) &&
@@ -192,7 +168,7 @@ const showFlyout = ref(false)
 </script>
 
 <style scoped>
-/* ===== SIDEBAR ===== */
+/* Giữ nguyên toàn bộ CSS từ file gốc */
 .sidebar {
   width: var(--sidebar-width, 220px);
   min-width: var(--sidebar-width, 220px);
@@ -211,17 +187,13 @@ const showFlyout = ref(false)
     width 0.25s ease,
     min-width 0.25s ease;
 }
-
 .sidebar--collapsed {
   width: 60px;
   min-width: 60px;
 }
-
 .sidebar::-webkit-scrollbar {
   display: none;
 }
-
-/* ===== NAV ===== */
 .sidebar__nav {
   flex: 1;
   padding: 12px;
@@ -231,12 +203,10 @@ const showFlyout = ref(false)
   gap: 2.5px;
   border-bottom: 1px solid rgba(209, 213, 219, 0.3);
 }
-
-/* ===== ITEM ===== */
 .sidebar__item {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   padding: 8px 16px;
   color: var(--sidebar-text);
   cursor: pointer;
@@ -251,19 +221,16 @@ const showFlyout = ref(false)
   overflow: hidden;
   border-radius: 4px;
 }
-
 .sidebar__item:hover {
   background-color: rgba(255, 255, 255, 0.07);
   color: var(--sidebar-text-hover);
 }
-
 .sidebar__item--active,
 .sidebar__item--parent-active,
 .sidebar__item--sub-open {
   background-color: var(--primary) !important;
   color: #fff !important;
 }
-
 .sidebar__item--active .sidebar__icon,
 .sidebar__item--active .sidebar__chevron,
 .sidebar__item--parent-active .sidebar__icon,
@@ -272,8 +239,6 @@ const showFlyout = ref(false)
 .sidebar__item--sub-open .sidebar__chevron {
   background-color: #fff !important;
 }
-
-/* ===== LABEL ===== */
 .sidebar__label {
   flex: 1;
   overflow: hidden;
@@ -281,15 +246,12 @@ const showFlyout = ref(false)
   opacity: 1;
   transition: opacity 0.2s ease;
 }
-
 .sidebar--collapsed .sidebar__label {
   opacity: 0;
   pointer-events: none;
   width: 0;
   display: none;
 }
-
-/* ===== CHEVRON ===== */
 .sidebar__chevron {
   height: 20px;
   width: 20px;
@@ -302,15 +264,12 @@ const showFlyout = ref(false)
     transform 0.2s ease,
     background-color 0.15s;
 }
-
 .sidebar__chevron--open {
   transform: rotate(180deg);
 }
-
 .sidebar__item:hover .sidebar__chevron {
   background-color: #fff;
 }
-
 .sidebar__chevron--right {
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
   height: 20px;
@@ -320,24 +279,18 @@ const showFlyout = ref(false)
   position: relative;
   mask-position: -220px -16px;
 }
-
-/* ===== SUBMENU ===== */
 .sidebar__submenu {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.25s ease;
   background-color: rgba(0, 0, 0, 0.15);
 }
-
 .sidebar__submenu--open {
   max-height: 300px;
 }
-
 .sidebar--collapsed .sidebar__submenu {
   display: none;
 }
-
-/* ===== SUBITEM ===== */
 .sidebar__subitem {
   display: flex;
   align-items: center;
@@ -356,13 +309,11 @@ const showFlyout = ref(false)
   opacity: 0.85;
   position: relative;
 }
-
 .sidebar__subitem:hover {
   background-color: rgba(255, 255, 255, 0.07);
   color: var(--sidebar-text-hover);
   opacity: 1;
 }
-
 .sidebar__subitem::before {
   content: '';
   background-color: var(--sidebar-text);
@@ -376,20 +327,16 @@ const showFlyout = ref(false)
   mask-position: -58px -67px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
-
 .sidebar__subitem:hover::before,
 .sidebar__subitem--active::before {
   visibility: visible;
   background-color: #fff;
 }
-
 .sidebar__subitem--active {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.08);
   opacity: 1;
 }
-
-/* ===== FOOTER ===== */
 .sidebar__footer {
   display: flex;
   align-items: center;
@@ -403,12 +350,9 @@ const showFlyout = ref(false)
   overflow: hidden;
   margin: auto auto;
 }
-
 .sidebar__footer:hover {
   color: var(--sidebar-text-hover);
 }
-
-/* ===== ICONS ===== */
 .sidebar__icon {
   width: 20px;
   height: 20px;
@@ -417,11 +361,9 @@ const showFlyout = ref(false)
   background-color: var(--sidebar-text);
   -webkit-mask-repeat: no-repeat;
 }
-
 .sidebar__item:hover .sidebar__icon {
   background-color: #fff;
 }
-
 .sidebar__icon--overview {
   mask-position: -6px -7px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
@@ -493,18 +435,15 @@ const showFlyout = ref(false)
 .sidebar__icon--expand {
   transform: scaleX(-1);
 }
-
-/* ===== FLYOUT ===== */
 .sidebar__item--other {
   position: relative;
 }
-
 .sidebar__flyout {
   position: fixed;
   left: calc(var(--sidebar-width) + 15px);
-  bottom: 16px;                          /* ★ neo vào đáy viewport */
-  max-height: calc(100vh - 80px);        /* ★ không vượt quá màn hình */
-  overflow-y: auto;                      /* ★ scroll nếu nội dung dài */
+  bottom: 16px;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
   background-color: var(--sidebar-bg);
   border-radius: 6px;
   box-shadow: 4px 4px 24px rgba(0, 0, 0, 0.5);
@@ -512,24 +451,20 @@ const showFlyout = ref(false)
   z-index: 9999;
   min-width: 420px;
 }
-
 .sidebar--collapsed .sidebar__flyout {
   left: 52px;
 }
-
 .flyout__columns {
   display: flex;
   gap: 24px;
   background: var(--sidebar-bg);
 }
-
 .flyout__col {
   display: flex;
   flex-direction: column;
   min-width: 130px;
   gap: 4px;
 }
-
 .flyout__col-title {
   font-size: 11px;
   font-weight: 600;
@@ -538,7 +473,6 @@ const showFlyout = ref(false)
   letter-spacing: 0.06em;
   padding: 4px 12px 8px;
 }
-
 .flyout__item {
   display: flex;
   align-items: center;
@@ -559,7 +493,6 @@ const showFlyout = ref(false)
   margin-left: -19px;
   border-radius: 4px;
 }
-
 .flyout__item::before {
   content: '';
   background-color: var(--sidebar-text);
@@ -573,27 +506,21 @@ const showFlyout = ref(false)
   mask-position: -58px -67px;
   -webkit-mask-image: url(https://qtsxcdng2.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.1.2.4);
 }
-
 .flyout__item:hover::before,
 .flyout__item--active::before {
   visibility: visible;
   background-color: #fff;
 }
-
 .flyout__item:hover {
   background-color: #252c3b;
   color: #fff;
   opacity: 1;
 }
-
 .flyout__item--active {
   background-color: #4b5563;
-
   color: #fff;
   opacity: 1;
 }
-
-/* ===== FLYOUT TRANSITION ===== */
 .flyout-enter-active,
 .flyout-leave-active {
   transition:
@@ -605,26 +532,19 @@ const showFlyout = ref(false)
   opacity: 0;
   transform: translateX(-6px);
 }
-
-/* ===== COLLAPSED ===== */
 .sidebar--collapsed .sidebar__item {
   justify-content: center;
   padding: 8px;
 }
-
 .sidebar--collapsed .sidebar__footer {
   justify-content: center;
-  /* padding: 12px 0; */
 }
-
 .sidebar--collapsed .sidebar__chevron {
   display: none;
 }
-
-/* ===== DIVIDER ===== */
 .sidebar__divider {
   height: 1px;
   background-color: rgba(209, 213, 219, 0.3);
-  margin: 4px 0;
+  margin: 10px 0;
 }
 </style>

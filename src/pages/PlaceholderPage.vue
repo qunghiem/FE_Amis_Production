@@ -10,7 +10,8 @@
         </svg>
       </div>
       <h2 class="placeholder-page__title">{{ pageTitle }}</h2>
-      <p class="placeholder-page__desc">Tính năng đang được phát triển</p>
+      <p class="placeholder-page__desc">{{ $t('common.developing') }}</p>
+
     </div>
   </div>
 </template>
@@ -18,6 +19,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const route = useRoute()
 const pageTitle = computed(() => route.meta?.title || 'Trang')

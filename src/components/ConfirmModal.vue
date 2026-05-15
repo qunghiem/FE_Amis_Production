@@ -14,18 +14,18 @@
         <div class="confirm-modal__icon" :class="`confirm-modal__icon--${type}`">
           <i :class="iconClass"></i>
         </div>
-        <span class="confirm-modal__title">{{ title }}</span>
+        <span class="confirm-modal__title">{{ displayTitle }}</span>
       </div>
     </template>
 
     <!-- Body -->
     <div class="confirm-modal__body">
-      <p class="confirm-modal__message" v-html="message"></p>
+      <p class="confirm-modal__message" v-html="displayMessage"></p>
     </div>
 
     <template #footer>
-      <MsButton type="cancel" @click="$emit('cancel')">{{ cancelText }}</MsButton>
-      <MsButton :type="confirmBtnType" @click="$emit('confirm')">{{ confirmText }}</MsButton>
+      <MsButton type="cancel" @click="$emit('cancel')">{{ displayCancelText }}</MsButton>
+      <MsButton :type="confirmBtnType" @click="$emit('confirm')">{{ displayConfirmText }}</MsButton>
     </template>
   </MsModal>
 </template>
@@ -34,15 +34,23 @@
 import { computed } from 'vue'
 import MsModal from './ms-modal/MsModal.vue'
 import MsButton from './ms-button/MsButton.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
-  title: { type: String, default: 'Xác nhận' },
-  message: { type: String, default: 'Bạn có chắc muốn thực hiện thao tác này?' },
+  title: { type: String, default: '' },
+  message: { type: String, default: '' },
   type: { type: String, default: 'danger' },
-  confirmText: { type: String, default: 'Xác nhận' },
-  cancelText: { type: String, default: 'Huỷ' },
+  confirmText: { type: String, default: '' },
+  cancelText: { type: String, default: '' },
 })
+
+const displayTitle = computed(() => props.title || t('common.confirm'))
+const displayMessage = computed(() => props.message || t('common.confirmDefaultMessage'))
+const displayConfirmText = computed(() => props.confirmText || t('common.confirm'))
+const displayCancelText = computed(() => props.cancelText || t('common.cancel'))
 
 defineEmits(['confirm', 'cancel'])
 
