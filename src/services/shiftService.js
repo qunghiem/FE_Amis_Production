@@ -122,4 +122,38 @@ export const shiftService = {
     const { data } = await api.put('/Shift/toggle-status', { ids, status })
     return data
   },
+
+  // Xuất Excel với điều kiện tìm kiếm, filter, sort (trả về file .xlsx)
+  async exportExcel(keyword = '', filters = [], sortBy = '', sortDirection = 'ASC') {
+    try {
+        const response = await api.post('/Shift/export-excel',
+            { keyword, filters, sortBy, sortDirection, pageNumber: 1, pageSize: 999999 },
+            { responseType: 'blob' } // Rất quan trọng
+        )
+
+        // Kiểm tra nếu response trả về không phải là blob (có thể là lỗi JSON)
+        if (response.data.type === 'application/json') {
+            const text = await response.data.text();
+            throw new Error(JSON.parse(text).message || 'Lỗi server');
+        }
+
+        const blob = new Blob([response.data], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `CaLamViec_${new Date().toLocaleDateString('vi-VN')}.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+
+        // Dọn dẹp
+        link.remove()
+        window.URL.revokeObjectURL(url)
+    } catch (error) {
+        console.error('Export error:', error)
+        throw error // Để handleExport bắt được và hiện toast error
+    }
+}
 }

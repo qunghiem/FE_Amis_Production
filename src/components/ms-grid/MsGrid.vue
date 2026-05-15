@@ -126,6 +126,13 @@
       >
         <span class="ms-grid__reload-icon"></span>
       </button>
+
+      <!-- Xuất Excel -->
+        <button class="ms-grid__reload" @click="$emit('export')"
+        :data-tooltip="$t('common.exportExcel')"
+      >
+            <span class="ms-grid__reload-export"></span>
+        </button>
     </div>
 
     <!-- ===== SKELETON LOADING ===== -->
@@ -320,6 +327,7 @@ const emit = defineEmits([
   'row-click',
   'row-dblclick',
   'selection-change',
+  'export',
 ])
 
 // ──────────────────────── SEARCH ────────────────────────
@@ -360,11 +368,12 @@ function isSelected(id) {
   return selectedIds.value.has(id)
 }
 
+// Toggle chọn 1 row
 function toggleSelect(id) {
   const s = new Set(selectedIds.value)
   s.has(id) ? s.delete(id) : s.add(id)
   selectedIds.value = s
-  emitSelectionChange()
+  // emitSelectionChange()
 }
 
 function toggleAll(e) {
@@ -376,12 +385,12 @@ function toggleAll(e) {
   } else {
     selectedIds.value = new Set()
   }
-  emitSelectionChange()
+  // emitSelectionChange()
 }
 
 function clearSelection() {
   selectedIds.value = new Set()
-  emitSelectionChange()
+  // emitSelectionChange()
 }
 
 /**
@@ -392,15 +401,15 @@ function deselectIds(ids) {
   const s = new Set(selectedIds.value)
   ids.forEach((id) => s.delete(id))
   selectedIds.value = s
-  emitSelectionChange()
+  // emitSelectionChange()
 }
 
-function emitSelectionChange() {
-  emit('selection-change', {
-    ids: selectedIdList.value,
-    count: selectedCount.value,
-  })
-}
+// function emitSelectionChange() {
+//   emit('selection-change', {
+//     ids: selectedIdList.value,
+//     count: selectedCount.value,
+//   })
+// }
 
 /**
  * Kiểm tra trong các row đang chọn (trên trang hiện tại) có row nào thỏa điều kiện không.
@@ -457,6 +466,7 @@ function getValueLabel(filter) {
 function removeFilter(property) {
   emit('filter-clear', property)
 }
+
 
 // ──────────────────────── EXPOSE ────────────────────────
 defineExpose({
@@ -626,6 +636,17 @@ defineExpose({
   display: inline-block;
 }
 
+.ms-grid__reload-export {
+      mask-position: -976px 0px;
+          height: 16px;
+    width: 16px;
+    min-height: 16px;
+    min-width: 16px;
+    position: relative;
+        -webkit-mask-repeat: no-repeat;
+    background-color: #4b5563;
+    -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
 /* ===== SKELETON ===== */
 .ms-grid__skeleton-wrapper {
   flex: 1;

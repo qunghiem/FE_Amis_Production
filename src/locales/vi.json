@@ -162,7 +162,8 @@
     "developing": "Tính năng đang được phát triển",
     "page": "Trang",
     "firstPage": "Trang đầu",
-    "lastPage": "Trang cuối"
+    "lastPage": "Trang cuối",
+    "exportExcel": "Xuất Excel"
   },
   "dialog": {
     "warning": "Cảnh báo!",

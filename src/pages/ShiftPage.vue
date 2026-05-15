@@ -10,6 +10,7 @@
           <span class="btn-icon btn-icon--plus"></span>
           {{ $t('shift.add') }}
         </button>
+
       </div>
     </div>
 
@@ -35,6 +36,7 @@
       @filter-clear="handleFilterClear"
       @filter-clear-all="clearAllFilters"
       @reload="store.fetchPage()"
+      @export="handleExport"
       @row-dblclick="(row) => openEditModal(row.productionShiftID)"
     >
       <!-- Batch actions khi có checkbox được chọn -->
@@ -497,6 +499,19 @@ async function handleDelete(ids) {
   } catch (err) {
     toast.update(tid, err.message, 'error')
   }
+}
+
+async function handleExport() {
+    const tid = toast.loading('Đang xuất Excel...')
+    try {
+        await store.exportExcel(
+            store.searchKeyword, store.filters,
+            store.sortBy, store.sortDirection
+        )
+        toast.update(tid, 'Xuất Excel thành công!', 'success')
+    } catch (err) {
+        toast.update(tid, 'Xuất Excel thất bại', 'error')
+    }
 }
 
 // ===== Warning popup =====

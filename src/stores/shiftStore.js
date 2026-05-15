@@ -145,6 +145,15 @@ export const useShiftStore = defineStore('shifts', () => {
     await fetchPage()
   }
 
+  async function exportExcel() {
+    await shiftService.exportExcel(
+      searchKeyword.value,
+      filters.value,
+      sortBy.value,
+      sortDirection.value,
+    )
+  }
+
   // Lấy bản ghi theo ID
   const getById = (id) => shifts.value.find((s) => s.productionShiftID === id) ?? null
 
@@ -186,6 +195,6 @@ export const useShiftStore = defineStore('shifts', () => {
     // actions
     init, fetchPage, nextPage, prevPage, resetPage, setPageSize, goToFirstPage, goToLastPage,
     addShift, updateShift, deleteByIds, duplicateShift, toggleStatus,
-    getById, toggleSelect, selectAll, unselectAll, isSelected,
+    getById, exportExcel, toggleSelect, selectAll, unselectAll, isSelected,
   }
 })
