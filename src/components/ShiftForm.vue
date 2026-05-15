@@ -283,6 +283,9 @@ function closeWarnValidate() {
 
 const confirmExit = reactive({ visible: false })
 
+// Khi click đóng Modal hoặc nhấn ESC
+// nếu form đang dirty/ sửa thì hiện popup xác nhận
+// nếu không thì đóng luôn
 function handleClose() {
   if (isDirty.value) {
     confirmExit.visible = true

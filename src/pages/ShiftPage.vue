@@ -1,6 +1,8 @@
+
+
 <template>
   <main class="layout__content">
-    <!-- Title header -->
+    <!-- ===== PAGE HEADER ===== -->
     <div class="shift-page__header">
       <h1 class="shift-page__title">{{ $t('shift.pageTitle') }}</h1>
       <div class="shift-page__actions">
@@ -11,218 +13,101 @@
       </div>
     </div>
 
-    <!-- Content container -->
-    <div class="shift-page__content">
-      <!-- Toolbar -->
-      <div class="shift-page__toolbar">
-        <div class="shift-page__search">
-          <span class="shift-page__search-icon"></span>
-          <input
-            type="text"
-            class="shift-page__search-input"
-            :placeholder="$t('common.search')"
-            v-model="store.searchKeyword"
-          />
-        </div>
+    <!-- ===== GRID ===== -->
+    <MsGrid
+      ref="gridRef"
+      :columns="COLUMNS"
+      :rows="store.pageData"
+      :total="store.pageInfo.total"
+      :loading="store.loading"
+      row-key="productionShiftID"
+      v-model:search="store.searchKeyword"
+      :page="store.currentPage"
+      :page-size="store.pageSize"
+      :sort-by="store.sortBy"
+      :sort-direction="store.sortDirection"
+      :filters="store.filters"
+      :empty-text="$t('shift.empty')"
+      @update:page="(p) => (store.currentPage = p)"
+      @update:page-size="(s) => store.setPageSize(s)"
+      @sort-change="handleSortChange"
+      @filter-apply="handleFilterApply"
+      @filter-clear="handleFilterClear"
+      @filter-clear-all="clearAllFilters"
+      @reload="store.fetchPage()"
+      @row-dblclick="(row) => openEditModal(row.productionShiftID)"
+    >
+      <!-- Batch actions khi có checkbox được chọn -->
+      <template #batch-actions="{ selectedIds, hasRowsMatching }">
+        <MsButton
+          v-if="hasRowsMatching((r) => r.shiftStatus === 0)"
+          type="primary-outline"
+          @click="handleBatchToggle(selectedIds, 1)"
+        >
+          <span
+            class="dropdown-icon dropdown-icon--toggle"
+            style="background-color: var(--primary)"
+          ></span>
+          {{ $t('shift.actions.use') }}
+        </MsButton>
+        <MsButton
+          v-if="hasRowsMatching((r) => r.shiftStatus === 1)"
+          type="danger-outline"
+          @click="handleBatchToggle(selectedIds, 0)"
+        >
+          <span
+            class="dropdown-icon dropdown-icon--toggle"
+            style="background-color: #dc2626"
+          ></span>
+          {{ $t('shift.actions.stopUse') }}
+        </MsButton>
+        <MsButton type="danger-outline" @click="openBatchDeleteConfirm(selectedIds)">
+          {{ $t('shift.actions.delete') }}
+        </MsButton>
+      </template>
 
-        <!-- Khi có checkbox được chọn -->
-        <template v-if="store.selectedCount > 0">
-          <span class="selected-bar__count"
-            >{{ $t('common.selected') }} <b>{{ store.selectedCount }}</b></span
-          >
-          <MsButton type="text-primary" @click="store.unselectAll()">{{
-            $t('common.deselect')
-          }}</MsButton>
-          <MsButton
-            v-if="store.hasInactiveInSelected"
-            type="primary-outline"
-            @click="handleBatchToggle(1)"
-          >
-            <span
-              class="dropdown-icon dropdown-icon--toggle"
-              style="background-color: var(--primary)"
-            ></span>
-            {{ $t('shift.actions.use') }}
-          </MsButton>
-          <MsButton
-            v-if="store.hasActiveInSelected"
-            type="danger-outline"
-            @click="handleBatchToggle(0)"
-          >
-            <span
-              class="dropdown-icon dropdown-icon--toggle"
-              style="background-color: #dc2626"
-            ></span>
-            {{ $t('shift.actions.stopUse') }}
-          </MsButton>
-          <MsButton type="danger-outline" @click="openBatchDeleteConfirm">{{
-            $t('shift.actions.delete')
-          }}</MsButton>
-        </template>
+      <!-- Custom cell: Thời gian làm việc -->
+      <template #cell-workHour="{ row }">
+        <span :class="{ 'text-orange': row.workHour < 0 }">
+          {{ row.workHour != null ? row.workHour : '-' }}
+        </span>
+      </template>
 
-        <!-- Khi không chọn: hiện filter tags -->
-        <template v-else-if="store.filters.length > 0">
-          <div v-for="(filter, idx) in store.filters" :key="idx" class="filter-bar__tag">
-            <span class="filter-bar__tag-col">{{ getColumnLabel(filter.Property) }}</span>
-            <span class="filter-bar__tag-op">{{ getOperatorLabel(filter) }}</span>
-            <span class="filter-bar__tag-val">{{ getValueLabel(filter) }}</span>
-            <button class="filter-bar__tag-remove" @click="removeFilter(filter.Property)">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <MsButton type="text" @click="clearAllFilters">{{ $t('filter.clear') }}</MsButton>
-        </template>
+      <!-- Custom cell: Thời gian nghỉ -->
+      <template #cell-breakHour="{ row }">
+        {{ row.breakHour != null ? row.breakHour : 0 }}
+      </template>
 
-        <div class="shift-page__toolbar-spacer"></div>
+      <!-- Custom cell: Trạng thái -->
+      <template #cell-shiftStatus="{ row }">
+        <span :class="row.shiftStatus === 1 ? 'status--active' : 'status--inactive'">
+          {{ row.shiftStatus === 1 ? $t('shift.status.active') : $t('shift.status.inactive') }}
+        </span>
+      </template>
 
+      <!-- Row actions -->
+      <template #actions="{ row }">
         <button
-          v-if="store.selectedCount === 0"
-          class="shift-page__reload"
-          @click="store.fetchPage()"
-          :data-tooltip="$t('common.reload')"
+          class="action-btn"
+          :title="$t('shift.actions.edit')"
+          @click.stop="openEditModal(row.productionShiftID)"
         >
-          <span class="btn-icon btn-icon--reload"></span>
+          <span class="action-icon action-icon--edit"></span>
         </button>
-      </div>
-
-      <!-- Skeleton loading -->
-      <div v-if="store.loading" class="shift-page__skeleton-wrapper">
-        <table class="skeleton-table">
-          <thead>
-            <tr>
-              <th class="skeleton-th skeleton-th--checkbox"><input type="checkbox" disabled /></th>
-              <th
-                v-for="col in COLUMNS"
-                :key="col.key"
-                class="skeleton-th"
-                :style="col.width ? { width: col.width, minWidth: col.width } : {}"
-              >
-                <div class="skeleton-th__content">{{ col.label }}</div>
-              </th>
-              <th class="skeleton-th skeleton-th--action"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="n in store.pageSize" :key="n" class="skeleton-row">
-              <td class="skeleton-td skeleton-td--checkbox"><input type="checkbox" disabled /></td>
-              <td v-for="col in COLUMNS" :key="col.key" class="skeleton-td">
-                <div
-                  class="skeleton-bar"
-                  :style="{ width: (parseInt(col.width) - 40 || 80) + 'px' }"
-                ></div>
-              </td>
-              <td class="skeleton-td skeleton-td--action">
-                <div class="skeleton-bar" style="width: 40px"></div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Table -->
-      <MsTable
-        v-show="!store.loading"
-        :columns="COLUMNS"
-        :rows="store.pageData"
-        row-key="productionShiftID"
-        :selectable="true"
-        :all-checked="allPageChecked"
-        :is-selected="store.isSelected"
-        :active-row-id="activeRowId"
-        :active-filters="store.filters"
-        :sort-by="store.sortBy"
-        :sort-direction="store.sortDirection"
-        :empty-text="$t('shift.empty')"
-        @toggle-all="toggleAll"
-        @toggle-row="(id) => store.toggleSelect(id)"
-        @row-click="
-          (row) =>
-            (activeRowId = activeRowId === row.productionShiftID ? null : row.productionShiftID)
-        "
-        @filter-apply="handleFilterApply"
-        @filter-clear="handleFilterClear"
-        @sort-change="handleSortChange"
-        @row-dblclick="(row) => openEditModal(row.productionShiftID)"
-      >
-        <template #cell-workHour="{ row }">
-          <span :class="{ 'text-orange': row.workHour < 0 }">
-            {{ row.workHour != null ? row.workHour : '-' }}
-          </span>
-        </template>
-
-        <template #cell-breakHour="{ row }">
-          {{ row.breakHour != null ? row.breakHour : 0 }}
-        </template>
-
-        <template #cell-shiftStatus="{ row }">
-          <span :class="row.shiftStatus === 1 ? 'status--active' : 'status--inactive'">
-            {{ row.shiftStatus === 1 ? $t('shift.status.active') : $t('shift.status.inactive') }}
-          </span>
-        </template>
-
-        <template #actions="{ row }">
-          <button
-            class="action-btn"
-            :title="$t('shift.actions.edit')"
-            @click.stop="openEditModal(row.productionShiftID)"
-          >
-            <span class="action-icon action-icon--edit"></span>
-          </button>
-          <button
-            class="action-btn"
-            :title="$t('shift.actions.moreOptions')"
-            @click.stop="toggleMoreMenu(row.productionShiftID, $event)"
-          >
-            <span class="action-icon action-icon--more"></span>
-          </button>
-        </template>
-      </MsTable>
-
-      <!-- Footer pagination -->
-      <div class="shift-page__footer">
-        <span
-          >{{ $t('common.total') }}: <b>{{ store.pageInfo.total }}</b></span
+        <button
+          class="action-btn"
+          :title="$t('shift.actions.moreOptions')"
+          @click.stop="toggleMoreMenu(row.productionShiftID, $event)"
         >
-        <div class="shift-page__pagination">
-          <span>{{ $t('common.rowsPerPage') }}</span>
-          <MsPageSizeSelect
-            :model-value="store.pageSize"
-            :options="[10, 20, 50, 100]"
-            @update:model-value="(val) => store.setPageSize(val)"
-          />
-          <span class="pagination__range"
-            >{{ store.pageInfo.start }} - {{ store.pageInfo.end }}</span
-          >
-          <button
-            class="pagination__btn"
-            :disabled="store.isFirstPage"
-            @click="store.goToFirstPage()"
-            :title="$t('common.firstPage')"
-          >
-            <span class="btn-icon btn-icon--first-page"></span>
-          </button>
-          <button class="pagination__btn" :disabled="store.isFirstPage" @click="store.prevPage()">
-            <span class="btn-icon btn-icon--chevron-left"></span>
-          </button>
-          <button class="pagination__btn" :disabled="store.isLastPage" @click="store.nextPage()">
-            <span class="btn-icon btn-icon--chevron-right"></span>
-          </button>
-          <button
-            class="pagination__btn"
-            :disabled="store.isLastPage"
-            @click="store.goToLastPage()"
-            :title="$t('common.lastPage')"
-          >
-            <span class="btn-icon btn-icon--last-page"></span>
-          </button>
-        </div>
-      </div>
-    </div>
+          <span class="action-icon action-icon--more"></span>
+        </button>
+      </template>
+    </MsGrid>
 
     <!-- Error -->
     <div v-if="store.error" class="shift-page__error">
-      ⚠️ {{ store.error }}
-      <button @click="store.fetchPage()">Thử lại</button>
+      {{ store.error }}
+      <button @click="store.fetchPage()">{{ $t('common.reload') }}</button>
     </div>
   </main>
 
@@ -283,17 +168,21 @@
 
   <!-- ===== WARNING POPUP ===== -->
   <teleport to="body">
-    <div v-if="warningState.visible" class="warning-overlay" @click.self="closeWarning" @keydown.esc.stop="closeWarning" tabindex="-1" ref="warningOverlayRef">
-
+    <div
+      v-if="warningState.visible"
+      class="warning-overlay"
+      tabindex="-1"
+      ref="warningOverlayRef"
+      @click.self="closeWarning"
+      @keydown.esc.stop="closeWarning"
+    >
       <div class="warning-dialog">
         <div class="warning-dialog__header">
           <div class="warning-dialog__title-row">
-            <span class="warning-dialog__icon">⚠</span>
+            <span class="warning-dialog__icon"></span>
             <span class="warning-dialog__title">{{ $t('dialog.warning') }}</span>
           </div>
-          <button class="warning-dialog__close" @click="closeWarning">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+          <button class="warning-dialog__close" @click="closeWarning">&times;</button>
         </div>
         <div class="warning-dialog__body">
           <p v-html="warningState.message"></p>
@@ -313,18 +202,19 @@ import { ref, computed, onMounted, onUnmounted, reactive, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useShiftStore } from '@/stores/shiftStore'
 import { useToast } from '@/composables/useToast'
-import MsTable from '@/components/ms-table/MsTable.vue'
+
+import MsGrid from '@/components/ms-grid/MsGrid.vue'
 import MsButton from '@/components/ms-button/MsButton.vue'
 import ShiftForm from '@/components/ShiftForm.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
-import MsPageSizeSelect from '@/components/ms-page-size-select/Mspagesizeselect.vue'
 import { ApiError } from '@/services/api'
 
 const { t } = useI18n()
-const shiftFormRef = ref(null)
 const store = useShiftStore()
 const toast = useToast()
-const activeRowId = ref(null)
+
+const gridRef = ref(null)
+const shiftFormRef = ref(null)
 
 // ===== Columns config =====
 const COLUMNS = computed(() => [
@@ -348,7 +238,12 @@ const COLUMNS = computed(() => [
     width: '130px',
     sortKey: 'startTime',
   },
-  { key: 'endTimeDisplay', label: t('shift.columns.endTime'), width: '130px', sortKey: 'endTime' },
+  {
+    key: 'endTimeDisplay',
+    label: t('shift.columns.endTime'),
+    width: '130px',
+    sortKey: 'endTime',
+  },
   {
     key: 'breakStartTimeDisplay',
     label: t('shift.columns.breakStart'),
@@ -383,6 +278,10 @@ const COLUMNS = computed(() => [
     width: '140px',
     filterable: true,
     filterType: 'status',
+    filterOptions: [
+      { value: '1', label: t('shift.status.active') },
+      { value: '0', label: t('shift.status.inactive') },
+    ],
   },
   {
     key: 'createdBy',
@@ -418,56 +317,6 @@ const COLUMNS = computed(() => [
   },
 ])
 
-// ===== Map operator → label =====
-function getColumnLabel(property) {
-  const col = COLUMNS.value.find((c) => c.key === property || c.filterKey === property)
-  return col?.label || property
-}
-
-function getOperatorLabel(filter) {
-  const col = COLUMNS.value.find(
-    (c) => c.key === filter.Property || c.filterKey === filter.Property,
-  )
-  if (col?.filterType === 'status') return ''
-  return t(`filter.operators.${filter.Operator}`)
-}
-
-function getValueLabel(filter) {
-  const col = COLUMNS.value.find(
-    (c) => c.key === filter.Property || c.filterKey === filter.Property,
-  )
-  if (col?.filterType === 'status') {
-    return filter.Value === '1' || filter.Value === 1
-      ? t('shift.status.active')
-      : t('shift.status.inactive')
-  }
-  return filter.Value
-}
-
-// ===== State =====
-const formVisible = ref(false)
-const editingShift = ref(null)
-const moreMenuId = ref(null)
-const moreMenuPos = reactive({ top: 0, left: 0 })
-const moreMenuRow = computed(() =>
-  moreMenuId.value !== null ? store.getById(moreMenuId.value) : null,
-)
-
-const confirmState = reactive({ visible: false, title: '', message: '', onConfirm: null })
-const warningState = reactive({ visible: false, message: '' })
-const warningOverlayRef = ref(null)
-
-function showWarning(message) {
-  warningState.message = message
-  warningState.visible = true
-  nextTick(() => warningOverlayRef.value?.focus())
-}
-
-function closeWarning() {
-  warningState.visible = false
-  warningState.message = ''
-}
-
 // ===== Init =====
 onMounted(() => {
   store.init()
@@ -477,15 +326,12 @@ onUnmounted(() => {
   document.removeEventListener('click', closeMoreMenu)
 })
 
-// ===== Select all =====
-const allPageChecked = computed(
-  () =>
-    store.pageData.length > 0 && store.pageData.every((s) => store.isSelected(s.productionShiftID)),
-)
-
-function toggleAll(e) {
-  const ids = store.pageData.map((s) => s.productionShiftID)
-  e.target.checked ? store.selectAll(ids) : store.unselectAll()
+// ===== Sort =====
+function handleSortChange({ sortBy: newSortBy, sortDirection: newDir }) {
+  store.sortBy = newSortBy
+  store.sortDirection = newDir
+  store.resetPage()
+  store.fetchPage()
 }
 
 // ===== Filter =====
@@ -504,10 +350,6 @@ function handleFilterClear(property) {
   store.fetchPage()
 }
 
-function removeFilter(property) {
-  handleFilterClear(property)
-}
-
 function clearAllFilters() {
   store.filters.splice(0, store.filters.length)
   store.resetPage()
@@ -515,6 +357,12 @@ function clearAllFilters() {
 }
 
 // ===== More menu =====
+const moreMenuId = ref(null)
+const moreMenuPos = reactive({ top: 0, left: 0 })
+const moreMenuRow = computed(() =>
+  moreMenuId.value !== null ? store.getById(moreMenuId.value) : null,
+)
+
 function toggleMoreMenu(id, event) {
   if (moreMenuId.value === id) {
     moreMenuId.value = null
@@ -531,26 +379,23 @@ function closeMoreMenu() {
   moreMenuId.value = null
 }
 
-// ===== CRUD =====
+// ===== Form CRUD =====
+const formVisible = ref(false)
+const editingShift = ref(null)
+
 function openAddModal() {
   editingShift.value = null
   formVisible.value = true
 }
+
 function openEditModal(id) {
   editingShift.value = store.getById(id)
   formVisible.value = true
 }
+
 function closeModal() {
   formVisible.value = false
   editingShift.value = null
-}
-
-// ===== Sort =====
-function handleSortChange({ sortBy: newSortBy, sortDirection: newDir }) {
-  store.sortBy = newSortBy
-  store.sortDirection = newDir
-  store.resetPage()
-  store.fetchPage()
 }
 
 async function handleSaved(data) {
@@ -586,7 +431,7 @@ async function handleDuplicate(id) {
     editingShift.value = { ...duplicated, productionShiftID: null }
     formVisible.value = true
   } catch (err) {
-    toast.update(err.message)
+    toast.error(err.message)
   }
 }
 
@@ -596,34 +441,39 @@ async function handleToggleSingle(row) {
   const newStatus = row.shiftStatus === 1 ? 0 : 1
   try {
     await store.toggleStatus([row.productionShiftID], newStatus)
+    gridRef.value?.deselectIds([row.productionShiftID])
   } catch (err) {
     toast.error(err.message)
   }
 }
 
-async function handleBatchToggle(status) {
-  const ids = store.selectedIdList
+async function handleBatchToggle(selectedIds, status) {
   try {
-    await store.toggleStatus(ids, status)
+    await store.toggleStatus(selectedIds, status)
+    gridRef.value?.deselectIds(selectedIds)
   } catch (err) {
     toast.error(err.message)
   }
 }
 
 // ===== Delete =====
+const confirmState = reactive({ visible: false, title: '', message: '', onConfirm: null })
+
 function openDeleteConfirm(id) {
   moreMenuId.value = null
   const shift = store.getById(id)
   confirmState.title = t('shift.confirm.deleteTitle')
-  confirmState.message = t('shift.confirm.deleteSingle', { code: shift?.productionShiftCode || '' })
+  confirmState.message = t('shift.confirm.deleteSingle', {
+    code: shift?.productionShiftCode || '',
+  })
   confirmState.onConfirm = () => handleDelete([id])
   confirmState.visible = true
 }
 
-function openBatchDeleteConfirm() {
+function openBatchDeleteConfirm(ids) {
   confirmState.title = t('shift.confirm.deleteTitle')
-  confirmState.message = t('shift.confirm.deleteBatch', { count: store.selectedIdList.length })
-  confirmState.onConfirm = () => handleDelete(store.selectedIdList)
+  confirmState.message = t('shift.confirm.deleteBatch', { count: ids.length })
+  confirmState.onConfirm = () => handleDelete([...ids])
   confirmState.visible = true
 }
 
@@ -643,13 +493,30 @@ async function handleDelete(ids) {
   try {
     await store.deleteByIds(ids)
     toast.update(tid, t('shift.toast.deleteSuccess', { count: ids.length }), 'success')
+    gridRef.value?.deselectIds(ids)
   } catch (err) {
     toast.update(tid, err.message, 'error')
   }
 }
+
+// ===== Warning popup =====
+const warningState = reactive({ visible: false, message: '' })
+const warningOverlayRef = ref(null)
+
+function showWarning(message) {
+  warningState.message = message
+  warningState.visible = true
+  nextTick(() => warningOverlayRef.value?.focus())
+}
+
+function closeWarning() {
+  warningState.visible = false
+  warningState.message = ''
+}
 </script>
 
 <style scoped>
+/* ===== PAGE HEADER ===== */
 .shift-page__header {
   display: flex;
   justify-content: space-between;
@@ -657,11 +524,14 @@ async function handleDelete(ids) {
   margin-top: 45px;
   margin-bottom: 2px;
 }
+
 .shift-page__title {
   font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--text-main);
 }
+
+/* ===== BUTTON ===== */
 .btn-icon {
   -webkit-mask-repeat: no-repeat;
   background-color: currentColor;
@@ -673,35 +543,13 @@ async function handleDelete(ids) {
   display: inline-block;
   flex-shrink: 0;
 }
+
 .btn-icon--plus {
   mask-position: -80px 0px;
   background-color: #fff;
-  height: 16px;
-  width: 16px;
-  min-height: 16px;
-  min-width: 16px;
-  position: relative;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
-.btn-icon--reload {
-  -webkit-mask-repeat: no-repeat;
-  background-color: #4b5563;
-  height: 16px;
-  width: 16px;
-  min-height: 16px;
-  min-width: 16px;
-  mask-position: -112px 0px;
-  position: relative;
-  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
-}
-.btn-icon--chevron-left {
-  mask-position: -48px 0px;
-  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
-}
-.btn-icon--chevron-right {
-  mask-position: -64px 0px;
-  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
-}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -715,209 +563,38 @@ async function handleDelete(ids) {
   font-size: 13px;
   height: 28px;
 }
+
 .btn--primary {
   background-color: var(--primary);
   color: #fff;
 }
+
 .btn--primary:hover {
   background-color: var(--primary-hover);
 }
-.shift-page__content {
-  flex: 1;
-  background-color: #fff;
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-.shift-page__toolbar {
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.shift-page__toolbar-spacer {
-  flex: 1;
-}
-.shift-page__search {
-  position: relative;
-  flex-shrink: 0;
-}
-.shift-page__search-icon {
-  position: absolute;
-  left: 13px;
-  top: 50%;
-  transform: translateY(-50%);
-  min-width: 16px;
-  mask-position: 0px 0px;
-  height: 16px;
-  width: 16px;
-  min-height: 16px;
-  -webkit-mask-repeat: no-repeat;
-  background-color: #4b5563;
-  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
-}
-.shift-page__search-input {
-  padding: 5px 0px 5px 36px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 13px;
-  outline: none;
-  background-color: #fff;
-}
 
-.shift-page__search-input:hover {
-      border-color: #9ca3af;
-}
-.shift-page__search-input:focus {
-  border-color: var(--primary);
-}
-.shift-page__reload {
-  padding: 6px 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid #d1d5db;
-  color: #111827;
-  background-color: #fff;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  outline: none;
-  border-radius: 4px;
-  position: relative;
-  font-size: 13px;
-  height: 28px;
-  font-weight: 500;
-  flex-shrink: 0;
-}
-.shift-page__reload:hover {
-  border: 1px solid #d1d5db;
-  color: var(--primary);
-  background-color: #f3f4f6;
-}
-.selected-bar__count {
-  font-size: 13px;
-  color: #374151;
-}
-.selected-bar__separator {
-  width: 1px;
-  height: 20px;
-  background: #d1d5db;
-}
-.filter-bar__tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: #111827;
-  white-space: nowrap;
-  background: #f3f4f6;
-  padding: 0 8px;
-}
-.filter-bar__tag-col {
-  color: #374151;
-}
-.filter-bar__tag-op {
-  color: var(--primary);
-  font-weight: 500;
-}
-.filter-bar__tag-val {
-  color: #111827;
-  font-weight: 500;
-}
-.filter-bar__tag-remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 16px;
-  width: 16px;
-  min-height: 16px;
-  min-width: 16px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  -webkit-mask-repeat: no-repeat;
-  background-color: #4b5563;
-  mask-position: -96px 0px;
-  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
-}
-.shift-page__footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px;
-  border-top: 1px solid #e5e7eb;
-  background-color: #fafafa;
-  font-size: 13px;
-  color: #111827;
-  flex-shrink: 0;
-}
-.shift-page__pagination {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.pagination__range {
-  min-width: 50px;
-  text-align: center;
-  font-weight: 600;
-}
-.pagination__btn {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--border-color);
-  background: #fff;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
-}
-.pagination__btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+/* ===== CELL STYLES ===== */
 .status--active {
-  color: var(--primary);
+  color: #009b71;
   font-weight: 500;
   background-color: #ebfef6;
-  color: #009b71;
   padding: 5px 8px;
   border-radius: 999px;
 }
+
 .status--inactive {
   font-weight: 500;
   background-color: #fee2e2;
   color: #dc2626;
-  width: fit-content;
   padding: 5px 8px;
   border-radius: 999px;
 }
+
 .text-orange {
   color: #ea580c;
 }
-.shift-page__error {
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-  color: #991b1b;
-  padding: 10px 16px;
-  font-size: 13px;
-  border-radius: 4px;
-}
-.shift-page__error button {
-  margin-left: 12px;
-  border: 1px solid #dc2626;
-  background: transparent;
-  color: #dc2626;
-  padding: 2px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: inherit;
-}
+
+/* ===== ROW ACTIONS ===== */
 .action-btn {
   display: inline-flex;
   align-items: center;
@@ -931,12 +608,15 @@ async function handleDelete(ids) {
   flex-shrink: 0;
   transition: background-color 0.15s;
 }
+
 .action-btn:hover {
   background-color: #f3f4f6;
 }
+
 .action-btn:hover .action-icon {
   background-color: var(--primary);
 }
+
 .action-icon {
   -webkit-mask-repeat: no-repeat;
   background-color: #4b5563;
@@ -948,14 +628,39 @@ async function handleDelete(ids) {
   display: inline-block;
   flex-shrink: 0;
 }
+
 .action-icon--edit {
   mask-position: -271px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
+
 .action-icon--more {
   mask-position: -288px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
+
+/* ===== ERROR ===== */
+.shift-page__error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 10px 16px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+.shift-page__error button {
+  margin-left: 12px;
+  border: 1px solid #dc2626;
+  background: transparent;
+  color: #dc2626;
+  padding: 2px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ===== WARNING DIALOG ===== */
 .warning-overlay {
   position: fixed;
   inset: 0;
@@ -964,7 +669,9 @@ async function handleDelete(ids) {
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: none;
 }
+
 .warning-dialog {
   background: #fff;
   border-radius: 8px;
@@ -973,17 +680,20 @@ async function handleDelete(ids) {
   max-width: 90vw;
   overflow: hidden;
 }
+
 .warning-dialog__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px 12px;
 }
+
 .warning-dialog__title-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .warning-dialog__icon {
   display: inline-flex;
   align-items: center;
@@ -998,14 +708,15 @@ async function handleDelete(ids) {
   min-width: 20px;
   position: relative;
   -webkit-mask-repeat: no-repeat;
-  color: #ea580c;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.qtsx_icon-e5768799.svg?v=10.0.0.36);
 }
+
 .warning-dialog__title {
   font-weight: 600;
   color: #111827;
   font-size: 20px;
 }
+
 .warning-dialog__close {
   background: none;
   border: none;
@@ -1017,16 +728,19 @@ async function handleDelete(ids) {
   display: flex;
   align-items: center;
 }
+
 .warning-dialog__close:hover {
   background: #f3f4f6;
   color: #111;
 }
+
 .warning-dialog__body {
   padding: 0 20px 16px;
   font-size: 14px;
   color: #374151;
   line-height: 1.6;
 }
+
 .warning-dialog__body p {
   font-size: 13px;
   max-height: 400px;
@@ -1036,11 +750,13 @@ async function handleDelete(ids) {
   max-width: 100%;
   overflow-wrap: anywhere;
 }
+
 .warning-dialog__footer {
   display: flex;
   justify-content: flex-end;
   padding: 12px 20px;
 }
+
 .warning-dialog__btn {
   background-color: var(--primary, #009b71);
   color: #fff;
@@ -1053,72 +769,14 @@ async function handleDelete(ids) {
   font-family: inherit;
   transition: background-color 0.15s;
 }
+
 .warning-dialog__btn:hover {
   background-color: var(--primary-hover, #007b5d);
-}
-.shift-page__skeleton-wrapper {
-  flex: 1;
-  overflow-x: auto;
-  overflow-y: visible;
-}
-.skeleton-table {
-  border-collapse: collapse;
-  font-size: 13px;
-  width: max-content;
-  min-width: 100%;
-}
-.skeleton-th {
-  font-size: 13px;
-  font-weight: 600;
-  color: #262626;
-  border-bottom: 1px solid #e5e7eb;
-  text-align: left;
-  padding: 10px 0;
-  background-color: #f3f4f6;
-  white-space: nowrap;
-}
-.skeleton-th__content {
-  padding: 0 15px;
-  border-left: 1px solid #d1d5db;
-}
-.skeleton-th--checkbox {
-  text-align: center;
-  width: 40px;
-  min-width: 40px;
-}
-.skeleton-th--action {
-  width: 72px;
-  min-width: 72px;
-}
-.skeleton-td {
-  padding: 8px 15px;
-  border-bottom: 1px solid #f0f0f0;
-}
-.skeleton-td--checkbox {
-  text-align: center;
-  width: 40px;
-}
-.skeleton-td--action {
-  width: 72px;
-}
-.skeleton-bar {
-  height: 14px;
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
-  border-radius: 3px;
-}
-@keyframes skeleton-shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
 }
 </style>
 
 <style>
+/* ===== MORE DROPDOWN (teleport → global) ===== */
 .action-more__dropdown {
   background: #fff;
   border: 1px solid #e5e7eb;
@@ -1127,6 +785,7 @@ async function handleDelete(ids) {
   min-width: 170px;
   padding: 4px 0;
 }
+
 .action-more__item {
   padding: 8px 16px;
   font-size: 13px;
@@ -1137,19 +796,24 @@ async function handleDelete(ids) {
   gap: 8px;
   white-space: nowrap;
 }
+
 .action-more__item:hover {
   background: #f3f4f6;
 }
+
 .action-more__item--danger {
   color: #dc2626;
 }
+
 .action-more__item--danger:hover {
   background: #fef2f2;
   color: #dc2626;
 }
+
 .action-more__item--danger:hover .dropdown-icon {
   background-color: #dc2626;
 }
+
 .dropdown-icon {
   -webkit-mask-repeat: no-repeat;
   background-color: #4b5563;
@@ -1161,40 +825,21 @@ async function handleDelete(ids) {
   display: inline-block;
   flex-shrink: 0;
 }
+
 .dropdown-icon--clone {
   mask-position: -224px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
+
 .dropdown-icon--toggle {
-      margin-right: 5px;
+  margin-right: 5px;
   mask-position: -192px 0px;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
+
 .dropdown-icon--delete {
   mask-position: -208px 0px;
   background-color: #dc2626 !important;
-  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
-}
-.btn-icon--first-page {
-  mask-position: -143px 0px;
-  background-color: #9ca3af;
-  height: 16px;
-  width: 16px;
-  min-height: 16px;
-  min-width: 16px;
-  position: relative;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
-}
-.btn-icon--last-page {
-  mask-position: -160px 0px;
-  height: 16px;
-  width: 16px;
-  min-height: 16px;
-  min-width: 16px;
-  position: relative;
-  -webkit-mask-repeat: no-repeat;
-  background-color: #4b5563;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 </style>
