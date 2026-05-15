@@ -180,7 +180,8 @@ const showFlyout = ref(false)
   top: 48px;
   overflow-y: auto;
   overflow-x: visible;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   z-index: 100;
   flex-shrink: 0;
   transition:
@@ -192,7 +193,17 @@ const showFlyout = ref(false)
   min-width: 60px;
 }
 .sidebar::-webkit-scrollbar {
-  display: none;
+  width: 4px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
 }
 .sidebar__nav {
   flex: 1;

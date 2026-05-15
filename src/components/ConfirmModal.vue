@@ -104,7 +104,7 @@ const confirmBtnType = computed(() => (props.type === 'danger' ? 'danger-confirm
 }
 .confirm-modal__message {
   font-size: 14px;
-  color: #374151;
+  color: #111827;
   line-height: 1.6;
 }
 </style>

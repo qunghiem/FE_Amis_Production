@@ -132,7 +132,7 @@
     "confirm": {
       "deleteTitle": "Xóa Ca làm việc",
       "deleteSingle": "Ca làm việc <b>{code}</b> sau khi bị xóa sẽ không thể khôi phục. Bạn có muốn tiếp tục xóa không?",
-      "deleteBatch": "<b>{count}</b> ca làm việc sau khi bị xóa sẽ không thể khôi phục. Bạn có muốn tiếp tục xóa không?"
+      "deleteBatch": "Các <b>Ca làm việc</b> sau khi bị xóa sẽ không thể khôi phục. Bạn có muốn tiếp tục xóa không?"
     },
     "toast": {
       "updating": "Đang cập nhật...",
@@ -140,7 +140,7 @@
       "updateSuccess": "Cập nhật thành công!",
       "addSuccess": "Thêm mới thành công!",
       "deleting": "Đang xóa...",
-      "deleteSuccess": "Xóa thành công {count} ca!"
+      "deleteSuccess": "Xóa ca làm việc thành công!"
     },
     "empty": "Chưa có ca làm việc nào"
   },

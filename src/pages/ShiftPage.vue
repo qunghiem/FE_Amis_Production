@@ -185,12 +185,11 @@
         >
         <div class="shift-page__pagination">
           <span>{{ $t('common.rowsPerPage') }}</span>
-          <select
-            :value="store.pageSize"
-            @change="(e) => store.setPageSize(Number(e.target.value))"
-          >
-            <option v-for="n in [10, 20, 50, 100]" :key="n" :value="n">{{ n }}</option>
-          </select>
+          <MsPageSizeSelect
+            :model-value="store.pageSize"
+            :options="[10, 20, 50, 100]"
+            @update:model-value="(val) => store.setPageSize(val)"
+          />
           <span class="pagination__range"
             >{{ store.pageInfo.start }} - {{ store.pageInfo.end }}</span
           >
@@ -284,7 +283,8 @@
 
   <!-- ===== WARNING POPUP ===== -->
   <teleport to="body">
-    <div v-if="warningState.visible" class="warning-overlay" @click.self="closeWarning">
+    <div v-if="warningState.visible" class="warning-overlay" @click.self="closeWarning" @keydown.esc.stop="closeWarning" tabindex="-1" ref="warningOverlayRef">
+
       <div class="warning-dialog">
         <div class="warning-dialog__header">
           <div class="warning-dialog__title-row">
@@ -309,7 +309,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useShiftStore } from '@/stores/shiftStore'
 import { useToast } from '@/composables/useToast'
@@ -317,6 +317,7 @@ import MsTable from '@/components/ms-table/MsTable.vue'
 import MsButton from '@/components/ms-button/MsButton.vue'
 import ShiftForm from '@/components/ShiftForm.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
+import MsPageSizeSelect from '@/components/ms-page-size-select/Mspagesizeselect.vue'
 import { ApiError } from '@/services/api'
 
 const { t } = useI18n()
@@ -454,11 +455,14 @@ const moreMenuRow = computed(() =>
 
 const confirmState = reactive({ visible: false, title: '', message: '', onConfirm: null })
 const warningState = reactive({ visible: false, message: '' })
+const warningOverlayRef = ref(null)
 
 function showWarning(message) {
   warningState.message = message
   warningState.visible = true
+  nextTick(() => warningOverlayRef.value?.focus())
 }
+
 function closeWarning() {
   warningState.visible = false
   warningState.message = ''
@@ -763,6 +767,10 @@ async function handleDelete(ids) {
   outline: none;
   background-color: #fff;
 }
+
+.shift-page__search-input:hover {
+      border-color: #9ca3af;
+}
 .shift-page__search-input:focus {
   border-color: var(--primary);
 }
@@ -851,14 +859,7 @@ async function handleDelete(ids) {
   align-items: center;
   gap: 10px;
 }
-.shift-page__pagination select {
-  padding: 4px 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 13px;
-  outline: none;
-  font-family: inherit;
-}
+
 .pagination__range {
   min-width: 50px;
   text-align: center;

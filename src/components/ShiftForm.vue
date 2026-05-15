@@ -142,7 +142,7 @@
 
   <!-- ===== CẢNH BÁO VALIDATE ===== -->
   <teleport to="body">
-    <div v-if="warnValidate.visible" class="sf-overlay" @click.self="closeWarnValidate">
+    <div v-if="warnValidate.visible" class="sf-overlay" @click.self="closeWarnValidate" @keydown.esc.stop="closeWarnValidate" tabindex="-1" ref="warnOverlayRef">
       <div class="sf-dialog">
         <div class="sf-dialog__header">
           <div class="sf-dialog__title-row">
@@ -268,10 +268,14 @@ const isDirty = computed(() => {
 
 const warnValidate = reactive({ visible: false, message: '' })
 
+const warnOverlayRef = ref(null)
+
 function showWarnValidate(msg) {
   warnValidate.message = msg
   warnValidate.visible = true
+  nextTick(() => warnOverlayRef.value?.focus())
 }
+
 function closeWarnValidate() {
   warnValidate.visible = false
   warnValidate.message = ''
