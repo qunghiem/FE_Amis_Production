@@ -17,7 +17,7 @@
     <!-- ===== GRID ===== -->
     <MsGrid
       ref="gridRef"
-      :columns="COLUMNS"
+      :columns="columns"
       :rows="store.pageData"
       :total="store.pageInfo.total"
       :loading="store.loading"
@@ -132,7 +132,7 @@
           {{ $t('shift.actions.duplicate') }}
         </div>
         <div class="action-more__item" @click="handleToggleSingle(moreMenuRow)">
-          <span class="dropdown-icon dropdown-icon--toggle"></span>
+          <span class="dropdown-icon dropdown-icon--toggle icon-stop--use"></span>
           {{
             moreMenuRow.shiftStatus === 1 ? $t('shift.actions.stopUse') : $t('shift.actions.use')
           }}
@@ -152,7 +152,7 @@
   <ShiftForm
     ref="shiftFormRef"
     :visible="formVisible"
-    :editingShift="editingShift"
+    :editingItem="editingItem"
     @close="closeModal"
     @saved="handleSaved"
   />
@@ -199,334 +199,134 @@
   </teleport>
 </template>
 
-<script setup>
-import { ref, computed, onMounted, onUnmounted, reactive, nextTick } from 'vue'
-import { useI18n } from 'vue-i18n'
+<script>
+import baseList from '@/base/baseList'
 import { useShiftStore } from '@/stores/shiftStore'
-import { useToast } from '@/composables/useToast'
-
 import MsGrid from '@/components/ms-grid/MsGrid.vue'
 import MsButton from '@/components/ms-button/MsButton.vue'
-import ShiftForm from '@/components/ShiftForm.vue'
+import ShiftForm from '@/components/ShiftForm.vue' // form kế thừa baseDetail
 import ConfirmModal from '@/components/ConfirmModal.vue'
-import { ApiError } from '@/services/api'
 
-const { t } = useI18n()
-const store = useShiftStore()
-const toast = useToast()
+export default {
+  name: 'ShiftPage',
 
-const gridRef = ref(null)
-const shiftFormRef = ref(null)
+  // ★ Kế thừa toàn bộ logic base
+  extends: baseList,
 
-// ===== Columns config =====
-const COLUMNS = computed(() => [
-  {
-    key: 'productionShiftCode',
-    label: t('shift.columns.code'),
-    width: '120px',
-    filterable: true,
-    filterType: 'string',
-  },
-  {
-    key: 'productionShiftName',
-    label: t('shift.columns.name'),
-    width: '250px',
-    filterable: true,
-    filterType: 'string',
-  },
-  {
-    key: 'startTimeDisplay',
-    label: t('shift.columns.startTime'),
-    width: '130px',
-    sortKey: 'startTime',
-  },
-  {
-    key: 'endTimeDisplay',
-    label: t('shift.columns.endTime'),
-    width: '130px',
-    sortKey: 'endTime',
-  },
-  {
-    key: 'breakStartTimeDisplay',
-    label: t('shift.columns.breakStart'),
-    width: '165px',
-    sortKey: 'breakStartTime',
-  },
-  {
-    key: 'breakEndTimeDisplay',
-    label: t('shift.columns.breakEnd'),
-    width: '165px',
-    sortKey: 'breakEndTime',
-  },
-  {
-    key: 'workHour',
-    label: t('shift.columns.workHour'),
-    width: '230px',
-    align: 'right',
-    filterable: true,
-    filterType: 'number',
-  },
-  {
-    key: 'breakHour',
-    label: t('shift.columns.breakHour'),
-    width: '230px',
-    align: 'right',
-    filterable: true,
-    filterType: 'number',
-  },
-  {
-    key: 'shiftStatus',
-    label: t('shift.columns.status'),
-    width: '140px',
-    filterable: true,
-    filterType: 'status',
-    filterOptions: [
-      { value: '1', label: t('shift.status.active') },
-      { value: '0', label: t('shift.status.inactive') },
-    ],
-  },
-  {
-    key: 'createdBy',
-    label: t('shift.columns.createdBy'),
-    width: '150px',
-    filterable: true,
-    filterType: 'string',
-  },
-  {
-    key: 'createdDateDisplay',
-    label: t('shift.columns.createdDate'),
-    width: '150px',
-    filterable: true,
-    filterType: 'date',
-    filterKey: 'CreatedDate',
-    sortKey: 'createdDate',
-  },
-  {
-    key: 'modifiedBy',
-    label: t('shift.columns.modifiedBy'),
-    width: '150px',
-    filterable: true,
-    filterType: 'string',
-  },
-  {
-    key: 'modifiedDateDisplay',
-    label: t('shift.columns.modifiedDate'),
-    width: '150px',
-    filterable: true,
-    filterType: 'date',
-    filterKey: 'ModifiedDate',
-    sortKey: 'modifiedDate',
-  },
-])
+  components: { MsGrid, MsButton, ShiftForm, ConfirmModal },
 
-// ===== Init =====
-onMounted(() => {
-  store.init()
-  document.addEventListener('click', closeMoreMenu)
-})
-onUnmounted(() => {
-  document.removeEventListener('click', closeMoreMenu)
-})
-
-// ===== Sort =====
-function handleSortChange({ sortBy: newSortBy, sortDirection: newDir }) {
-  store.sortBy = newSortBy
-  store.sortDirection = newDir
-  store.resetPage()
-  store.fetchPage()
-}
-
-// ===== Filter =====
-function handleFilterApply(filter) {
-  const idx = store.filters.findIndex((f) => f.Property === filter.Property)
-  if (idx >= 0) store.filters.splice(idx, 1, filter)
-  else store.filters.push(filter)
-  store.resetPage()
-  store.fetchPage()
-}
-
-function handleFilterClear(property) {
-  const idx = store.filters.findIndex((f) => f.Property === property)
-  if (idx >= 0) store.filters.splice(idx, 1)
-  store.resetPage()
-  store.fetchPage()
-}
-
-function clearAllFilters() {
-  store.filters.splice(0, store.filters.length)
-  store.resetPage()
-  store.fetchPage()
-}
-
-// ===== More menu =====
-const moreMenuId = ref(null)
-const moreMenuPos = reactive({ top: 0, left: 0 })
-const moreMenuRow = computed(() =>
-  moreMenuId.value !== null ? store.getById(moreMenuId.value) : null,
-)
-
-function toggleMoreMenu(id, event) {
-  if (moreMenuId.value === id) {
-    moreMenuId.value = null
-    return
-  }
-  const btn = event.currentTarget
-  const rect = btn.getBoundingClientRect()
-  moreMenuPos.top = rect.bottom + 4
-  moreMenuPos.left = rect.right - 170
-  moreMenuId.value = id
-}
-
-function closeMoreMenu() {
-  moreMenuId.value = null
-}
-
-// ===== Form CRUD =====
-const formVisible = ref(false)
-const editingShift = ref(null)
-
-function openAddModal() {
-  editingShift.value = null
-  formVisible.value = true
-}
-
-function openEditModal(id) {
-  editingShift.value = store.getById(id)
-  formVisible.value = true
-}
-
-function closeModal() {
-  formVisible.value = false
-  editingShift.value = null
-}
-
-async function handleSaved(data) {
-  const isEdit = !!data.productionShiftID
-  const isSaveAndAdd = data._action === 'save-and-add'
-  const tid = toast.loading(isEdit ? t('shift.toast.updating') : t('shift.toast.adding'))
-
-  try {
-    isEdit ? await store.updateShift(data) : await store.addShift(data)
-    toast.update(
-      tid,
-      isEdit ? t('shift.toast.updateSuccess') : t('shift.toast.addSuccess'),
-      'success',
-    )
-    if (isSaveAndAdd) shiftFormRef.value?.resetForm()
-    else closeModal()
-  } catch (err) {
-    toast.remove(tid)
-    shiftFormRef.value?.resetSaving()
-    if (err instanceof ApiError && err.errors?.length > 0) {
-      showWarning(err.errors.join('<br>'))
-    } else {
-      toast.error(err.message)
+  data() {
+    return {
+      // Config riêng cho Shift
+      entityName: 'shift',
+      rowKey: 'productionShiftID',
     }
-  }
-}
+  },
 
-// ===== Duplicate =====
-async function handleDuplicate(id) {
-  moreMenuId.value = null
-  try {
-    const duplicated = await store.duplicateShift(id)
-    editingShift.value = { ...duplicated, productionShiftID: null }
-    formVisible.value = true
-  } catch (err) {
-    toast.error(err.message)
-  }
-}
+  computed: {
+    // ★ Override columns — phần DUY NHẤT khác nhau giữa các entity
+    columns() {
+      return [
+        {
+          key: 'productionShiftCode',
+          label: this.$t('shift.columns.code'),
+          width: '120px',
+          filterable: true,
+          filterType: 'string',
+        },
+        {
+          key: 'productionShiftName',
+          label: this.$t('shift.columns.name'),
+          width: '250px',
+          filterable: true,
+          filterType: 'string',
+        },
+        {
+          key: 'startTimeDisplay',
+          label: this.$t('shift.columns.startTime'),
+          width: '130px',
+          sortKey: 'startTime',
+        },
+        {
+          key: 'endTimeDisplay',
+          label: this.$t('shift.columns.endTime'),
+          width: '130px',
+          sortKey: 'endTime',
+        },
+        {
+          key: 'breakStartTimeDisplay',
+          label: this.$t('shift.columns.breakStart'),
+          width: '165px',
+          sortKey: 'breakStartTime',
+        },
+        {
+          key: 'breakEndTimeDisplay',
+          label: this.$t('shift.columns.breakEnd'),
+          width: '165px',
+          sortKey: 'breakEndTime',
+        },
+        {
+          key: 'workHour',
+          label: this.$t('shift.columns.workHour'),
+          width: '230px',
+          align: 'right',
+          filterable: true,
+          filterType: 'number',
+        },
+        {
+          key: 'breakHour',
+          label: this.$t('shift.columns.breakHour'),
+          width: '230px',
+          align: 'right',
+          filterable: true,
+          filterType: 'number',
+        },
+        {
+          key: 'shiftStatus',
+          label: this.$t('shift.columns.status'),
+          width: '140px',
+          filterable: true,
+          filterType: 'status',
+          filterOptions: [
+            { value: '1', label: this.$t('shift.status.active') },
+            { value: '0', label: this.$t('shift.status.inactive') },
+          ],
+        },
+        {
+          key: 'createdBy',
+          label: this.$t('shift.columns.createdBy'),
+          width: '150px',
+          filterable: true,
+          filterType: 'string',
+        },
+        {
+          key: 'createdDateDisplay',
+          label: this.$t('shift.columns.createdDate'),
+          width: '150px',
+          filterable: true,
+          filterType: 'date',
+          filterKey: 'CreatedDate',
+          sortKey: 'createdDate',
+        },
+      ]
+    },
+  },
 
-// ===== Toggle status =====
-async function handleToggleSingle(row) {
-  moreMenuId.value = null
-  const newStatus = row.shiftStatus === 1 ? 0 : 1
-  try {
-    await store.toggleStatus([row.productionShiftID], newStatus)
-    gridRef.value?.deselectIds([row.productionShiftID])
-  } catch (err) {
-    toast.error(err.message)
-  }
-}
+  methods: {
+    // ★ Override getStore — trả về Pinia store tương ứng
+    getStore() {
+      return useShiftStore()
+    },
 
-async function handleBatchToggle(selectedIds, status) {
-  try {
-    await store.toggleStatus(selectedIds, status)
-    gridRef.value?.deselectIds(selectedIds)
-  } catch (err) {
-    toast.error(err.message)
-  }
-}
+    // ★ Override getCodeField — field hiển thị trong confirm delete
+    getCodeField() {
+      return 'productionShiftCode'
+    },
 
-// ===== Delete =====
-const confirmState = reactive({ visible: false, title: '', message: '', onConfirm: null })
-
-function openDeleteConfirm(id) {
-  moreMenuId.value = null
-  const shift = store.getById(id)
-  confirmState.title = t('shift.confirm.deleteTitle')
-  confirmState.message = t('shift.confirm.deleteSingle', {
-    code: shift?.productionShiftCode || '',
-  })
-  confirmState.onConfirm = () => handleDelete([id])
-  confirmState.visible = true
-}
-
-function openBatchDeleteConfirm(ids) {
-  confirmState.title = t('shift.confirm.deleteTitle')
-  confirmState.message = t('shift.confirm.deleteBatch', { count: ids.length })
-  confirmState.onConfirm = () => handleDelete([...ids])
-  confirmState.visible = true
-}
-
-function closeConfirm() {
-  confirmState.visible = false
-  confirmState.onConfirm = null
-}
-
-async function onConfirm() {
-  const callback = confirmState.onConfirm
-  closeConfirm()
-  if (callback) await callback()
-}
-
-async function handleDelete(ids) {
-  const tid = toast.loading(t('shift.toast.deleting'))
-  try {
-    await store.deleteByIds(ids)
-    toast.update(tid, t('shift.toast.deleteSuccess', { count: ids.length }), 'success')
-    gridRef.value?.deselectIds(ids)
-  } catch (err) {
-    toast.update(tid, err.message, 'error')
-  }
-}
-
-async function handleExport() {
-    const tid = toast.loading('Đang xuất Excel...')
-    try {
-        await store.exportExcel(
-            store.searchKeyword, store.filters,
-            store.sortBy, store.sortDirection
-        )
-        toast.update(tid, 'Xuất Excel thành công!', 'success')
-    } catch (err) {
-        toast.update(tid, 'Xuất Excel thất bại', 'error')
-    }
-}
-
-// ===== Warning popup =====
-const warningState = reactive({ visible: false, message: '' })
-const warningOverlayRef = ref(null)
-
-function showWarning(message) {
-  warningState.message = message
-  warningState.visible = true
-  nextTick(() => warningOverlayRef.value?.focus())
-}
-
-function closeWarning() {
-  warningState.visible = false
-  warningState.message = ''
+    getFormRef() {
+      return this.$refs.shiftFormRef
+    },
+  },
 }
 </script>
 
@@ -856,5 +656,9 @@ function closeWarning() {
   mask-position: -208px 0px;
   background-color: #dc2626 !important;
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+}
+
+.icon-stop--use {
+  margin-right: 0 !important;
 }
 </style>

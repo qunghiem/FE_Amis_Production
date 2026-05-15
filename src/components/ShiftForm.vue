@@ -142,7 +142,14 @@
 
   <!-- ===== CẢNH BÁO VALIDATE ===== -->
   <teleport to="body">
-    <div v-if="warnValidate.visible" class="sf-overlay" @click.self="closeWarnValidate" @keydown.esc.stop="closeWarnValidate" tabindex="-1" ref="warnOverlayRef">
+    <div
+      v-if="warnValidate.visible"
+      class="sf-overlay"
+      @click.self="closeWarnValidate"
+      @keydown.esc.stop="closeWarnValidate"
+      tabindex="-1"
+      ref="warnOverlayRef"
+    >
       <div class="sf-dialog">
         <div class="sf-dialog__header">
           <div class="sf-dialog__title-row">
@@ -182,353 +189,127 @@
   </teleport>
 </template>
 
-<script setup>
-import { ref, watch, computed, nextTick, reactive, onMounted, onUnmounted } from 'vue'
-import { useI18n } from 'vue-i18n'
+<script>
+import baseDetail from '@/base/baseDetail'
+import MsModal from '@/components/ms-modal/MsModal.vue'
+import MsButton from '@/components/ms-button/MsButton.vue'
+import MsTimePicker from '@/components/ms-time-picker/MsTimePicker.vue'
 
-import MsModal from './ms-modal/MsModal.vue'
-import MsButton from './ms-button/MsButton.vue'
-import MsTimePicker from './ms-time-picker/MsTimePicker.vue'
+export default {
+  name: 'ShiftForm',
 
-const { t } = useI18n()
+  // ★ Kế thừa toàn bộ logic base
+  extends: baseDetail,
 
-const props = defineProps({
-  visible: Boolean,
-  editingShift: Object,
-})
+  components: { MsModal, MsButton, MsTimePicker },
 
-const emit = defineEmits(['close', 'saved'])
+  data() {
+    return {
+      // ★ Config entity
+      entityName: 'shift',
+      idField: 'productionShiftID',
 
-const localVisible = computed(() => props.visible)
-const saving = ref(false)
+      // ★ Cấu hình fields — base tự generate empty form + validation từ đây
+      fieldConfig: {
+        productionShiftCode: { required: true, maxLength: 20, i18nKey: 'code' },
+        productionShiftName: { required: true, maxLength: 50, i18nKey: 'name' },
+        startTime: { required: true, i18nKey: 'startTime' },
+        endTime: { required: true, i18nKey: 'endTime' },
+        breakStartTime: {},
+        breakEndTime: {},
+        description: {},
+        shiftStatus: { default: 1 },
+      },
 
-const isEditing = computed(() => !!props.editingShift?.productionShiftID)
+      fieldRefMap: {
+        productionShiftCode: 'codeRef',
+        productionShiftName: 'nameRef',
+        startTime: 'startRef',
+        endTime: 'endRef',
+      },
 
-const formTitle = computed(() => {
-  if (!props.editingShift) return t('shift.addTitle')
-  if (!props.editingShift.productionShiftID) return t('shift.duplicateTitle')
-  return t('shift.editTitle')
-})
-
-const EMPTY_FORM = () => ({
-  productionShiftID: null,
-  productionShiftCode: '',
-  productionShiftName: '',
-  startTime: '',
-  endTime: '',
-  breakStartTime: '',
-  breakEndTime: '',
-  description: '',
-  shiftStatus: 1,
-  createdDate: null,
-  createdBy: null,
-})
-
-const ERROR_FIELD_MAP = [
-  { keywords: ['Mã ca'], field: 'productionShiftCode' },
-  { keywords: ['Tên ca'], field: 'productionShiftName' },
-  { keywords: ['Giờ vào ca'], field: 'startTime' },
-  { keywords: ['Giờ hết ca'], field: 'endTime' },
-  { keywords: ['Giờ bắt đầu nghỉ', 'Bắt đầu nghỉ'], field: 'breakStartTime' },
-  { keywords: ['Giờ kết thúc nghỉ', 'Kết thúc nghỉ'], field: 'breakEndTime' },
-]
-
-const form = ref(EMPTY_FORM())
-const errors = ref({})
-
-const codeRef = ref(null)
-const nameRef = ref(null)
-const startRef = ref(null)
-const endRef = ref(null)
-
-const fieldRefMap = {
-  productionShiftCode: codeRef,
-  productionShiftName: nameRef,
-  startTime: startRef,
-  endTime: endRef,
-}
-
-const initialForm = ref(null)
-
-const isDirty = computed(() => {
-  if (!initialForm.value) return false
-  const c = form.value
-  const i = initialForm.value
-  return (
-    c.productionShiftCode !== i.productionShiftCode ||
-    c.productionShiftName !== i.productionShiftName ||
-    c.startTime !== i.startTime ||
-    c.endTime !== i.endTime ||
-    c.breakStartTime !== i.breakStartTime ||
-    c.breakEndTime !== i.breakEndTime ||
-    c.description !== i.description ||
-    c.shiftStatus !== i.shiftStatus
-  )
-})
-
-const warnValidate = reactive({ visible: false, message: '' })
-
-const warnOverlayRef = ref(null)
-
-function showWarnValidate(msg) {
-  warnValidate.message = msg
-  warnValidate.visible = true
-  nextTick(() => warnOverlayRef.value?.focus())
-}
-
-function closeWarnValidate() {
-  warnValidate.visible = false
-  warnValidate.message = ''
-}
-
-const confirmExit = reactive({ visible: false })
-
-// Khi click đóng Modal hoặc nhấn ESC
-// nếu form đang dirty/ sửa thì hiện popup xác nhận
-// nếu không thì đóng luôn
-function handleClose() {
-  if (isDirty.value) {
-    confirmExit.visible = true
-  } else {
-    emit('close')
-  }
-}
-function cancelExit() {
-  confirmExit.visible = false
-}
-function forceClose() {
-  confirmExit.visible = false
-  emit('close')
-}
-
-function onKeydown(e) {
-  if (!props.visible) return
-  if (warnValidate.visible) {
-    if (e.key === 'Escape') closeWarnValidate()
-    return
-  }
-  if (confirmExit.visible) {
-    if (e.key === 'Escape') cancelExit()
-    return
-  }
-  if (e.key === 'Escape') {
-    e.preventDefault()
-    handleClose()
-  } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 's') {
-    e.preventDefault()
-    handleSaveAndAdd()
-  } else if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 's') {
-    e.preventDefault()
-    handleSave()
-  }
-}
-
-onMounted(() => document.addEventListener('keydown', onKeydown))
-onUnmounted(() => document.removeEventListener('keydown', onKeydown))
-
-const computedBreakHour = computed(() => {
-  if (!form.value.breakStartTime || !form.value.breakEndTime) return 0
-  let diff = timeToMinutes(form.value.breakEndTime) - timeToMinutes(form.value.breakStartTime)
-  if (diff <= 0) diff += 24 * 60
-  return Math.ceil(diff / 60)
-})
-
-const computedWorkHour = computed(() => {
-  if (!form.value.startTime || !form.value.endTime) return 0
-  let totalMinutes = timeToMinutes(form.value.endTime) - timeToMinutes(form.value.startTime)
-  if (totalMinutes <= 0) totalMinutes += 24 * 60
-  const workMinutes = totalMinutes - computedBreakHour.value * 60
-  return Math.ceil(workMinutes / 60)
-})
-
-function timeToMinutes(timeStr) {
-  if (!timeStr) return 0
-  const parts = timeStr.split(':')
-  return parseInt(parts[0]) * 60 + parseInt(parts[1])
-}
-
-function formatTimeForInput(ts) {
-  if (!ts) return ''
-  const parts = ts.split(':')
-  return `${parts[0]}:${parts[1]}`
-}
-
-watch(
-  () => props.visible,
-  (v) => {
-    if (!v) return
-    errors.value = {}
-    saving.value = false
-
-    if (props.editingShift) {
-      form.value = {
-        productionShiftID: props.editingShift.productionShiftID || null,
-        productionShiftCode: props.editingShift.productionShiftCode || '',
-        productionShiftName: props.editingShift.productionShiftName || '',
-        startTime: formatTimeForInput(props.editingShift.startTime),
-        endTime: formatTimeForInput(props.editingShift.endTime),
-        breakStartTime: formatTimeForInput(props.editingShift.breakStartTime),
-        breakEndTime: formatTimeForInput(props.editingShift.breakEndTime),
-        description: props.editingShift.description || '',
-        shiftStatus: props.editingShift.shiftStatus ?? 1,
-        createdDate: props.editingShift.createdDate || null,
-        createdBy: props.editingShift.createdBy || null,
-      }
-    } else {
-      form.value = EMPTY_FORM()
+      // ★ Map lỗi server → field
+      errorFieldMap: [
+        { keywords: ['Mã ca'], field: 'productionShiftCode' },
+        { keywords: ['Tên ca'], field: 'productionShiftName' },
+        { keywords: ['Giờ vào ca'], field: 'startTime' },
+        { keywords: ['Giờ hết ca'], field: 'endTime' },
+        { keywords: ['Giờ bắt đầu nghỉ', 'Bắt đầu nghỉ'], field: 'breakStartTime' },
+        { keywords: ['Giờ kết thúc nghỉ', 'Kết thúc nghỉ'], field: 'breakEndTime' },
+      ],
     }
-    nextTick(() => {
-      initialForm.value = { ...form.value }
-      codeRef.value?.focus()
-    })
   },
-)
 
-watch(
-  () => form.value.productionShiftCode,
-  (v) => {
-    if (v?.trim()) errors.value.productionShiftCode = ''
+  computed: {
+    // ★ Computed riêng của Shift — tính giờ làm việc / giờ nghỉ
+    computedBreakHour() {
+      if (!this.form.breakStartTime || !this.form.breakEndTime) return 0
+      let diff =
+        this.timeToMinutes(this.form.breakEndTime) - this.timeToMinutes(this.form.breakStartTime)
+      if (diff <= 0) diff += 24 * 60
+      return Math.ceil(diff / 60)
+    },
+
+    computedWorkHour() {
+      if (!this.form.startTime || !this.form.endTime) return 0
+      let totalMinutes =
+        this.timeToMinutes(this.form.endTime) - this.timeToMinutes(this.form.startTime)
+      if (totalMinutes <= 0) totalMinutes += 24 * 60
+      const workMinutes = totalMinutes - this.computedBreakHour * 60
+      return Math.ceil(workMinutes / 60)
+    },
   },
-)
-watch(
-  () => form.value.productionShiftName,
-  (v) => {
-    if (v?.trim()) errors.value.productionShiftName = ''
+
+  props: {
+    editingItem: { type: Object, default: null }, // đổi từ editingShift
   },
-)
-watch(
-  () => form.value.startTime,
-  (v) => {
-    if (v) errors.value.startTime = ''
-  },
-)
-watch(
-  () => form.value.endTime,
-  (v) => {
-    if (v) errors.value.endTime = ''
-  },
-)
-watch(
-  () => form.value.breakStartTime,
-  (v) => {
-    if (v) errors.value.breakStartTime = ''
-  },
-)
-watch(
-  () => form.value.breakEndTime,
-  (v) => {
-    if (v) errors.value.breakEndTime = ''
-  },
-)
 
-function validateField(field) {
-  switch (field) {
-    case 'productionShiftCode':
-      if (!form.value.productionShiftCode?.trim())
-        errors.value.productionShiftCode = t('shift.validation.codeRequired')
-      else if (form.value.productionShiftCode.length > 20)
-        errors.value.productionShiftCode = t('shift.validation.codeMaxLength')
-      else errors.value.productionShiftCode = ''
-      break
-    case 'productionShiftName':
-      if (!form.value.productionShiftName?.trim())
-        errors.value.productionShiftName = t('shift.validation.nameRequired')
-      else if (form.value.productionShiftName.length > 50)
-        errors.value.productionShiftName = t('shift.validation.nameMaxLength')
-      else errors.value.productionShiftName = ''
-      break
-    case 'startTime':
-      errors.value.startTime = form.value.startTime ? '' : t('shift.validation.startTimeRequired')
-      break
-    case 'endTime':
-      errors.value.endTime = form.value.endTime ? '' : t('shift.validation.endTimeRequired')
-      break
-  }
-}
-
-function validate() {
-  ;['productionShiftCode', 'productionShiftName', 'startTime', 'endTime'].forEach(validateField)
-  return Object.values(errors.value).every((e) => !e)
-}
-
-function focusFirstError() {
-  const ORDER = ['productionShiftCode', 'productionShiftName', 'startTime', 'endTime']
-  const firstKey = ORDER.find((k) => errors.value[k])
-  if (firstKey) {
-    nextTick(() => {
-      const refEl = fieldRefMap[firstKey]?.value
-      if (refEl?.focus) refEl.focus()
-    })
-  }
-}
-
-async function handleSave() {
-  if (!validate()) {
-    const firstError = Object.values(errors.value).find((e) => e)
-    if (firstError) showWarnValidate(firstError)
-    focusFirstError()
-    return
-  }
-  if (saving.value) return
-  saving.value = true
-  emit('saved', {
-    ...form.value,
-    workHour: computedWorkHour.value,
-    breakHour: computedBreakHour.value,
-    _action: 'save',
-  })
-}
-
-async function handleSaveAndAdd() {
-  if (!validate()) {
-    const firstError = Object.values(errors.value).find((e) => e)
-    if (firstError) showWarnValidate(firstError)
-    focusFirstError()
-    return
-  }
-  if (saving.value) return
-  saving.value = true
-  emit('saved', {
-    ...form.value,
-    workHour: computedWorkHour.value,
-    breakHour: computedBreakHour.value,
-    _action: 'save-and-add',
-  })
-}
-
-function setServerErrors(serverErrors) {
-  saving.value = false
-  const unmapped = []
-  for (const msg of serverErrors) {
-    let matched = false
-    for (const rule of ERROR_FIELD_MAP) {
-      if (rule.keywords.some((kw) => msg.includes(kw))) {
-        errors.value[rule.field] = msg
-        matched = true
-        break
+  methods: {
+    // ★ Override populateForm — cần format time trước khi đổ vào form
+    populateForm() {
+      if (this.editingItem) {
+        this.form = {
+          productionShiftID: this.editingItem.productionShiftID || null,
+          productionShiftCode: this.editingItem.productionShiftCode || '',
+          productionShiftName: this.editingItem.productionShiftName || '',
+          startTime: this.formatTimeForInput(this.editingItem.startTime),
+          endTime: this.formatTimeForInput(this.editingItem.endTime),
+          breakStartTime: this.formatTimeForInput(this.editingItem.breakStartTime),
+          breakEndTime: this.formatTimeForInput(this.editingItem.breakEndTime),
+          description: this.editingItem.description || '',
+          shiftStatus: this.editingItem.shiftStatus ?? 1,
+          createdDate: this.editingItem.createdDate || null,
+          createdBy: this.editingItem.createdBy || null,
+        }
+      } else {
+        this.form = this.createEmptyForm()
       }
-    }
-    if (!matched) unmapped.push(msg)
-  }
-  focusFirstError()
-  return unmapped
-}
+    },
 
-function resetSaving() {
-  saving.value = false
-}
+    // ★ Override prepareSaveData — thêm computed fields
+    prepareSaveData(action) {
+      return {
+        ...this.form,
+        workHour: this.computedWorkHour,
+        breakHour: this.computedBreakHour,
+        _action: action,
+      }
+    },
 
-function resetForm() {
-  form.value = EMPTY_FORM()
-  errors.value = {}
-  saving.value = false
-  nextTick(() => {
-    initialForm.value = { ...form.value }
-    codeRef.value?.focus()
-  })
-}
+    // ── Helper riêng ──
+    timeToMinutes(timeStr) {
+      if (!timeStr) return 0
+      const parts = timeStr.split(':')
+      return parseInt(parts[0]) * 60 + parseInt(parts[1])
+    },
 
-defineExpose({ setServerErrors, resetSaving, resetForm })
+    formatTimeForInput(ts) {
+      if (!ts) return ''
+      const parts = ts.split(':')
+      return `${parts[0]}:${parts[1]}`
+    },
+  },
+}
 </script>
 
 <style scoped>
