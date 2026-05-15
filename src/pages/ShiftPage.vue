@@ -645,7 +645,6 @@ async function handleDelete(ids) {
 </script>
 
 <style scoped>
-/* Giữ nguyên toàn bộ CSS gốc */
 .shift-page__header {
   display: flex;
   justify-content: space-between;
