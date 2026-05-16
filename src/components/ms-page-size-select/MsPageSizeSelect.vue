@@ -49,15 +49,21 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
+// trạng thái đóng mở
 const open = ref(false)
+// ref DOM cho wrapper
 const wrapperRef = ref(null)
+// ref DOM cho dropdown
 const dropdownRef = ref(null)
 const dropdownStyle = ref({})
 
+// click thay đổi pageSize
 function toggle() {
+  // đang đóng thì mở đang mở thì đóng
   open.value = !open.value
+  // nếu đang mở
   if (open.value) {
-    nextTick(positionDropdown)
+    nextTick(positionDropdown) // tính vị trí hiển thị dropdown
   }
 }
 
@@ -66,10 +72,14 @@ function selectOption(val) {
   open.value = false
 }
 
+// tính vị trí hiển thị dropdown
 function positionDropdown() {
   if (!wrapperRef.value) return
+  // lấy vị trí wrapper
   const rect = wrapperRef.value.getBoundingClientRect()
+  // chiều cao còn lại
   const spaceBelow = window.innerHeight - rect.bottom
+  // chiều cao menu
   const dropdownHeight = props.options.length * 36 + 8 // estimate
 
   if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
@@ -91,13 +101,14 @@ function positionDropdown() {
   }
 }
 
+// click ra ngoài để đóng menu
 function onClickOutside(e) {
   if (
-    open.value &&
-    wrapperRef.value &&
-    !wrapperRef.value.contains(e.target) &&
-    dropdownRef.value &&
-    !dropdownRef.value.contains(e.target)
+    open.value && // menu đang mở
+    wrapperRef.value && // nút bấm tồn tại
+    !wrapperRef.value.contains(e.target) && // vị trí click k nằm trong nút
+    dropdownRef.value && // menu tồn tại
+    !dropdownRef.value.contains(e.target) // vị trí click k nằm trong menu
   ) {
     open.value = false
   }

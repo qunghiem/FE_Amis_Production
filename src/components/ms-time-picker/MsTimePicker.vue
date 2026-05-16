@@ -54,12 +54,13 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
-  modelValue: { type: String, default: '' },
+  modelValue: { type: String, default: '' }, // Giá trị thời gian hiện tại (v-model)
   placeholder: { type: String, default: 'HH:MM' },
-  error: { type: String, default: '' },
-  step: { type: Number, default: 30 }, // phút
+  error: { type: String, default: '' }, // Chuỗi báo lỗi (nếu có) để đổi màu viền ô nhập sang đỏ.
+  step: { type: Number, default: 30 }, // Bước nhảy số phút trong dropdown (mặc định là 30 phút).
 })
 
+// Kích hoạt khi giá trị thời gian thay đổi để cập nhật v-model
 const emit = defineEmits(['update:modelValue', 'blur'])
 
 const pickerRef = ref(null) // ref để truy cập DOM của component, dùng để tính toán vị trí dropdown
@@ -67,7 +68,7 @@ const inputRef = ref(null) // ref để truy cập DOM của input, dùng để 
 const dropdownRef = ref(null) // ref để truy cập DOM của dropdown, dùng để tính toán vị trí và scroll
 const dropdownOpen = ref(false) // trạng thái mở dropdown
 const highlightedIndex = ref(-1) // index của option đang được highlight khi dùng phím lên xuống
-const dropdownStyle = ref({})
+const dropdownStyle = ref({}) // Chứa object các thuộc tính CSS như top, bottom, left, width
 
 // Tạo danh sách thời gian theo step
 const timeOptions = computed(() => {
@@ -81,33 +82,36 @@ const timeOptions = computed(() => {
   }
   return options
 })
+
 // Tạo computed property để dễ dàng sử dụng v-model với input hiển thị
 const displayValue = computed({
   get: () => props.modelValue || '',
-  set: (v) => emit('update:modelValue', v),
+  set: (v) => emit('update:modelValue', v), // user nhập thì gửi emit
 })
 
 // Xử lý khi người dùng nhập thủ công vào input, chỉ cho phép nhập số và dấu :, tự động thêm dấu : sau 2 số đầu tiên
 function onManualInput(e) {
+  // xóa sạch lập tức mọi ký tự không phải là số (\d) hoặc dấu hai chấm (:)
   let val = e.target.value.replace(/[^\d:]/g, '')
 
-  // Tách phần giờ và phút
+  // tìm vị trí của dấu hai chấm :
   const colonIdx = val.indexOf(':')
 
   if (colonIdx === -1) {
     // Chưa có dấu ":" — chỉ đang nhập phần giờ
     if (val.length >= 2) {
-      let h = parseInt(val.substring(0, 2))
+      let h = parseInt(val.substring(0, 2)) // cắt theo index start, index end
+      // nếu nhập giờ > 23 thì ép về 23
       if (h > 23) val = '23'
       else val = val.substring(0, 2)
       val += ':'
       // Nếu user paste "2530" → giữ lại phần phút phía sau
-      const rest = e.target.value.replace(/[^\d:]/g, '').substring(2)
+      const rest = e.target.value.replace(/[^\d:]/g, '').substring(2) // cắt 2 kí tự đầu đi -> :30
       if (rest && rest !== ':') {
-        let m = parseInt(rest.replace(':', ''))
+        let m = parseInt(rest.replace(':', '')) // -> 30
         if (!isNaN(m)) {
           if (m > 59) m = 59
-          val += String(m).padStart(2, '0')
+          val += String(m).padStart(2, '0') // val = 30
         }
       }
     }
@@ -136,8 +140,10 @@ function onManualInput(e) {
   emit('update:modelValue', val)
 }
 
+// chuẩn hóa định dạng bất kì user nhập thành HH:mm
 function normalizeTime(val) {
   if (!val || val.trim() === '') return ''
+  // chỉ cho nhập số và dấu :
   const clean = val.replace(/[^\d:]/g, '')
   let h = 0, m = 0
   if (clean.includes(':')) {
@@ -173,10 +179,11 @@ function selectTime(time) {
 // Đóng dropdown khi click ra ngoài hoặc khi input mất focus, nhưng delay một chút để cho phép click vào dropdown mà không bị đóng ngay
 function onBlur(e) {
   setTimeout(() => {
+    // nếu k click vào phần tử bên trong menu
     if (!dropdownRef.value?.contains(document.activeElement)) {
       dropdownOpen.value = false
     }
-    // Normalize khi rời input
+    // chuaanrn hóa khi rời input
     if (props.modelValue && props.modelValue.trim() !== '') {
       const normalized = normalizeTime(props.modelValue)
       if (normalized !== props.modelValue) {
@@ -187,6 +194,7 @@ function onBlur(e) {
   }, 150)
 }
 
+// dir: hướng, 1 xuống -1 lên
 // Di chuyển highlight lên xuống khi dùng phím, nếu dropdown chưa mở thì mở dropdown và highlight option tương ứng
 function moveHighlight(dir) {
   if (!dropdownOpen.value) {
@@ -194,15 +202,20 @@ function moveHighlight(dir) {
     nextTick(positionDropdown)
     return
   }
+  // lấy vị trí hiện tại + 1 hoặc -1
   let idx = highlightedIndex.value + dir
+  // nếu đang ở item đầu mà ấn lên -> xuống cuối
   if (idx < 0) idx = timeOptions.value.length - 1
+  // nếu đang ở item cuối mà ấn xuống -> lên đầu
   if (idx >= timeOptions.value.length) idx = 0
+  // cập nhật giá trị
   highlightedIndex.value = idx
   scrollToHighlighted()
 }
 
 // Chọn option đang được highlight khi nhấn Enter
 function selectHighlighted() {
+  // kiểm tra
   if (highlightedIndex.value >= 0 && highlightedIndex.value < timeOptions.value.length) {
     selectTime(timeOptions.value[highlightedIndex.value])
   }
@@ -211,11 +224,14 @@ function selectHighlighted() {
 // Scroll dropdown để đảm bảo option được chọn hoặc được highlight luôn hiển thị khi dropdown mở hoặc khi di chuyển highlight bằng phím
 function scrollToSelected() {
   if (!dropdownRef.value) return
+  // lấy id item giờ
   const idx = timeOptions.value.indexOf(props.modelValue)
   if (idx >= 0) {
+    // đặt highlight tại nó
     highlightedIndex.value = idx
+    // tìm phần tử con có idx như vậy
     const el = dropdownRef.value.children[idx]
-    if (el) el.scrollIntoView({ block: 'center' })
+    if (el) el.scrollIntoView({ block: 'center' }) // chuyển item vào chính giữa
   }
 }
 

@@ -343,6 +343,7 @@ const isLastPage = computed(() => props.page >= totalPages.value)
 const pageStart = computed(() => (props.total === 0 ? 0 : (props.page - 1) * props.pageSize + 1))
 const pageEnd = computed(() => Math.min(props.page * props.pageSize, props.total))
 
+
 function handlePageSizeChange(newSize) {
   emit('update:page-size', newSize)
 }
