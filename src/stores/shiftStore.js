@@ -4,8 +4,6 @@ import { shiftService } from '@/services/shiftService'
 
 export const useShiftStore = defineStore('shifts', () => {
   // === State ===
-
-
   const shifts = ref([]) // danh sách ca làm việc trên trang hiện tại
   const totalRecord = ref(0) // tổng số bản ghi (dùng để tính phân trang)
   const totalPage = ref(0) // tổng số trang (dựa trên totalRecord và pageSize)
@@ -26,7 +24,7 @@ export const useShiftStore = defineStore('shifts', () => {
   const isFirstPage = computed(() => currentPage.value <= 1) // có phải đang ở trang đầu tiên không
   const isLastPage = computed(() => currentPage.value >= totalPage.value) // có phải đang ở trang cuối cùng không
 
-  // Thông tin hiển thị về phân trang, ví dụ: "1-20 trên 100 bản ghi"
+  // Thông tin hiển thị về phân trang, ví dụ: "1-10 trên 100 bản ghi"
   const pageInfo = computed(() => {
     const total = totalRecord.value
     const start = total === 0 ? 0 : (currentPage.value - 1) * pageSize.value + 1
@@ -45,6 +43,7 @@ export const useShiftStore = defineStore('shifts', () => {
   })
 
   // Kiểm tra trong các bản ghi đang chọn có bản ghi nào đang Ngừng sử dụng không
+  // some: chỉ cần 1 là true
   const hasInactiveInSelected = computed(() => {
     return shifts.value.some(
       (s) => selectedIds.value.has(s.productionShiftID) && s.shiftStatus === 0,
@@ -82,6 +81,7 @@ export const useShiftStore = defineStore('shifts', () => {
 
   // Debounce tìm kiếm
   watch(searchKeyword, () => {
+    // xóa timeout cũ nếu có
     clearTimeout(debounceTimer)
     debounceTimer = setTimeout(() => {
       currentPage.value = 1
@@ -95,11 +95,31 @@ export const useShiftStore = defineStore('shifts', () => {
   const init = () => fetchPage() // Hàm khởi tạo, có thể gọi khi vào trang để load dữ liệu lần đầu
 
   // Phân trang
-  const nextPage = () => { if (!isLastPage.value) currentPage.value++ }
-  const prevPage = () => { if (!isFirstPage.value) currentPage.value-- }
-  const goToFirstPage = () => { if (!isFirstPage.value) currentPage.value = 1 }
-  const goToLastPage = () => { if (!isLastPage.value) currentPage.value = totalPage.value }
-  const resetPage = () => { currentPage.value = 1 }
+  const nextPage = () => {
+    if (!isLastPage.value) currentPage.value++
+  }
+
+  // chuyển trang
+  const prevPage = () => {
+    if (!isFirstPage.value) currentPage.value--
+  }
+
+  // về trang đầu
+  const goToFirstPage = () => {
+    if (!isFirstPage.value) currentPage.value = 1
+  }
+
+  // về trang cuối
+  const goToLastPage = () => {
+    if (!isLastPage.value) currentPage.value = totalPage.value
+  }
+
+  // reset lại Page
+  const resetPage = () => {
+    currentPage.value = 1
+  }
+
+  // thay đổi page size
   const setPageSize = (size) => {
     pageSize.value = size
     resetPage()
@@ -125,7 +145,7 @@ export const useShiftStore = defineStore('shifts', () => {
     await shiftService.deleteByIds(ids)
     // Sau khi xóa thành công, bỏ chọn các ID đã xóa khỏi selectedIds
     ids.forEach((id) => selectedIds.value.delete(id))
-    // Cập nhật lại selectedIds
+    // Cập nhật lại selectedIds vì vue chỉ nhận ra thay đổi khi địa chỉ thay đổi, del là thay đổi bên trong vue k nhận ra
     selectedIds.value = new Set(selectedIds.value)
     await fetchPage()
   }
@@ -145,6 +165,7 @@ export const useShiftStore = defineStore('shifts', () => {
     await fetchPage()
   }
 
+  // hàm Xuất Excel
   async function exportExcel() {
     await shiftService.exportExcel(
       searchKeyword.value,
@@ -163,7 +184,7 @@ export const useShiftStore = defineStore('shifts', () => {
     const s = new Set(selectedIds.value)
     // nếu ID đã có trong set thì xóa nó đi (bỏ chọn), nếu chưa có thì thêm vào set (chọn)
     s.has(id) ? s.delete(id) : s.add(id)
-    // cập nhật lại selectedIds với set mới đã được thêm/xóa ID
+    // cập nhật lại selectedIds với set initmới đã được thêm/xóa ID
     selectedIds.value = s
   }
 
@@ -178,23 +199,55 @@ export const useShiftStore = defineStore('shifts', () => {
   }
 
   // Hàm bỏ chọn tất cả ca làm việc trên trang hiện tại
-  const unselectAll = () => { selectedIds.value = new Set() }
+  const unselectAll = () => {
+    selectedIds.value = new Set()
+  }
 
   // Hàm kiểm tra xem 1 ca làm việc có đang được chọn hay không
   const isSelected = (id) => selectedIds.value.has(id)
 
   return {
     // state
-    shifts, totalRecord, totalPage, loading, error,
-    searchKeyword, currentPage, pageSize, selectedIds,
-    sortBy, sortDirection, filters,
+    shifts,
+    totalRecord,
+    totalPage,
+    loading,
+    error,
+    searchKeyword,
+    currentPage,
+    pageSize,
+    selectedIds,
+    sortBy,
+    sortDirection,
+    filters,
     // getters
-    pageData, isFirstPage, isLastPage, pageInfo,
-    selectedCount, selectedIdList,
-    hasActiveInSelected, hasInactiveInSelected,
+    pageData,
+    isFirstPage,
+    isLastPage,
+    pageInfo,
+    selectedCount,
+    selectedIdList,
+    hasActiveInSelected,
+    hasInactiveInSelected,
     // actions
-    init, fetchPage, nextPage, prevPage, resetPage, setPageSize, goToFirstPage, goToLastPage,
-    addShift, updateShift, deleteByIds, duplicateShift, toggleStatus,
-    getById, exportExcel, toggleSelect, selectAll, unselectAll, isSelected,
+    init,
+    fetchPage,
+    nextPage,
+    prevPage,
+    resetPage,
+    setPageSize,
+    goToFirstPage,
+    goToLastPage,
+    addShift,
+    updateShift,
+    deleteByIds,
+    duplicateShift,
+    toggleStatus,
+    getById,
+    exportExcel,
+    toggleSelect,
+    selectAll,
+    unselectAll,
+    isSelected,
   }
 })

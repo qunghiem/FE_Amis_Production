@@ -210,7 +210,7 @@ import ConfirmModal from '@/components/ConfirmModal.vue'
 export default {
   name: 'ShiftPage',
 
-  // ★ Kế thừa toàn bộ logic base
+  // Kế thừa toàn bộ logic base
   extends: baseList,
 
   components: { MsGrid, MsButton, ShiftForm, ConfirmModal },

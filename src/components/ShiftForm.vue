@@ -198,18 +198,18 @@ import MsTimePicker from '@/components/ms-time-picker/MsTimePicker.vue'
 export default {
   name: 'ShiftForm',
 
-  // ★ Kế thừa toàn bộ logic base
+  // Kế thừa toàn bộ logic base
   extends: baseDetail,
 
   components: { MsModal, MsButton, MsTimePicker },
 
   data() {
     return {
-      // ★ Config entity
+      // Config entity
       entityName: 'shift',
       idField: 'productionShiftID',
 
-      // ★ Cấu hình fields — base tự generate empty form + validation từ đây
+      // Cấu hình fields — base tự generate empty form + validation từ đây
       fieldConfig: {
         productionShiftCode: { required: true, maxLength: 20, i18nKey: 'code' },
         productionShiftName: { required: true, maxLength: 50, i18nKey: 'name' },
@@ -228,7 +228,8 @@ export default {
         endTime: 'endRef',
       },
 
-      // ★ Map lỗi server → field
+      // Map lỗi server → field
+      // bộ quy tắc
       errorFieldMap: [
         { keywords: ['Mã ca'], field: 'productionShiftCode' },
         { keywords: ['Tên ca'], field: 'productionShiftName' },

@@ -2,11 +2,12 @@ import { createI18n } from 'vue-i18n'
 import vi from './vi.json'
 
 const i18n = createI18n({
-  legacy: false,        // dùng Composition API
-  locale: 'vi',         // locale mặc định
-  fallbackLocale: 'vi',
+  // tắt chế độ legacy để dùng đc Composition API
+  legacy: false,
+  locale: 'vi',         // locale mặc định: tiếng việt
+  fallbackLocale: 'vi', // ngôn ngữ dự phòng
   messages: {
-    vi,
+    vi, // đăng kí bản dịch từ vi.json
   },
 })
 

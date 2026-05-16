@@ -104,9 +104,14 @@ const emit = defineEmits(['update:collapsed'])
 const route = useRoute()
 
 const COLLAPSE_KEY = 'sidebar_collapsed'
+
+// khi click vào Thu gọn
 function toggleCollapse() {
+  // đảo ngược trạng thái: đóng -> mở, mở -> đóng
   const next = !props.collapsed
+  // lưu vào localStorage
   localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next))
+  // gửi lên CPN cha
   emit('update:collapsed', next)
 }
 

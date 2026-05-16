@@ -15,8 +15,11 @@ const formatTime = (ts) => {
 const formatDate = (dt) => {
   if (!dt) return '-'
   try {
+    // new Date(dt) là trình duyệt tự biết đâu là ngày tháng năm
     const d = new Date(dt)
+    // kiểm tra
     if (isNaN(d.getTime())) return '-'
+    // nếu ít hơn 2 kí tự thêm 0 vào đầu
     const dd = String(d.getDate()).padStart(2, '0')
     const mm = String(d.getMonth() + 1).padStart(2, '0')
     const yyyy = d.getFullYear()
@@ -72,7 +75,14 @@ const toBackend = (c) => ({
 // API Service
 export const shiftService = {
   // tìm kiếm với phân trang, filter, sort
-  async search(keyword = '', pageNumber = 1, pageSize = 10, filters = [], sortBy = '', sortDirection = 'ASC') {
+  async search(
+    keyword = '',
+    pageNumber = 1,
+    pageSize = 10,
+    filters = [],
+    sortBy = '',
+    sortDirection = 'ASC',
+  ) {
     const { data } = await api.post('/Shift/filter-paging', {
       keyword,
       pageNumber,
@@ -126,34 +136,49 @@ export const shiftService = {
   // Xuất Excel với điều kiện tìm kiếm, filter, sort (trả về file .xlsx)
   async exportExcel(keyword = '', filters = [], sortBy = '', sortDirection = 'ASC') {
     try {
-        const response = await api.post('/Shift/export-excel',
-            { keyword, filters, sortBy, sortDirection, pageNumber: 1, pageSize: 999999 },
-            { responseType: 'blob' } // Rất quan trọng
-        )
+      // gọi api lấy data, k phân trang
+      const response = await api.post(
+        '/Shift/export-excel',
+        { keyword, filters, sortBy, sortDirection, pageNumber: 1, pageSize: 999999 },
+        /**
+         * { responseType: 'blob' } — 
+         * Báo cho Axios biết kết quả trả về không phải là chuỗi JSON thông thường,
+         * mà là một cụm dữ liệu nhị phân thô (Binary Data) đại diện cho file Excel.
+        */
+        { responseType: 'blob' },
+      )
 
-        // Kiểm tra nếu response trả về không phải là blob (có thể là lỗi JSON)
-        if (response.data.type === 'application/json') {
-            const text = await response.data.text();
-            throw new Error(JSON.parse(text).message || 'Lỗi server');
-        }
+      // Kiểm tra nếu response trả về không phải là blob (có thể là lỗi JSON)
+      if (response.data.type === 'application/json') {
+        // Đọc nội dung file Blob lỗi biến nó thành chữ (Text)
+        const text = await response.data.text()
+        // Ép chuỗi chữ đó thành Object JSON để lấy ra câu `message` lỗi thật sự và ném ra Exception
+        throw new Error(JSON.parse(text).message || 'Lỗi server')
+      }
 
-        const blob = new Blob([response.data], {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        })
+      //Chuyển đổi dữ liệu nhị phân thô từ Server thành một Object File Excel hoàn chỉnh
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
 
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', `CaLamViec_${new Date().toLocaleDateString('vi-VN')}.xlsx`)
-        document.body.appendChild(link)
-        link.click()
+      // tạo url ảo trong bộ nhớ chỉ vào vị trí file đang nằm trong RAM
+      const url = window.URL.createObjectURL(blob)
+      // tạo thẻ a
+      const link = document.createElement('a')
+      link.href = url
+      // đặt tên file
+      link.setAttribute('download', `CaLamViec_${new Date().toLocaleDateString('vi-VN')}.xlsx`)
+      // gắn lại thẻ a vào DOM
+      document.body.appendChild(link)
+      // Kích hoạt lệnh CLICK ngầm, Trình duyệt sẽ tự động hiểu là người dùng bấm tải file và hiện bảng Download
+      link.click()
 
-        // Dọn dẹp
-        link.remove()
-        window.URL.revokeObjectURL(url)
+      // Dọn dẹp, hủy url ảo giải phóng bộ nhớ
+      link.remove()
+      window.URL.revokeObjectURL(url)
     } catch (error) {
-        console.error('Export error:', error)
-        throw error // Để handleExport bắt được và hiện toast error
+      console.error('Export error:', error)
+      throw error // Để handleExport bắt được và hiện toast error
     }
-}
+  },
 }
