@@ -1,64 +1,3 @@
-<!--
-  MsGrid — Component Grid tái sử dụng
-  Bao gồm: Toolbar (search, selection bar, filter tags, reload)
-           + Skeleton loading + MsTable + Pagination footer.
-
-  ===== CÁCH SỬ DỤNG =====
-
-  <MsGrid
-    :columns="COLUMNS"
-    :rows="store.pageData"
-    :total="store.totalRecord"
-    :loading="store.loading"
-    row-key="productionShiftID"
-    v-model:search="store.searchKeyword"
-    :page="store.currentPage"
-    :page-size="store.pageSize"
-    :sort-by="store.sortBy"
-    :sort-direction="store.sortDirection"
-    :filters="store.filters"
-    @update:page="(p) => (store.currentPage = p)"
-    @update:page-size="(s) => store.setPageSize(s)"
-    @sort-change="handleSortChange"
-    @filter-apply="handleFilterApply"
-    @filter-clear="handleFilterClear"
-    @filter-clear-all="clearAllFilters"
-    @reload="store.fetchPage()"
-    @row-dblclick="(row) => openEdit(row.id)"
-  >
-    <template #batch-actions="{ selectedIds, selectedCount, clearSelection }">
-      <MsButton type="danger-outline" @click="handleBatchDelete(selectedIds)">Xóa</MsButton>
-    </template>
-
-    <template #cell-status="{ row, value }">
-      <span :class="value === 1 ? 'active' : 'inactive'">{{ label }}</span>
-    </template>
-
-    <template #actions="{ row }">
-      <button @click="edit(row)">Sửa</button>
-    </template>
-  </MsGrid>
-
-  ===== COLUMNS CONFIG =====
-
-  const COLUMNS = [
-    {
-      key: 'code',               // tên field trong row data
-      label: 'Mã',               // tiêu đề cột
-      width: '120px',            // CSS width
-      align: 'left' | 'right',   // căn text (mặc định left)
-      filterable: true,           // hiện icon filter
-      filterType: 'string' | 'number' | 'date' | 'status',
-      filterKey: 'Code',         // tên field gửi backend (mặc định = key)
-      filterOptions: [            // chỉ dùng cho filterType='status'
-        { value: '1', label: 'Đang sử dụng' },
-        { value: '0', label: 'Ngừng sử dụng' },
-      ],
-      sortKey: 'code',           // tên field sort gửi backend (mặc định = filterKey || key)
-    }
-  ]
--->
-
 <template>
   <div class="ms-grid">
     <!-- ===== TOOLBAR ===== -->
@@ -94,11 +33,7 @@
 
       <!-- Khi không chọn: hiện filter tags -->
       <template v-else-if="filters.length > 0">
-        <div
-          v-for="(filter, idx) in filters"
-          :key="idx"
-          class="ms-grid__filter-tag"
-        >
+        <div v-for="(filter, idx) in filters" :key="idx" class="ms-grid__filter-tag">
           <span class="ms-grid__filter-tag-col">{{ getColumnLabel(filter.Property) }}</span>
           <span class="ms-grid__filter-tag-op">{{ getOperatorLabel(filter) }}</span>
           <span class="ms-grid__filter-tag-val">{{ getValueLabel(filter) }}</span>
@@ -128,11 +63,13 @@
       </button>
 
       <!-- Xuất Excel -->
-        <button class="ms-grid__reload" @click="$emit('export')"
+      <button
+        class="ms-grid__reload ms-grid__export"
+        @click="$emit('export')"
         :data-tooltip="$t('common.exportExcel')"
       >
-            <span class="ms-grid__reload-export"></span>
-        </button>
+        <span class="ms-grid__reload-export"></span>
+      </button>
     </div>
 
     <!-- ===== SKELETON LOADING ===== -->
@@ -215,7 +152,9 @@
 
     <!-- ===== PAGINATION FOOTER ===== -->
     <div class="ms-grid__footer">
-      <span>{{ $t('common.total') }}: <b>{{ total }}</b></span>
+      <span
+        >{{ $t('common.total') }}: <b>{{ total }}</b></span
+      >
       <div class="ms-grid__pagination">
         <span>{{ $t('common.rowsPerPage') }}</span>
         <MsPageSizeSelect
@@ -291,7 +230,7 @@ const props = defineProps({
   /** Số dòng trên mỗi trang */
   pageSize: { type: Number, default: 10 },
   /** Danh sách lựa chọn số dòng/trang */
-  pageSizeOptions: { type: Array, default: () => [10, 20, 30, 50, 100] },
+  pageSizeOptions: { type: Array, default: () => [10, 20, 50, 100] },
 
   // ── Search ──
   /** Từ khóa tìm kiếm, dùng v-model:search */
@@ -314,7 +253,7 @@ const props = defineProps({
   emptyText: { type: String, default: '' },
 })
 
-// ──────────────────────── EMITS ────────────────────────
+//  EMITS
 const emit = defineEmits([
   'update:page',
   'update:page-size',
@@ -330,46 +269,47 @@ const emit = defineEmits([
   'export',
 ])
 
-// ──────────────────────── SEARCH ────────────────────────
+// SEARCH
+// đọc và set dữ liệu
 const localSearch = computed({
   get: () => props.search,
   set: (v) => emit('update:search', v),
 })
 
-// ──────────────────────── PAGINATION ────────────────────────
+//PAGINATION
 const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.pageSize)))
 const isFirstPage = computed(() => props.page <= 1)
 const isLastPage = computed(() => props.page >= totalPages.value)
 const pageStart = computed(() => (props.total === 0 ? 0 : (props.page - 1) * props.pageSize + 1))
 const pageEnd = computed(() => Math.min(props.page * props.pageSize, props.total))
 
-
+// khi thay đổi page size
 function handlePageSizeChange(newSize) {
   emit('update:page-size', newSize)
 }
 
-// ──────────────────────── SELECTION ────────────────────────
-const selectedIds = ref(new Set())
+// SELECTION
+const selectedIds = ref(new Set()) // danh sách ID đang chọn
 
-const selectedCount = computed(() => selectedIds.value.size)
-const selectedIdList = computed(() => Array.from(selectedIds.value))
+const selectedCount = computed(() => selectedIds.value.size) // số lượng ID đang tích chọn
+const selectedIdList = computed(() => Array.from(selectedIds.value)) // danh sách ID đang chọn
 
 // Chỉ trả về các row đang hiển thị VÀ được chọn
 const selectedRows = computed(() =>
   props.rows.filter((r) => selectedIds.value.has(r[props.rowKey])),
 )
 
+// ô checkall có được tích chọn k
 const allPageChecked = computed(
-  () =>
-    props.rows.length > 0 &&
-    props.rows.every((r) => selectedIds.value.has(r[props.rowKey])),
+  () => props.rows.length > 0 && props.rows.every((r) => selectedIds.value.has(r[props.rowKey])),
 )
 
+// kiểm tra dóng đó có đang được chọn k
 function isSelected(id) {
   return selectedIds.value.has(id)
 }
 
-// Toggle chọn 1 row
+// Toggle tích chọn 1 row
 function toggleSelect(id) {
   const s = new Set(selectedIds.value)
   s.has(id) ? s.delete(id) : s.add(id)
@@ -377,18 +317,22 @@ function toggleSelect(id) {
   // emitSelectionChange()
 }
 
+// click tích ô chọn tất cả
 function toggleAll(e) {
+  // lấy tất cả id trên trang hiện tại
   const ids = props.rows.map((r) => r[props.rowKey])
+  // nếu là tích chọn
   if (e.target.checked) {
     const s = new Set(selectedIds.value)
     ids.forEach((id) => s.add(id))
     selectedIds.value = s
-  } else {
+  } else { // nếu là bỏ tích chọn
     selectedIds.value = new Set()
   }
   // emitSelectionChange()
 }
 
+// bỏ chọn tất cả
 function clearSelection() {
   selectedIds.value = new Set()
   // emitSelectionChange()
@@ -413,36 +357,35 @@ function deselectIds(ids) {
 // }
 
 /**
- * Kiểm tra trong các row đang chọn (trên trang hiện tại) có row nào thỏa điều kiện không.
+ * Kiểm tra trong các row đang chọn (trên trang hiện tại) có row nào thỏa điều kiện không: đang sử dụng, ngưng sd
  * Dùng trong slot batch-actions:
  *   v-if="hasRowsMatching(r => r.shiftStatus === 1)"
  */
 function hasRowsMatching(predicate) {
-  return props.rows.some(
-    (r) => selectedIds.value.has(r[props.rowKey]) && predicate(r),
-  )
+  return props.rows.some((r) => selectedIds.value.has(r[props.rowKey]) && predicate(r))
 }
 
-// ──────────────────────── ACTIVE ROW ────────────────────────
+//  ACTIVE ROW
 const activeRowId = ref(null)
 
+// click vào dòng thì sáng lên click lại thì tắt
 function handleRowClick(row) {
+  // lấy id của bản ghi
   const id = row[props.rowKey]
   activeRowId.value = activeRowId.value === id ? null : id
   emit('row-click', row)
 }
 
-// ──────────────────────── HAS ACTIONS SLOT ────────────────────────
+//  HAS ACTIONS SLOT
 const hasActions = computed(() => !!slots.actions)
 
-// ──────────────────────── FILTER TAG HELPERS ────────────────────────
+// get ra label để hiện lên thanh bar khi có lọc
 function getColumnLabel(property) {
-  const col = props.columns.find(
-    (c) => c.key === property || c.filterKey === property,
-  )
+  const col = props.columns.find((c) => c.key === property || c.filterKey === property)
   return col?.label || property
 }
 
+// get ra toán tử để hiện lên thanh bar khi có lọc
 function getOperatorLabel(filter) {
   const col = props.columns.find(
     (c) => c.key === filter.Property || c.filterKey === filter.Property,
@@ -451,25 +394,28 @@ function getOperatorLabel(filter) {
   return t(`filter.operators.${filter.Operator}`)
 }
 
+// get ra giá trị để hiện lên thanh bar khi có lọc
 function getValueLabel(filter) {
+  // tìm xem bộ lọc thuộc côt nào
   const col = props.columns.find(
     (c) => c.key === filter.Property || c.filterKey === filter.Property,
   )
+  // nếu là lọc cột trạng thái
   if (col?.filterType === 'status' && col.filterOptions) {
-    const opt = col.filterOptions.find(
-      (o) => String(o.value) === String(filter.Value),
-    )
-    return opt?.label || filter.Value
+    // kiểm tra xem giá trị lọc trùng với lựa chọn nào trong filterOptions
+    const opt = col.filterOptions.find((o) => String(o.value) === String(filter.Value))
+    return opt?.label || filter.Value // trả về label
   }
+  // nếu k thuộc status thì hiện luôn cái user nhập
   return filter.Value
 }
 
+// xóa lọc theo cột nào đó
 function removeFilter(property) {
   emit('filter-clear', property)
 }
 
-
-// ──────────────────────── EXPOSE ────────────────────────
+// EXPOSE để cha có thể thò tay xuống lấy được
 defineExpose({
   /** Bỏ chọn tất cả */
   clearSelection,
@@ -638,15 +584,15 @@ defineExpose({
 }
 
 .ms-grid__reload-export {
-      mask-position: -976px 0px;
-          height: 16px;
-    width: 16px;
-    min-height: 16px;
-    min-width: 16px;
-    position: relative;
-        -webkit-mask-repeat: no-repeat;
-    background-color: #4b5563;
-    -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
+  mask-position: -976px 0px;
+  height: 16px;
+  width: 16px;
+  min-height: 16px;
+  min-width: 16px;
+  position: relative;
+  -webkit-mask-repeat: no-repeat;
+  background-color: #4b5563;
+  -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 /* ===== SKELETON ===== */
 .ms-grid__skeleton-wrapper {

@@ -1,6 +1,7 @@
 <!-- UI bộ Filter cho từng cột trong bảng -->
 
 <template>
+  <!-- icon lọc -->
   <div class="col-filter" ref="filterRef">
     <button
       class="col-filter__trigger"
@@ -10,7 +11,7 @@
     >
       <i></i>
     </button>
-
+    <!-- bộ lọc -->
     <teleport to="body">
       <div v-if="open" class="col-filter__popover" :style="popoverStyle" @click.stop>
         <div class="col-filter__header">
@@ -103,24 +104,25 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const props = defineProps({
-  label: { type: String, required: true },
-  property: { type: String, required: true },
-  filterType: { type: String, default: 'string' },
-  currentFilter: { type: Object, default: null },
-  activeFilterKey: { type: String, default: '' },
+  label: { type: String, required: true }, // tên cột
+  property: { type: String, required: true }, // tên trường dữ liệu
+  filterType: { type: String, default: 'string' }, // kiểu dữ liệu của cột
+  currentFilter: { type: Object, default: null }, // dữ liệu lọc hiện tại
+  activeFilterKey: { type: String, default: '' }, // Key định danh xem bộ lọc của cột nào đang được mở trên toàn hệ thống bảng.
 })
 
 const emit = defineEmits(['apply', 'clear'])
 
-const open = ref(false)
-const filterRef = ref(null)
+const open = ref(false) // ẩn hiện bộ lọc
+const filterRef = ref(null) // dom của icon lọc
 const valueInput = ref(null)
-const localOperator = ref('contains')
-const localValue = ref('')
-const popoverStyle = ref({})
-const operatorDropdownOpen = ref(false)
+const localOperator = ref('contains') // toán tử đang được chọn
+const localValue = ref('') // giá trị đang gõ
+const popoverStyle = ref({}) // vị trí
+const operatorDropdownOpen = ref(false) // đóng mở menu chọn toán tử
 const selectWrapperRef = ref(null)
 
+// toán tử cho kiểu dữ liệu string
 const STRING_OPS = computed(() => [
   { value: 'contains', label: t('filter.operators.contains') },
   { value: 'not_equals', label: t('filter.operators.not_equals') },
@@ -129,6 +131,7 @@ const STRING_OPS = computed(() => [
   { value: 'ends_with', label: t('filter.operators.ends_with') },
 ])
 
+// toán tử cho kiểu dữ liệu number
 const NUMBER_OPS = computed(() => [
   { value: 'equals', label: t('filter.operators.equals') },
   { value: 'not_equals', label: t('filter.operators.not_equals') },
@@ -137,6 +140,7 @@ const NUMBER_OPS = computed(() => [
   { value: 'greater_than', label: t('filter.operators.greater_than') },
 ])
 
+// toán tử cho kiểu dữ liệu date
 const DATE_OPS = computed(() => [
   { value: 'equals', label: t('filter.operators.equals') },
   { value: 'not_equals', label: t('filter.operators.not_equals') },
@@ -145,11 +149,13 @@ const DATE_OPS = computed(() => [
   { value: 'greater_than', label: t('filter.operators.greater_than') },
 ])
 
+// giá trị cho kiểu dữ liệu status
 const statusOptions = computed(() => [
   { value: '1', label: t('shift.status.active') },
   { value: '0', label: t('shift.status.inactive') },
 ])
 
+// dựa vào type để lấy ra toán tử phù hợp
 const operatorOptions = computed(() => {
   if (props.filterType === 'number') return NUMBER_OPS.value
   if (props.filterType === 'date') return DATE_OPS.value
@@ -157,62 +163,85 @@ const operatorOptions = computed(() => {
   return STRING_OPS.value
 })
 
+// kiểm tra cột có đang lọc k
 const hasFilter = computed(() => !!props.currentFilter)
 
+// theo dõi đóng/mở bộ lọc
 watch(open, (v) => {
+  // nếu cột đã lọc trước đó
   if (v && props.currentFilter) {
+    // gán lại
     localOperator.value = props.currentFilter.Operator || getDefaultOperator()
     localValue.value = props.currentFilter.Value || ''
   } else if (v) {
     localOperator.value = getDefaultOperator()
     localValue.value = ''
   }
-  if (!v) operatorDropdownOpen.value = false
+  if (!v) operatorDropdownOpen.value = false // đóng menu dropdown
 })
 
+// chỉ cho phép duy nhất mở 1 bảng lọc tại 1 thời điểm
 watch(
   () => props.activeFilterKey,
   (newKey) => {
+    // nếu cột vừa mở khác cột hiện tại thì đóng bộ lọc hiện tại
     if (newKey && newKey !== props.property && open.value) close()
   },
 )
 
+// lấy toán tử mặc định
 function getDefaultOperator() {
   if (props.filterType === 'string') return 'contains'
   if (props.filterType === 'status') return 'equals'
   return 'equals'
 }
 
+// click icon phểu để mở/đóng bộ lọc
 function toggle() {
+  // nếu đang mở thì đóng
   if (open.value) {
     close()
     return
   }
   open.value = true
+  // gửi emit lên cha để cha đóng bộ lọc khác
   emit('filter-opened', props.property)
   nextTick(() => {
     positionPopover()
+    //  nếu là kiểu date, string => auto focus
     if (props.filterType !== 'status') valueInput.value?.focus()
   })
 }
 
+// get tên hiển thị cho toán tử
 function getOperatorLabel(value) {
+  // gộp các mảng toán tử và lấy ra label
   const allOps = [...STRING_OPS.value, ...NUMBER_OPS.value, ...DATE_OPS.value]
   return allOps.find((o) => o.value === value)?.label || value
 }
 
+// đóng  <-> mở
 function toggleOperatorDropdown() {
   operatorDropdownOpen.value = !operatorDropdownOpen.value
 }
+
+// click chọn toán tử
 function selectOperator(value) {
+  // set giá trị
   localOperator.value = value
-  operatorDropdownOpen.value = false
-}
-function close() {
-  open.value = false
+  // đóng menu
   operatorDropdownOpen.value = false
 }
 
+// click đóng
+function close() {
+  // Đóng bảng lọc chính
+  open.value = false
+  // / Đóng luôn cả menu con chọn toán tử so sánh
+  operatorDropdownOpen.value = false
+}
+
+// click áp dụng bộ ljc
 function apply() {
   const operator = props.filterType === 'status' ? 'equals' : localOperator.value
   if (!localValue.value && localValue.value !== '0' && localValue.value !== 0) return
@@ -224,6 +253,7 @@ function apply() {
   close()
 }
 
+// xóa bộ lọc
 function clearFilter() {
   localValue.value = ''
   localOperator.value = getDefaultOperator()
@@ -231,6 +261,7 @@ function clearFilter() {
   close()
 }
 
+// tính toán vị trí
 function positionPopover() {
   if (!filterRef.value) return
   const rect = filterRef.value.getBoundingClientRect()
@@ -242,14 +273,16 @@ function positionPopover() {
   }
 }
 
+// click ra ngoài
 function onClickOutside(e) {
   if (
     operatorDropdownOpen.value &&
     selectWrapperRef.value &&
     !selectWrapperRef.value.contains(e.target)
   ) {
-    operatorDropdownOpen.value = false
+    operatorDropdownOpen.value = false // đóng menu toán tử
   }
+  // kiểm tra xem có click vào icon lọc k
   if (open.value && filterRef.value && !filterRef.value.contains(e.target)) {
     const popover = document.querySelector('.col-filter__popover')
     if (popover && popover.contains(e.target)) return

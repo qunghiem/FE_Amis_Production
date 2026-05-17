@@ -224,7 +224,7 @@ export default {
   },
 
   computed: {
-    // ★ Override columns — phần DUY NHẤT khác nhau giữa các entity
+    // Override columns — phần DUY NHẤT khác nhau giữa các entity
     columns() {
       return [
         {
@@ -313,16 +313,17 @@ export default {
   },
 
   methods: {
-    // ★ Override getStore — trả về Pinia store tương ứng
+    // Override getStore — trả về Pinia store tương ứng
     getStore() {
       return useShiftStore()
     },
 
-    // ★ Override getCodeField — field hiển thị trong confirm delete
+    // Override getCodeField — field hiển thị trong confirm delete
     getCodeField() {
       return 'productionShiftCode'
     },
 
+    // ghì đề hàm get DOM
     getFormRef() {
       return this.$refs.shiftFormRef
     },

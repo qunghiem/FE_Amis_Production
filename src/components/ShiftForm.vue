@@ -242,7 +242,7 @@ export default {
   },
 
   computed: {
-    // ★ Computed riêng của Shift — tính giờ làm việc / giờ nghỉ
+    // Computed riêng của Shift — tính giờ làm việc / giờ nghỉ
     computedBreakHour() {
       if (!this.form.breakStartTime || !this.form.breakEndTime) return 0
       let diff =
@@ -251,23 +251,28 @@ export default {
       return Math.ceil(diff / 60)
     },
 
+    // tính giờ làm việc
     computedWorkHour() {
       if (!this.form.startTime || !this.form.endTime) return 0
+      // tính tổng thời gian làm quy ra phút
       let totalMinutes =
         this.timeToMinutes(this.form.endTime) - this.timeToMinutes(this.form.startTime)
-      if (totalMinutes <= 0) totalMinutes += 24 * 60
+      // nếu tổng thời gian < 0 -> làm xuyên ngày -> + 24 tiếng
+        if (totalMinutes <= 0) totalMinutes += 24 * 60
       const workMinutes = totalMinutes - this.computedBreakHour * 60
       return Math.ceil(workMinutes / 60)
     },
   },
 
   props: {
-    editingItem: { type: Object, default: null }, // đổi từ editingShift
+    editingItem: { type: Object, default: null },
   },
 
   methods: {
-    // ★ Override populateForm — cần format time trước khi đổ vào form
+    // Override populateForm — cần format time trước khi đổ vào form
+    // Nạp dữ liệu vào các ô Input trên Form" khi Form được mở ra
     populateForm() {
+      // nếu là sửa/ nhân bản
       if (this.editingItem) {
         this.form = {
           productionShiftID: this.editingItem.productionShiftID || null,
@@ -287,7 +292,8 @@ export default {
       }
     },
 
-    // ★ Override prepareSaveData — thêm computed fields
+    // Override prepareSaveData — thêm computed fields
+    // Chuẩn bị data trước khi emit 'saved'.
     prepareSaveData(action) {
       return {
         ...this.form,
@@ -297,13 +303,14 @@ export default {
       }
     },
 
-    // ── Helper riêng ──
+    // đổi ra phút
     timeToMinutes(timeStr) {
       if (!timeStr) return 0
       const parts = timeStr.split(':')
       return parseInt(parts[0]) * 60 + parseInt(parts[1])
     },
 
+    // format Time -> 23:02
     formatTimeForInput(ts) {
       if (!ts) return ''
       const parts = ts.split(':')

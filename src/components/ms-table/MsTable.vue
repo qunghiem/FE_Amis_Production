@@ -131,8 +131,8 @@ const props = defineProps({
   emptyText: { type: String, default: 'Không có dữ liệu' }, // text hiển thị khi không có dòng nào trong bảng
   activeFilters: { type: Array, default: () => [] }, // [{ Property, Operator, Value }] - mảng các bộ lọc đang được áp dụng trên bảng, mỗi bộ lọc gồm tên cột cần lọc, toán tử và giá trị lọc
 
-  sortBy: { type: String, default: '' },
-  sortDirection: { type: String, default: 'ASC' },
+  sortBy: { type: String, default: '' }, // sắp xếp theo cột
+  sortDirection: { type: String, default: 'ASC' }, // hướng sắp xếp
 })
 
 const emit = defineEmits([
@@ -145,23 +145,28 @@ const emit = defineEmits([
   'sort-change',
 ])
 
+// tổng số cột sẽ dựng lên
 const totalCols = computed(() => {
   let count = props.columns.length
+  // nếu được chọn nhiều dòng thì thêm 1 cột cho checkbox
   if (props.selectable) count++
+  // thêm cột cho action
   return count + 1
 })
 
+// lấy ra bộ lọc của cột
 function getFilterForCol(key) {
   return props.activeFilters.find((f) => f.Property === key) || null
 }
 
-// ── Sort menu ──
+// menu sắp xếp theo cột
 const sortMenu = reactive({ open: false, col: null, top: 0, left: 0 })
 
+
 function showSortMenu(col, e) {
-  e.stopPropagation() // ★ chặn bubble lên document
+  e.stopPropagation() //chặn bubble lên document
   if (sortMenu.open && sortMenu.col?.key === col.key) {
-    closeSortMenu() // ★ click cùng cột → đóng
+    closeSortMenu() // click cùng cột → đóng
     return
   }
   const rect = e.currentTarget.getBoundingClientRect()
@@ -171,10 +176,12 @@ function showSortMenu(col, e) {
   sortMenu.open = true
 }
 
+// đóng menu sắp xếp
 function closeSortMenu() {
   sortMenu.open = false
 }
 
+// khi click chọn sắp theo dir
 function handleSort(direction) {
   const key = sortMenu.col?.sortKey || sortMenu.col?.filterKey || sortMenu.col?.key || ''
 
