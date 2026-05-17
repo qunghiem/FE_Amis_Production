@@ -14,7 +14,11 @@
         <label class="sf-label">
           {{ $t('shift.form.code') }} <span class="sf-required">*</span>
         </label>
-        <div class="sf-control" :data-error-tooltip="errors.productionShiftCode || undefined">
+        <div
+          class="sf-control"
+          :data-error-tooltip="errors.productionShiftCode || undefined"
+          @mouseenter="updateTooltipPos"
+        >
           <input
             ref="codeRef"
             class="sf-input"
@@ -31,7 +35,11 @@
         <label class="sf-label">
           {{ $t('shift.form.name') }} <span class="sf-required">*</span>
         </label>
-        <div class="sf-control" :data-error-tooltip="errors.productionShiftName || undefined">
+        <div
+          class="sf-control"
+          :data-error-tooltip="errors.productionShiftName || undefined"
+          @mouseenter="updateTooltipPos"
+        >
           <input
             ref="nameRef"
             class="sf-input"
@@ -48,7 +56,11 @@
         <label class="sf-label">
           {{ $t('shift.form.startTime') }} <span class="sf-required">*</span>
         </label>
-        <div class="sf-control" :data-error-tooltip="errors.startTime || undefined">
+        <div
+          class="sf-control"
+          :data-error-tooltip="errors.startTime || undefined"
+          @mouseenter="updateTooltipPos"
+        >
           <MsTimePicker
             ref="startRef"
             v-model="form.startTime"
@@ -60,7 +72,11 @@
         <label class="sf-label">
           {{ $t('shift.form.endTime') }} <span class="sf-required">*</span>
         </label>
-        <div class="sf-control" :data-error-tooltip="errors.endTime || undefined">
+        <div
+          class="sf-control"
+          :data-error-tooltip="errors.endTime || undefined"
+          @mouseenter="updateTooltipPos"
+        >
           <MsTimePicker
             ref="endRef"
             v-model="form.endTime"
@@ -73,11 +89,19 @@
       <!-- Bắt đầu nghỉ + Kết thúc nghỉ -->
       <div class="sf-row sf-row--half">
         <label class="sf-label">{{ $t('shift.form.breakStart') }}</label>
-        <div class="sf-control" :data-error-tooltip="errors.breakStartTime || undefined">
+        <div
+          class="sf-control"
+          :data-error-tooltip="errors.breakStartTime || undefined"
+          @mouseenter="updateTooltipPos"
+        >
           <MsTimePicker v-model="form.breakStartTime" :error="errors.breakStartTime" />
         </div>
         <label class="sf-label">{{ $t('shift.form.breakEnd') }}</label>
-        <div class="sf-control" :data-error-tooltip="errors.breakEndTime || undefined">
+        <div
+          class="sf-control"
+          :data-error-tooltip="errors.breakEndTime || undefined"
+          @mouseenter="updateTooltipPos"
+        >
           <MsTimePicker v-model="form.breakEndTime" :error="errors.breakEndTime" />
         </div>
       </div>
@@ -258,7 +282,7 @@ export default {
       let totalMinutes =
         this.timeToMinutes(this.form.endTime) - this.timeToMinutes(this.form.startTime)
       // nếu tổng thời gian < 0 -> làm xuyên ngày -> + 24 tiếng
-        if (totalMinutes <= 0) totalMinutes += 24 * 60
+      if (totalMinutes <= 0) totalMinutes += 24 * 60
       const workMinutes = totalMinutes - this.computedBreakHour * 60
       return Math.ceil(workMinutes / 60)
     },
@@ -316,6 +340,14 @@ export default {
       const parts = ts.split(':')
       return `${parts[0]}:${parts[1]}`
     },
+
+    updateTooltipPos(e) {
+      const rect = e.currentTarget.getBoundingClientRect()
+      const el = e.currentTarget
+      el.style.setProperty('--tt-top', rect.bottom + 10 + 'px')
+      el.style.setProperty('--tt-arrow', rect.bottom + 4 + 'px')
+      el.style.setProperty('--tt-left', rect.left + rect.width / 2 + 'px')
+    },
   },
 }
 </script>
@@ -326,6 +358,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow: hidden;
 }
 .sf-row {
   display: grid;
@@ -336,10 +369,10 @@ export default {
   overflow: visible;
 }
 .sf-row--full {
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: 150px minmax(0, 1fr);
 }
 .sf-row--half {
-  grid-template-columns: 150px 1fr 175px 1fr;
+  grid-template-columns: 150px minmax(0, 1fr) 175px minmax(0, 1fr);
 }
 .sf-label {
   font-size: 13px;
@@ -452,14 +485,12 @@ export default {
 .sf-radio input[type='radio']:checked + .sf-radio__dot::after {
   background: #009b71;
 }
-.sf-control[data-error-tooltip] {
-  position: relative;
-}
+
 .sf-control[data-error-tooltip]::after {
   content: attr(data-error-tooltip);
-  position: absolute;
-  top: calc(100% + 10px);
-  left: 50%;
+  position: fixed;
+  top: var(--tt-top);
+  left: var(--tt-left);
   transform: translateX(-50%);
   padding: 6px 12px;
   background: #111827;
@@ -468,7 +499,7 @@ export default {
   font-weight: 500;
   border-radius: 4px;
   white-space: nowrap;
-  z-index: 9999;
+  z-index: 99999;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
@@ -476,19 +507,20 @@ export default {
 }
 .sf-control[data-error-tooltip]::before {
   content: '';
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
+  position: fixed;
+  top: var(--tt-arrow);
+  left: var(--tt-left);
   transform: translateX(-50%);
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
   border-bottom: 6px solid #111827;
-  z-index: 9999;
+  z-index: 99999;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease;
 }
+
 .sf-control[data-error-tooltip]:hover::after,
 .sf-control[data-error-tooltip]:hover::before {
   opacity: 1;
