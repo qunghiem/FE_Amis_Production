@@ -334,9 +334,9 @@ input[type='checkbox']:hover {
   gap: 2px;
 }
 
-.ms-table__row:hover .ms-table__col-action {
+/* .ms-table__row:hover .ms-table__col-action {
   background: none;
-}
+} */
 
 .ms-table__empty {
   text-align: center;
