@@ -283,6 +283,8 @@ input[type='checkbox']:hover {
   background: #e5e7eb;
   cursor: pointer;
 }
+
+
 .ms-table__row--selected {
   background-color: var(--primary-selected-bg, #a4f6d3);
 }
@@ -319,6 +321,11 @@ input[type='checkbox']:hover {
   padding: 4px 6px;
   width: 72px;
   min-width: 72px;
+  background: #fff;
+}
+
+.ms-table__row:hover .ms-table__col-action {
+  background: #e5e7eb;
 }
 
 .ms-table__action-inner {
