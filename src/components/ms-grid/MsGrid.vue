@@ -366,14 +366,15 @@ function hasRowsMatching(predicate) {
 }
 
 //  ACTIVE ROW
-const activeRowId = ref(null)
+const activeRowId = ref(null) //lưu id dòng đang được active
 
 // click vào dòng thì sáng lên click lại thì tắt
 function handleRowClick(row) {
   // lấy id của bản ghi
   const id = row[props.rowKey]
+  // Nếu ID của dòng vừa click trùng với ID đang lưu trong activeRowId thì tắt
   activeRowId.value = activeRowId.value === id ? null : id
-  emit('row-click', row)
+  // emit('row-click', row)
 }
 
 //  HAS ACTIONS SLOT
