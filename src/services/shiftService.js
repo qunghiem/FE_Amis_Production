@@ -139,9 +139,9 @@ export const shiftService = {
       // gọi api lấy data, k phân trang
       const response = await api.post(
         '/Shift/export-excel',
-        { keyword, filters, sortBy, sortDirection, pageNumber: 1, pageSize: 999999 },
+        { keyword, filters, sortBy, sortDirection },
         /**
-         * { responseType: 'blob' } — 
+         * { responseType: 'blob' } —
          * Báo cho Axios biết kết quả trả về không phải là chuỗi JSON thông thường,
          * mà là một cụm dữ liệu nhị phân thô (Binary Data) đại diện cho file Excel.
         */
