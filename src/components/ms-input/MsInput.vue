@@ -95,7 +95,7 @@ defineExpose({ focus: () => fieldRef.value?.focus() })
 
 .ms-input__field {
   width: 100%;
-  height: 36px;
+  height: 28px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   padding: 0 10px;

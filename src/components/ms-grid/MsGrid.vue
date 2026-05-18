@@ -3,13 +3,11 @@
     <!-- ===== TOOLBAR ===== -->
     <div class="ms-grid__toolbar">
       <!-- Search -->
-      <div class="ms-grid__search">
+       <div class="ms-grid__search">
         <span class="ms-grid__search-icon"></span>
-        <input
-          type="text"
-          class="ms-grid__search-input"
-          :placeholder="searchPlaceholder || $t('common.search')"
+        <MsInput
           v-model="localSearch"
+          :placeholder="searchPlaceholder || $t('common.search')"
         />
       </div>
 
@@ -204,6 +202,7 @@ import { ref, computed, useSlots } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MsTable from '@/components/ms-table/MsTable.vue'
 import MsButton from '@/components/ms-button/MsButton.vue'
+import MsInput from '@/components/ms-input/MsInput.vue'
 import MsPageSizeSelect from '@/components/ms-page-size-select/MsPageSizeSelect.vue'
 
 const { t } = useI18n()
@@ -479,23 +478,6 @@ defineExpose({
   -webkit-mask-image: url(https://demoqtsxcdn.misacdn.net/assets/pas.Icon%20Warehouse-e29a964d.svg?v=10.0.0.36);
 }
 
-.ms-grid__search-input {
-  padding: 5px 0px 5px 36px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 13px;
-  outline: none;
-  background-color: #fff;
-  font-family: inherit;
-}
-
-.ms-grid__search-input:hover {
-  border-color: #9ca3af;
-}
-.ms-grid__search-input:focus {
-  border-color: var(--primary);
-}
-
 /* Selected count */
 .ms-grid__selected-count {
   font-size: 13px;
@@ -695,8 +677,8 @@ defineExpose({
 .ms-grid__pagination-btn {
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border-color);
-  background: #fff;
+  border: none;
+  background: #fafafa;
   border-radius: 4px;
   cursor: pointer;
   display: flex;
@@ -754,5 +736,25 @@ defineExpose({
   border: 1.5px solid #d1d5db;
   border-radius: 2px;
   appearance: none;
+}
+
+.ms-grid__search :deep(.ms-input__wrapper) {
+  gap: 0;
+}
+.ms-grid__search :deep(.ms-input__field) {
+  padding: 5px 0px 5px 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+  background-color: #fff;
+  font-family: inherit;
+  height: 28px;
+}
+.ms-grid__search :deep(.ms-input__field:hover) {
+  border-color: #9ca3af;
+}
+.ms-grid__search :deep(.ms-input__field:focus) {
+  border-color: var(--primary);
 }
 </style>

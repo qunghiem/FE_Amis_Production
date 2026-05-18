@@ -68,7 +68,7 @@ export const useShiftStore = defineStore('shifts', () => {
         sortDirection.value,
       )
 
-      shifts.value = res.data
+      shifts.value = res.data 
       totalRecord.value = res.totalRecord
       totalPage.value = res.totalPage
     } catch (err) {

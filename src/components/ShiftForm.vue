@@ -19,11 +19,10 @@
           :data-error-tooltip="errors.productionShiftCode || undefined"
           @mouseenter="updateTooltipPos"
         >
-          <input
+          <MsInput
             ref="codeRef"
-            class="sf-input"
-            :class="{ 'sf-input--invalid': errors.productionShiftCode }"
             v-model="form.productionShiftCode"
+            :error="errors.productionShiftCode"
             maxlength="20"
             @blur="validateField('productionShiftCode')"
           />
@@ -40,11 +39,10 @@
           :data-error-tooltip="errors.productionShiftName || undefined"
           @mouseenter="updateTooltipPos"
         >
-          <input
+          <MsInput
             ref="nameRef"
-            class="sf-input"
-            :class="{ 'sf-input--invalid': errors.productionShiftName }"
             v-model="form.productionShiftName"
+            :error="errors.productionShiftName"
             maxlength="50"
             @blur="validateField('productionShiftName')"
           />
@@ -123,11 +121,11 @@
       <div class="sf-row sf-row--full">
         <label class="sf-label sf-label--top">{{ $t('shift.form.description') }}</label>
         <div class="sf-control">
-          <textarea
-            class="sf-input sf-textarea"
+          <MsInput
+            type="textarea"
             v-model="form.description"
             :placeholder="$t('shift.form.descriptionPlaceholder')"
-          ></textarea>
+          />
         </div>
       </div>
 
@@ -218,6 +216,7 @@ import baseDetail from '@/base/baseDetail'
 import MsModal from '@/components/ms-modal/MsModal.vue'
 import MsButton from '@/components/ms-button/MsButton.vue'
 import MsTimePicker from '@/components/ms-time-picker/MsTimePicker.vue'
+import MsInput from '@/components/ms-input/MsInput.vue'
 
 export default {
   name: 'ShiftForm',
@@ -225,7 +224,7 @@ export default {
   // Kế thừa toàn bộ logic base
   extends: baseDetail,
 
-  components: { MsModal, MsButton, MsTimePicker },
+  components: { MsModal, MsButton, MsTimePicker, MsInput },
 
   data() {
     return {
@@ -453,6 +452,7 @@ export default {
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
+  font-weight: 550;
 }
 .sf-radio input[type='radio'] {
   position: absolute;
@@ -664,5 +664,42 @@ export default {
   border-top: 1px solid #e5e7eb;
   background: #f9fafb;
   gap: 8px;
+}
+
+.sf-control :deep(.ms-input__wrapper) {
+  gap: 0;
+}
+.sf-control :deep(.ms-input__field) {
+  width: 100%;
+  height: 28px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #1f2937;
+  background-color: #fff;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.sf-control :deep(.ms-input__field:focus) {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 155, 113, 0.1);
+}
+.sf-control :deep(.ms-input__field::placeholder) {
+  color: #9ca3af;
+}
+.sf-control :deep(.ms-input--invalid) {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15) !important;
+}
+.sf-control :deep(.ms-input__textarea) {
+  height: 68px;
+  padding: 8px 10px;
+  resize: vertical;
+  border: 1px solid #d5dfe2;
+}
+.sf-control :deep(.ms-input__error) {
+  display: none;
 }
 </style>

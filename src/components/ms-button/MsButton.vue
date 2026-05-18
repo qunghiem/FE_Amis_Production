@@ -74,7 +74,7 @@ const btnClass = computed(() => [
   background-color: #fff;
   color: var(--text-main);
   border: 1px solid var(--border-color);
-  padding: 6px 12px;
+  padding: 5px 12px;
 }
 .ms-btn--outline:hover:not(:disabled) {
   border-color: var(--primary);
@@ -114,6 +114,7 @@ const btnClass = computed(() => [
   font-size: 13px;
   padding: 6px 12px;
   height: 28px;
+  font-weight: 550;
 }
 .ms-btn--save-and-add:hover:not(:disabled) {
   background-color: #f3f4f6;
@@ -131,7 +132,7 @@ const btnClass = computed(() => [
   font-size: 13px;
   height: 28px;
   background-color: #fff;
-  font-weight: 500;
+  font-weight: 550;
 }
 .ms-btn--cancel:hover:not(:disabled) {
   background-color: #f3f4f6;

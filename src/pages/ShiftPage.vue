@@ -41,6 +41,7 @@
     >
       <!-- Batch actions khi có checkbox được chọn -->
       <template #batch-actions="{ selectedIds, hasRowsMatching }">
+        <!-- Nếu điều kiện là Status = 1 thì gọi để chuyển về 1-->
         <MsButton
           v-if="hasRowsMatching((r) => r.shiftStatus === 0)"
           type="primary-outline"
@@ -52,6 +53,7 @@
           ></span>
           {{ $t('shift.actions.use') }}
         </MsButton>
+        <!-- Nếu điều kiện là Status = 1 thì gọi để chuyển về 0 -->
         <MsButton
           v-if="hasRowsMatching((r) => r.shiftStatus === 1)"
           type="danger-outline"
@@ -377,7 +379,7 @@ export default {
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 13px;
-  height: 28px;
+  height: 32px;
 }
 
 .btn--primary {

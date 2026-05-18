@@ -61,23 +61,21 @@
             </option>
           </select>
 
-          <input
+          <MsInput
             v-else-if="filterType === 'date'"
             ref="valueInput"
             v-model="localValue"
-            class="col-filter__input"
             type="date"
             @keyup.enter="apply"
           />
 
-          <input
+          <MsInput
             v-else-if="filterType !== 'status'"
             ref="valueInput"
             v-model="localValue"
-            class="col-filter__input"
             :placeholder="$t('filter.enterValue')"
-            @keyup.enter="apply"
             :type="filterType === 'number' ? 'number' : 'text'"
+            @keyup.enter="apply"
           />
         </div>
 
@@ -100,6 +98,7 @@
 <script setup>
 import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import MsInput from '@/components/ms-input/MsInput.vue'
 
 const { t } = useI18n()
 
@@ -390,9 +389,6 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   font-family: inherit;
 }
 
-.col-filter__input {
-  height: 28px;
-}
 .col-filter__select:focus,
 .col-filter__input:focus {
   border-color: var(--primary);
@@ -521,5 +517,25 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   border-left: 2px solid var(--primary, #009b71);
   border-bottom: 2px solid var(--primary, #009b71);
   transform: rotate(-45deg);
+}
+
+.col-filter__body :deep(.ms-input__wrapper) {
+  gap: 0;
+}
+.col-filter__body :deep(.ms-input__field) {
+  width: 100%;
+  height: 28px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #1f2937;
+  background: #fff;
+  outline: none;
+  font-family: inherit;
+}
+.col-filter__body :deep(.ms-input__field:focus) {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 155, 113, 0.1);
 }
 </style>

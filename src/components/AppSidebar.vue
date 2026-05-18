@@ -99,8 +99,13 @@ import { ref, reactive, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { MENU_CONFIG } from './sidebar.config'
 
+// nhận trạng thái thu gọn từ cha
 const props = defineProps({ collapsed: { type: Boolean, default: false } })
+
+// gửi lên cha trạng thái thu gọn
 const emit = defineEmits(['update:collapsed'])
+
+// lấy thông tin URL hiện tại
 const route = useRoute()
 
 const COLLAPSE_KEY = 'sidebar_collapsed'
@@ -117,6 +122,8 @@ function toggleCollapse() {
 
 const OPEN_MENUS_KEY = 'sidebar_open_menus'
 
+// chứa trạng thái có đang mở menu con k của từng menu cha
+// k lưu menu con: {item1: true, item2: false}
 function loadOpenMenus() {
   try {
     const saved = localStorage.getItem(OPEN_MENUS_KEY)
@@ -125,8 +132,15 @@ function loadOpenMenus() {
   return {}
 }
 
+// chứa trạng thái có đang mở menu con k của từng menu cha
+// k lưu menu con: {"he-thong": true, "cai-dat": false}
 const openMenus = reactive(loadOpenMenus())
 
+// lọc qua và giữ lại menu có key và có child, loại bỏ menu đơn
+// {
+//   "he-thong", ["/system/users", "/system/roles"],
+//   "cai-dat", ["/settings/general"]
+// }
 const menuRoutes = Object.fromEntries(
   MENU_CONFIG.filter((item) => item.key && item.children).map((item) => [
     item.key,
@@ -134,6 +148,8 @@ const menuRoutes = Object.fromEntries(
   ]),
 )
 
+// Theo dõi đường dẫn URL hiện tại
+// kiểm tra url hiện tại có khớp với 1 url con nào trong menu cha k
 watch(
   () => route.path,
   (newPath) => {
@@ -145,24 +161,35 @@ watch(
   { immediate: true },
 )
 
+// khi click vào 1 menu cha
 function toggleMenu(key) {
+  // kiểm tra xem nó đang đóng hay mở
   const isOpen = openMenus[key]
+  // đóng tất cả menu đang có
   Object.keys(openMenus).forEach((k) => {
     openMenus[k] = false
   })
+  // đảo ngược trạng thái menu vừa click
   openMenus[key] = !isOpen
   localStorage.setItem(OPEN_MENUS_KEY, JSON.stringify({ ...openMenus }))
 }
 
+// kiểm tra menu đơn
 function isExactActive(path) {
+  // Đường dẫn URL hiện tại của trình duyệt phải trùng khớp hoàn toàn với đường dẫn của menu đó
+  // tất cả các menu cha có menu con phải đang ĐÓNG
   return route.path === path && !Object.values(openMenus).some(Boolean)
 }
 
+// kiểm tra menu cha có đc làm highlight k
 function isParentActive(childPaths) {
+  //nếu path hiện tại khớp với 1 trong cái path con của cha thì cha được highlight
   return childPaths.some((p) => route.path === p || route.path.startsWith(p + '/'))
 }
 
+// kiểm tra với flyout
 function isOtherActive(item) {
+  //  tất cả menu cha phải đóng hết và url hiện tại có tiền tố giống cái của nó
   return (
     item.activePrefixes.some((prefix) => route.path.startsWith(prefix)) &&
     !Object.values(openMenus).some(Boolean)
@@ -193,9 +220,11 @@ const showFlyout = ref(false)
     width 0.25s ease,
     min-width 0.25s ease;
 }
+
 .sidebar--collapsed {
   width: 60px;
   min-width: 60px;
+  overflow-x: hidden;
 }
 .sidebar::-webkit-scrollbar {
   width: 4px;
@@ -365,6 +394,7 @@ const showFlyout = ref(false)
   white-space: nowrap;
   overflow: hidden;
   margin: auto auto;
+  flex-shrink: 0
 }
 .sidebar__footer:hover {
   color: var(--sidebar-text-hover);

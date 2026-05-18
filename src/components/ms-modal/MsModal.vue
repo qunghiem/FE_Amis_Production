@@ -106,7 +106,6 @@ function onOverlayClick() {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  background: #f9fafb;
   flex-shrink: 0;
   align-items: center;
 }

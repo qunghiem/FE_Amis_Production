@@ -204,6 +204,7 @@ const openFilterKey = ref('')
   overflow-x: auto;
   overflow-y: visible;
   position: relative;
+  scrollbar-width: thin;
 }
 .ms-table {
   border-collapse: collapse;
