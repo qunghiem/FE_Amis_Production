@@ -183,6 +183,7 @@ function closeSortMenu() {
 
 // khi click chọn sắp theo dir
 function handleSort(direction) {
+  // lấy ra tên trường sắp xếp
   const key = sortMenu.col?.sortKey || sortMenu.col?.filterKey || sortMenu.col?.key || ''
 
   emit('sort-change', {
