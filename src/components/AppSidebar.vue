@@ -580,7 +580,7 @@ const showFlyout = ref(false)
 }
 .sidebar--collapsed .sidebar__item {
   justify-content: center;
-  padding: 8px;
+  padding: 8px 16px;
 }
 .sidebar--collapsed .sidebar__footer {
   justify-content: center;

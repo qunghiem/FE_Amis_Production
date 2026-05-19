@@ -304,6 +304,9 @@ input[type='checkbox']:hover {
   min-width: 40px;
 }
 
+thead .ms-table__checkbox {
+  z-index: 999;
+}
 .ms-table__row:hover .ms-table__checkbox {
   background: #e5e7eb;
 }
